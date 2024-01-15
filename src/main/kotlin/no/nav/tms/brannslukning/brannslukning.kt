@@ -16,7 +16,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.jackson.*
 import no.nav.tms.token.support.azure.validation.azure
 
-fun Application.innloggetAlert(
+fun Application.brannslukning(
     httpClient: HttpClient,
     authInstaller: Application.() -> Unit = {
         authentication {
@@ -38,9 +38,8 @@ fun Application.innloggetAlert(
     }
 
     routing {
-        metaRoutes()
         authenticate {
-            varsel(varselConsumer)
+
         }
     }
 
@@ -55,7 +54,6 @@ private fun Application.configureShutdownHook(httpClient: HttpClient) {
 
 fun ObjectMapper.jsonConfig(): ObjectMapper {
     registerKotlinModule()
-    registerModule(JavaTimeModule())
     disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     return this

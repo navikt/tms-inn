@@ -1,8 +1,8 @@
-package no.nav.tms.brannslukning
+package no.nav.tms.brannslukning.common.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.tms.brannslukning.common.database.Database
+import no.nav.tms.brannslukning.Environment
 
 class PostgresDatabase(env: Environment) : Database {
 

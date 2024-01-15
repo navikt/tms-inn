@@ -42,6 +42,8 @@ dependencies {
     implementation(Hikari.cp)
     implementation(Kafka.clients)
     implementation(Logstash.logbackEncoder)
+    implementation(JacksonDatatype.datatypeJsr310)
+    implementation(KotliQuery.kotliquery)
     implementation(KotlinLogging.logging)
     implementation(Ktor.Server.core)
     implementation(Ktor.Server.netty)

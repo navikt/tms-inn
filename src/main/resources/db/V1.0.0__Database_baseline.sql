@@ -9,14 +9,14 @@ create table aktiv_alert_regel(
     alert_ref text primary key references alert_header(referenceId),
     domener jsonb,
     brukere jsonb,
-    aktilTil timestamp with time zone,
+    aktivTil timestamp with time zone,
     opprettet timestamp with time zone
 );
 
 create table alert_varsel_queue(
     alert_ref text references alert_header(referenceId),
     ident text not null,
-    sendt boolean not null,
+    sendt boolean not null default false,
     opprettet timestamp with time zone not null,
     ferdigstilt timestamp with time zone,
     constraint unique (alert_ref, ident)
