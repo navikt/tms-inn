@@ -1,0 +1,53 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dittnav-varselbestiller
+  namespace: min-side
+  labels:
+    team: min-side
+spec:
+  envFrom:
+    - secret: dittnav-varselbestiller-secrets
+    - secret: influxdb-credentials
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /isalive
+    initialDelay: 30
+  readiness:
+    path: /isready
+    initialDelay: 5
+  prometheus:
+    path: /metrics
+    enabled: true
+  secureLogs:
+    enabled: true
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 50
+  kafka:
+    pool: nav-prod
+  gcp:
+    sqlInstances:
+      - name: varselbestiller
+        type: POSTGRES_11
+        tier: db-custom-1-6144
+        diskType: SSD
+        diskSize: 25
+        diskAutoresize: false
+        autoBackupTime: "03:00"
+        databases:
+          - name: varselbestiller
+            envVarPrefix: DB
+        maintenanceWindow:
+          day: 1
+          hour: 4
+        cascadingDelete: false
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1024Mi
+    requests:
+      cpu: "50m"
+      memory: 512Mi
