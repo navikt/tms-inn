@@ -14,17 +14,21 @@ spec:
   readiness:
     path: /isready
     initialDelay: 5
-  prometheus:
-    path: /metrics
-    enabled: true
+  ingresses:
+    - "https://tms-brannslukning.intern.dev.nav.no"
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+    sidecar:
+      enabled: true
+      autoLogin: true
   replicas:
     min: 2
     max: 2
     cpuThresholdPercentage: 50
   kafka:
     pool: nav-dev
-  secureLogs:
-    enabled: true
   gcp:
     sqlInstances:
       - name: tms-brannslukning
