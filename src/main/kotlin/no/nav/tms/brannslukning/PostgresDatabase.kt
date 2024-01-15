@@ -1,8 +1,8 @@
-package no.nav.personbruker.dittnav.varselbestiller.config
+package no.nav.tms.brannslukning
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.tms.innlogget.alert.common.database.Database
+import no.nav.tms.brannslukning.common.database.Database
 
 class PostgresDatabase(env: Environment) : Database {
 

@@ -1,4 +1,4 @@
-package no.nav.tms.innlogget.alert.common.database
+package no.nav.tms.brannslukning.common.database
 
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.personbruker.dittnav.varselbestiller.common.RetriableDatabaseException

@@ -1,4 +1,4 @@
-package no.nav.tms.varsel.api
+package no.nav.tms.brannslukning
 
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector

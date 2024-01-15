@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.varselbestiller.config
+package no.nav.tms.brannslukning
 
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway

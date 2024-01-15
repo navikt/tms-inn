@@ -1,10 +1,10 @@
-package no.nav.personbruker.dittnav.varselbestiller.config
+package no.nav.tms.brannslukning
 
 import no.nav.doknotifikasjon.schemas.Doknotifikasjon
 import no.nav.doknotifikasjon.schemas.DoknotifikasjonStopp
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.tms.innlogget.alert.common.database.Database
+import no.nav.tms.brannslukning.common.database.Database
 import no.nav.personbruker.dittnav.varselbestiller.common.kafka.KafkaProducerWrapper
 import no.nav.personbruker.dittnav.varselbestiller.doknotifikasjon.DoknotifikasjonProducer
 import no.nav.personbruker.dittnav.varselbestiller.doknotifikasjonStopp.DoknotifikasjonStoppProducer

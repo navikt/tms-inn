@@ -1,4 +1,4 @@
-package no.nav.tms.innlogget.alert
+package no.nav.tms.brannslukning
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper

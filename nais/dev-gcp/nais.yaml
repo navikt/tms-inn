@@ -1,14 +1,11 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: dittnav-varselbestiller
+  name: tms-brannslukning
   namespace: min-side
   labels:
     team: min-side
 spec:
-  envFrom:
-    - secret: dittnav-varselbestiller-secrets
-    - secret: influxdb-credentials
   image: {{version}}
   port: 8080
   liveness:
@@ -21,8 +18,8 @@ spec:
     path: /metrics
     enabled: true
   replicas:
-    min: 1
-    max: 1
+    min: 2
+    max: 2
     cpuThresholdPercentage: 50
   kafka:
     pool: nav-dev
@@ -30,15 +27,15 @@ spec:
     enabled: true
   gcp:
     sqlInstances:
-      - name: varselbestiller
-        type: POSTGRES_11
+      - name: tms-brannslukning
+        type: POSTGRES_15
         tier: db-f1-micro
         diskType: SSD
         diskSize: 10
         diskAutoresize: false
         autoBackupTime: "03:00"
         databases:
-          - name: varselbestiller
+          - name: brannslukning
             envVarPrefix: DB
         maintenanceWindow:
           day: 1

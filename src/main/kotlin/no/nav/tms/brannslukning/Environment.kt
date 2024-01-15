@@ -1,6 +1,5 @@
-package no.nav.personbruker.dittnav.varselbestiller.config
+package no.nav.tms.brannslukning
 
-import no.nav.tms.common.util.config.IntEnvVar.getEnvVarAsInt
 import no.nav.tms.common.util.config.StringEnvVar.getEnvVar
 
 data class Environment(
