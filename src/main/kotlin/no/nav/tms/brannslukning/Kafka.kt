@@ -1,5 +1,5 @@
 package no.nav.tms.brannslukning
-
+/*
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import org.apache.kafka.clients.CommonClientConfigs
@@ -56,3 +56,4 @@ object Kafka {
 enum class Eventtype(val eventtype: String) {
     DOKNOTIFIKASJON_STOPP("doknotifikasjon-stopp"), VARSEL(" varsel")
 }
+*/

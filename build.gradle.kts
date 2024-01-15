@@ -59,6 +59,9 @@ dependencies {
     implementation(TmsCommonLib.observability)
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation(JacksonDataType14.moduleKotlin)
+    implementation("io.ktor:ktor-server-core-jvm:2.3.5")
+    implementation("io.ktor:ktor-server-host-common-jvm:2.3.5")
+    implementation("io.ktor:ktor-server-status-pages-jvm:2.3.5")
 
 
     testImplementation(Junit.api)
