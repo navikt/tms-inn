@@ -30,6 +30,18 @@ internal object HendelseChache {
         log.info { "TODO invalider når integrert med backend " }
     }
 
+    fun getAllHendelser()=
+        cache.asMap().values.map {
+            objectmapper.readValue(it, object : TypeReference<TmpHendelse>() {})
+        }.also {
+            log.info { "TODO: erstatt med db kall" }
+        }
+
+    fun tmpClose(id: String) {
+        log.info { "TODO: erstatt med db kall" }
+        cache.invalidate(id)
+    }
+
 
 }
 

@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import kotlin.math.min
 
 private val log = KotlinLogging.logger { }
 
@@ -32,6 +33,8 @@ fun Routing.opprettHendelse() {
                                 name = "beskjed-text"
                                 type = InputType.text
                                 required = true
+                                maxLength="150"
+                                minLength="50"
                             }
                         }
                         fieldSet {
@@ -47,11 +50,13 @@ fun Routing.opprettHendelse() {
                                 name = "ekstern-text"
                                 type = InputType.text
                                 required = true
+                                maxLength="150"
+                                minLength="50"
                             }
                         }
                         button {
                             type = ButtonType.submit
-                            text("Opprett hendelse")
+                            text("Neste")
                         }
                     }
                 }
@@ -63,11 +68,12 @@ fun Routing.opprettHendelse() {
                 params["beskjed-text"] ?: throw IllegalArgumentException("Tekst for beskjed må være satt")
             val eksternTekst =
                 params["ekstern-text"] ?: throw IllegalArgumentException("Tekst for sms/epost må være satt")
-            val tmpHendelse = TmpHendelse(varseltekst = beskjedTekst, eksternTekst = eksternTekst, initatedBy = call.user)
+            val tmpHendelse =
+                TmpHendelse(varseltekst = beskjedTekst, eksternTekst = eksternTekst, initatedBy = call.user)
             HendelseChache.putHendelse(tmpHendelse)
-            call.respondHtmlContent("Opprett varsel for hendelse") {
+            call.respondHtmlContent("Opprett ny hendelse – personer som er rammet") {
                 body {
-                    h1 { +"Opprett varsel for hendelse" }
+                    h1 { +"Personer som skal motta varsel" }
                     hendelseDl(tmpHendelse)
                     form {
                         action = "send/upload?hendelse=${tmpHendelse.id}"
@@ -75,17 +81,18 @@ fun Routing.opprettHendelse() {
                         encType = FormEncType.multipartFormData
                         label {
                             htmlFor = "ident-file"
-                            +"Last opp identer for brukere som er påvirket"
+                            +"Last opp identer for personer som skal motta varsel om hendelsen"
                         }
                         input {
                             id = "ident-file"
                             name = "ident"
                             accept = ".csv"
                             type = InputType.file
+                            required=true
                         }
                         button {
                             type = ButtonType.submit
-                            text("Opprett hendelse")
+                            text("Neste")
                         }
                     }
                 }
@@ -126,16 +133,16 @@ fun Routing.opprettHendelse() {
             val hendelse = call.hendelse().addAffectedUsers(idents)
             HendelseChache.putHendelse(hendelse)
 
-            call.respondHtmlContent("Send varsling") {
+            call.respondHtmlContent("Opprett hendelse – bekreft") {
                 body {
-                    h1 { +"Send varsel og sms/epost for hendelse" }
+                    h1 { +"Hendelsesoppsummering" }
                     hendelseDl(hendelse)
                     form {
                         action = "/send/confirm?hendelse=${hendelse.id}"
                         method = FormMethod.post
-                        input {
-                            type = InputType.submit
-                            +"Send varsling og sms/epost"
+                        button {
+                            type = ButtonType.submit
+                            text("Opprett hendelse")
                         }
                     }
                 }
@@ -144,6 +151,7 @@ fun Routing.opprettHendelse() {
         post("confirm") {
             val hendelse = call.hendelse()
             //TODO database og kafka og fest
+            log.info { "TODO: Lagre i database og send varsel på kafka" }
             HendelseChache.invalidateHendelse(hendelse.id)
 
             call.respondHtmlContent("Hendelse opprettet") {
@@ -181,11 +189,11 @@ private fun ByteArray.parseAndVerify(): List<String> =
 
 class BadFileContent(override val message: String) : IllegalArgumentException()
 
-fun BODY.hendelseDl(tmpHendelse: TmpHendelse) {
+fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String?=null) {
     dl {
         dt { +"Opprettet av" }
         dd { +tmpHendelse.initatedBy.preferredUsername }
-        if (tmpHendelse.affectedUsers.size > 0) {
+        if (tmpHendelse.affectedUsers.isNotEmpty()) {
             dt { +"Antall personer som mottar sms/epost og varsler på min side" }
             dd { +"${tmpHendelse.affectedUsers.size}" }
         }
@@ -193,5 +201,9 @@ fun BODY.hendelseDl(tmpHendelse: TmpHendelse) {
         dd { +tmpHendelse.varseltekst }
         dt { +"Tekst i epost/SMS" }
         dd { +tmpHendelse.eksternTekst }
+        avsluttetAv?.let {
+            dt { +"Avsluttet av" }
+            dd { +avsluttetAv }
+        }
     }
 }

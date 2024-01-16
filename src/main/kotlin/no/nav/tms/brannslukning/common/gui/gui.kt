@@ -3,6 +3,7 @@ package no.nav.tms.brannslukning.common.gui
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.html.*
+import io.ktor.server.http.content.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -21,7 +22,7 @@ fun Application.gui() {
                     call.respondHtmlContent("Feil i identfil") {
                         body {
                             p {
-                                +"$cause"
+                                +cause.message
                             }
                             a {
                                 href = "/"
@@ -29,6 +30,7 @@ fun Application.gui() {
                             }
                         }
                     }
+
                 is HendelseNotFoundException ->
                     call.respondHtmlContent("Hendelse ikke funnet") {
                         body {
@@ -53,10 +55,16 @@ fun Application.gui() {
         startPage()
         meta()
         opprettHendelse()
+        redigerHendelse()
+        staticResources("/static", "static") {
+            preCompressed(CompressedFileType.GZIP)
+        }
+
         registeredRoutes.addAll(children)
+
     }
 
-    log.info(registeredRoutes.joinToString("\n"))
+    log.info(registeredRoutes.joinToString("        "))
 
 }
 
@@ -71,41 +79,56 @@ fun Routing.meta() {
 
 fun Routing.startPage() {
     get {
+        val aktiveHendelser = HendelseChache.getAllHendelser()
         call.respondHtmlContent("Min side brannslukning – Start") {
             body {
-                h1 { +"Send innhold om en hendelse til min-side" }
-                ul {
-                    li {
-                        a {
-                            href = "opprett"
-                            +"Opprett hendelse"
-                        }
-                    }
-                    li {
-                        a {
-                            href = "rediger"
-                            +"Rediger hendelse"
-                        }
-                    }
-                    li {
-                        a {
-                            href = "avslutt"
-                            +"Avslutt hendelse"
-                        }
-                    }
+                h1 { +"Hendelsesvarsling" }
+                img {
+                    id = "admin-katt"
+                    src = "/static/500-katt.svg"
+                    alt = "500-cat loves you!"
+                    title = "500-cat loves you!"
                 }
+                h2 { +"Aktive hendelser" }
+                if (aktiveHendelser.isEmpty())
+                    p { +"Ingen aktive hendelser" }
+                else
+                    ul {
+                        aktiveHendelser.forEach {
+                            li {
+                                a {
+                                    href = "hendelse/${it.id}"
+                                    +"Opprettet av ${it.initatedBy.preferredUsername} --sett inn dato og klokkeslett--"
+                                }
+                            }
+                        }
+                    }
+
+                a {
+                    href = "opprett"
+                    +"Opprett ny hendelse"
+                }
+
             }
         }
     }
 }
 
-suspend fun ApplicationCall.respondHtmlContent(tile: String, builder: HTML.() -> Unit) {
+
+suspend fun ApplicationCall.respondHtmlContent(title: String, builder: HTML.() -> Unit) {
     this.respondHtml {
-        title = tile
+        head {
+            lang = "nb"
+            title(title)
+            link {
+                rel = "stylesheet"
+                href = "/static/style.css"
+            }
+        }
         builder()
     }
 }
 
 val ApplicationCall.user
-get() = User("Placeholder", "Placeholder")
+    get() = User("Placeholder", "Placeholder")
 
