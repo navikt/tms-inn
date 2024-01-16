@@ -1,12 +1,14 @@
 package no.nav.tms.brannslukning.common.gui
 
-import io.ktor.http.*
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+
+private val log = KotlinLogging.logger {  }
 
 fun Routing.opprettHendelse() {
 
@@ -78,12 +80,14 @@ fun Routing.opprettHendelse() {
                     form {
                         action = "send/upload"
                         method = FormMethod.post
+                        encType = FormEncType.multipartFormData
                         label {
                             htmlFor = "ident-file"
                             +"Last opp identer for brukere som er påvirket"
                         }
                         input {
                             id = "ident-file"
+                            name = "ident"
                             type = InputType.file
                         }
                         button {
@@ -102,10 +106,30 @@ fun Routing.opprettHendelse() {
     route("send"){
         post("upload") {
             val multipartData = call.receiveMultipart()
+            var fileDescription = ""
+            var fileName = ""
+            var x = byteArrayOf()
+
             multipartData.forEachPart { part ->
-                println(part)
+                when (part) {
+                    is PartData.FormItem -> {
+                        fileDescription = part.value
+                    }
+
+                    is PartData.FileItem -> {
+                        fileName = part.originalFileName as String
+                        val fileBytes = part.streamProvider().readBytes()
+                        x += fileBytes
+                        log.info { x }
+                    }
+
+                    else -> {
+                        throw IllegalArgumentException()
+                    }
+                }
+                part.dispose()
             }
-            call.respond("OK")
+            call.respondText("${String(x)}'")
         }
     }
 }
