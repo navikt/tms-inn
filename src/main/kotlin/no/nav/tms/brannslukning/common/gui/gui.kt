@@ -45,7 +45,6 @@ fun Application.gui() {
                 else ->
                     call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
             }
-
         }
     }
 
@@ -106,4 +105,7 @@ suspend fun ApplicationCall.respondHtmlContent(tile: String, builder: HTML.() ->
         builder()
     }
 }
+
+val ApplicationCall.user
+get() = User("Placeholder", "Placeholder")
 

@@ -63,23 +63,14 @@ fun Routing.opprettHendelse() {
                 params["beskjed-text"] ?: throw IllegalArgumentException("Tekst for beskjed må være satt")
             val eksternTekst =
                 params["ekstern-text"] ?: throw IllegalArgumentException("Tekst for sms/epost må være satt")
-            val hendelse = Hendelse(varseltekst = beskjedTekst, eksternTekst = eksternTekst)
-            HendelseChache.putHendelse(hendelse)
+            val tmpHendelse = TmpHendelse(varseltekst = beskjedTekst, eksternTekst = eksternTekst, initatedBy = call.user)
+            HendelseChache.putHendelse(tmpHendelse)
             call.respondHtmlContent("Opprett varsel for hendelse") {
                 body {
                     h1 { +"Opprett varsel for hendelse" }
-                    dl {
-                        dt { +"Tekst i beskjed på minside" }
-                        dd {
-                            +beskjedTekst
-                        }
-                        dt { +"Beskjed i epost/SMS" }
-                        dd {
-                            +eksternTekst
-                        }
-                    }
+                    hendelseDl(tmpHendelse)
                     form {
-                        action = "send/upload?hendelse=${hendelse.id}"
+                        action = "send/upload?hendelse=${tmpHendelse.id}"
                         method = FormMethod.post
                         encType = FormEncType.multipartFormData
                         label {
@@ -105,8 +96,6 @@ fun Routing.opprettHendelse() {
 
     route("send") {
         post("upload") {
-            val hendelse = call.hendelse()
-
             val multipartData = call.receiveMultipart()
             var fileDescription = ""
             var fileName = ""
@@ -126,7 +115,7 @@ fun Routing.opprettHendelse() {
                     }
 
                     else -> {
-                        throw IllegalArgumentException("Ukjent innholdt i opplastet file")
+                        throw IllegalArgumentException("Ukjent innholdt i opplastet fil")
                     }
                 }
                 part.dispose()
@@ -134,25 +123,13 @@ fun Routing.opprettHendelse() {
 
             log.info { "$fileName opplastet\n$fileDescription" }
             val idents = content.parseAndVerify()
-            HendelseChache.putHendelse(hendelse.addAffectedUsers(idents))
+            val hendelse = call.hendelse().addAffectedUsers(idents)
+            HendelseChache.putHendelse(hendelse)
 
             call.respondHtmlContent("Send varsling") {
                 body {
                     h1 { +"Send varsel og sms/epost for hendelse" }
-                    dl {
-                        dt { +"Opprettet av" }
-                        dd { +"TODO, call.user" }
-                        dt { +"Antall personer" }
-                        dd { +"${idents.size}" }
-                        dt { +"Tekst i beskjed på minside" }
-                        dd {
-                            +hendelse.varseltekst
-                        }
-                        dt { +"Beskjed i epost/SMS" }
-                        dd {
-                            +hendelse.eksternTekst
-                        }
-                    }
+                    hendelseDl(hendelse)
                     form {
                         action = "/send/confirm?hendelse=${hendelse.id}"
                         method = FormMethod.post
@@ -172,17 +149,7 @@ fun Routing.opprettHendelse() {
             call.respondHtmlContent("Hendelse opprettet") {
                 body {
                     h1 { +"Hendelse opprettet" }
-                    dl {
-                        dt { +"Opprettet av" }
-                        dd { +"TODO, call.user" }
-                        dt { +"Antall personer som mottar sms/epost og varsler på min side" }
-                        dd { +"${hendelse.affectedUsers.size}" }
-                        dt { +"Tekst i beskjed på min side" }
-                        dd { +hendelse.varseltekst }
-                        dt { +"Tekst i epost/SMS" }
-                        dd { +hendelse.eksternTekst }
-                    }
-
+                    hendelseDl(hendelse)
                     a {
                         href = "/"
                         +"Tilbake til forsiden"
@@ -196,7 +163,7 @@ fun Routing.opprettHendelse() {
     }
 }
 
-private fun ApplicationCall.hendelse(): Hendelse = request.queryParameters["hendelse"]?.let {
+private fun ApplicationCall.hendelse(): TmpHendelse = request.queryParameters["hendelse"]?.let {
     HendelseChache.getHendelse(it)
 } ?: throw IllegalArgumentException("queryparameter hendelse mangler")
 
@@ -213,3 +180,18 @@ private fun ByteArray.parseAndVerify(): List<String> =
         }
 
 class BadFileContent(override val message: String) : IllegalArgumentException()
+
+fun BODY.hendelseDl(tmpHendelse: TmpHendelse) {
+    dl {
+        dt { +"Opprettet av" }
+        dd { +tmpHendelse.initatedBy.preferredUsername }
+        if (tmpHendelse.affectedUsers.size > 0) {
+            dt { +"Antall personer som mottar sms/epost og varsler på min side" }
+            dd { +"${tmpHendelse.affectedUsers.size}" }
+        }
+        dt { +"Tekst i beskjed på min side" }
+        dd { +tmpHendelse.varseltekst }
+        dt { +"Tekst i epost/SMS" }
+        dd { +tmpHendelse.eksternTekst }
+    }
+}
