@@ -2,7 +2,9 @@ create table alert_header(
     referenceId text primary key,
     tekster jsonb not null,
     opprettet timestamp with time zone not null,
-    opprettetAv jsonb not null
+    opprettetAv jsonb not null,
+    aktiv boolean not null default true,
+    avsluttet timestamp with time zone
 );
 
 create table aktiv_alert_regel(

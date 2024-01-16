@@ -43,6 +43,7 @@ dependencies {
     implementation(Kafka.clients)
     implementation(Logstash.logbackEncoder)
     implementation(JacksonDatatype.datatypeJsr310)
+    implementation(JacksonDatatype.moduleKotlin)
     implementation(KotliQuery.kotliquery)
     implementation(KotlinLogging.logging)
     implementation(Ktor.Server.core)
@@ -60,8 +61,7 @@ dependencies {
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.observability)
     implementation(TmsKtorTokenSupport.azureValidation)
-    implementation(JacksonDataType14.moduleKotlin)
-
+    implementation(TmsVarselBuilder.kotlinBuilder)
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)

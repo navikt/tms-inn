@@ -1,5 +1,15 @@
 package no.nav.tms.brannslukning.alert
 
+import java.time.ZonedDateTime
+
+data class Alert(
+    val referenceId: String,
+    val tekster: Tekster,
+    val opprettet: ZonedDateTime,
+    val opprettetAv: Actor,
+    val aktiv: Boolean
+)
+
 data class OpprettAlert(
     val referenceId: String,
     val tekster: Tekster,

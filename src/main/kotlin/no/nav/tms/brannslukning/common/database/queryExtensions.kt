@@ -1,16 +1,23 @@
-package no.nav.personbruker.dittnav.varselbestiller.common.database
+package no.nav.tms.brannslukning.common.database
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.readValue
+import kotliquery.Row
 import java.sql.*
-import java.time.LocalDateTime
 
-fun ResultSet.getUtcDateTime(columnLabel: String): LocalDateTime = getTimestamp(columnLabel).toLocalDateTime()
+fun defaultObjectMapper() = jacksonMapperBuilder()
+    .addModule(JavaTimeModule())
+    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .build()
+    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
-fun ResultSet.getListFromSeparatedString(columnLabel: String, separator: String): List<String> {
-    var stringValue = getString(columnLabel)
-    return if(stringValue.isNullOrEmpty()) {
-        emptyList()
-    }
-    else {
-        stringValue.split(separator)
-    }
+
+inline fun <reified T> Row.json(label: String, objectMapper: ObjectMapper = defaultObjectMapper()): T {
+    return objectMapper.readValue(string(label))
 }
