@@ -16,7 +16,36 @@ fun Application.gui() {
             call.respondText(text = "404: Page Not Found", status = status)
         }
         exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
+            when (cause) {
+                is BadFileContent ->
+                    call.respondHtmlContent("Feil i identfil") {
+                        body {
+                            p {
+                                +"$cause"
+                            }
+                            a {
+                                href = "/"
+                                +"Tilbake"
+                            }
+                        }
+                    }
+                is HendelseNotFoundException ->
+                    call.respondHtmlContent("Hendelse ikke funnet") {
+                        body {
+                            p {
+                                +"Hendelsen du leter etter finnes ikke"
+                            }
+                            a {
+                                href = "/"
+                                +"Tilbake"
+                            }
+                        }
+                    }
+
+                else ->
+                    call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
+            }
+
         }
     }
 

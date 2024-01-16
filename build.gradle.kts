@@ -23,8 +23,8 @@ repositories {
     maven("https://packages.confluent.io/maven")
     maven("https://maven.pkg.github.com/navikt/*") {
         credentials {
-            username = System.getenv("GITHUB_ACTOR")?: "x-access-token"
-            password = System.getenv("GITHUB_TOKEN")?: project.findProperty("githubPassword") as String
+            username = System.getenv("GITHUB_ACTOR") ?: "x-access-token"
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("githubPassword") as String
         }
     }
     mavenLocal()
@@ -59,9 +59,8 @@ dependencies {
     implementation(TmsCommonLib.observability)
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation(JacksonDataType14.moduleKotlin)
-    implementation("io.ktor:ktor-server-core-jvm:2.3.5")
-    implementation("io.ktor:ktor-server-host-common-jvm:2.3.5")
-    implementation("io.ktor:ktor-server-status-pages-jvm:2.3.5")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+
 
 
     testImplementation(Junit.api)
@@ -87,8 +86,4 @@ tasks {
         }
     }
 }
-
-// TODO: Fjern følgende work around i ny versjon av Shadow-pluginet:
-// Skal være løst i denne: https://github.com/johnrengelman/shadow/pull/612
-project.setProperty("mainClassName", application.mainClass.get())
 apply(plugin = Shadow.pluginId)
