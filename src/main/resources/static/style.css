@@ -1,0 +1,101 @@
+body {
+    max-width: 500px;
+    font-family: "Source Sans Pro", Arial, sans-serif;
+    line-height: 1.333;
+    font-size: 1.125rem;
+    color: #333;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+}
+
+fieldset {
+    border-style: solid;
+    border-width: 2px;
+    border-color: #333;
+}
+
+button {
+    font-size: 1.125rem;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #333;
+    background-color: aliceblue;
+    margin-top: 20px;
+}
+
+form button {
+    margin-left: 30px;
+    float: right;
+}
+
+.btnlink {
+    padding: 0.5px 5px 0.5px 5px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #333;
+    background-color: aliceblue;
+    font-size: 1rem;
+    margin-top: 20px;
+    float: right;
+    margin-left: 10px;
+    text-decoration: none;
+}
+
+
+input {
+    display: block;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #333;
+    color: #333;
+    background-color: aliceblue;
+}
+
+input[type=file] {
+    border: none;
+    margin-top: 20px;
+}
+
+textarea {
+    display: block;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #333;
+    color: #333;
+    background-color: aliceblue;
+}
+
+input {
+    width: 400px;
+    margin-bottom: 20px;
+}
+
+dt {
+    font-weight: bold;
+}
+
+.text-input {
+    height: 50px;
+    width: 400px;
+    word-break: break-word;
+    margin-bottom: 20px;
+}
+
+.hendelsedl p {
+    max-width: 600px;
+    word-break: break-word;
+}
+
+#500-katt {
+    padding-top: 10px;
+    height: 250px;
+    margin: 0 auto 0 auto;
+    display: block;
+}
+
+#ekstern-tekst-fieldset {
+    margin-top: 30px;
+}

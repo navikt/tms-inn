@@ -12,7 +12,7 @@ data class Environment(
     val aivenBrokers: String = getEnvVar("KAFKA_BROKERS"),
     val aivenSchemaRegistry: String = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
     val securityVars: SecurityVars = SecurityVars(),
-    val rapidTopic: String = getEnvVar("VARSEL_TOPIC")
+    val rapidTopic: String = getEnvVar("VARSEL_TOPIC"),
 )
 
 data class SecurityVars(
