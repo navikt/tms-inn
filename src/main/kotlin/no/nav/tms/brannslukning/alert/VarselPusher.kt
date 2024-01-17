@@ -1,7 +1,7 @@
 package no.nav.tms.brannslukning.alert
 
-import no.nav.tms.brannslukning.common.PeriodicJob
-import no.nav.tms.brannslukning.common.PodLeaderElection
+import no.nav.tms.brannslukning.setup.PeriodicJob
+import no.nav.tms.brannslukning.setup.PodLeaderElection
 import no.nav.tms.varsel.action.*
 import no.nav.tms.varsel.action.Varseltype.Beskjed
 import no.nav.tms.varsel.builder.VarselActionBuilder

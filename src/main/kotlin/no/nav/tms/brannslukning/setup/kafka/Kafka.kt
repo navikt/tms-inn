@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.kafka
+package no.nav.tms.brannslukning.setup.kafka
 
 import no.nav.tms.brannslukning.Environment
 import no.nav.tms.brannslukning.SecurityVars

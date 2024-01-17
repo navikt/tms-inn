@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common
+package no.nav.tms.brannslukning.setup
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY

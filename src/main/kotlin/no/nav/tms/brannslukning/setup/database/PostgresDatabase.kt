@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.database
+package no.nav.tms.brannslukning.setup.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

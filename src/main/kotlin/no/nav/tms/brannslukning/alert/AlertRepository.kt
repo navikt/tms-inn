@@ -1,9 +1,9 @@
 package no.nav.tms.brannslukning.alert
 
 import kotliquery.queryOf
-import no.nav.tms.brannslukning.common.database.Database
-import no.nav.tms.brannslukning.common.database.defaultObjectMapper
-import no.nav.tms.brannslukning.common.database.json
+import no.nav.tms.brannslukning.setup.database.Database
+import no.nav.tms.brannslukning.setup.database.defaultObjectMapper
+import no.nav.tms.brannslukning.setup.database.json
 import java.time.ZoneId
 import java.time.ZonedDateTime
 

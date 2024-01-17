@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.database
+package no.nav.tms.brannslukning.setup.database
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Row
-import java.sql.*
 
 fun defaultObjectMapper() = jacksonMapperBuilder()
     .addModule(JavaTimeModule())

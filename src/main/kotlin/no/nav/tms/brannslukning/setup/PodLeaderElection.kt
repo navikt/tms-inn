@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common
+package no.nav.tms.brannslukning.setup
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
