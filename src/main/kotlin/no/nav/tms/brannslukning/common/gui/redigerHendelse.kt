@@ -13,7 +13,7 @@ fun Routing.redigerHendelse() {
                 call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
             ).also {
                 log.info { "TODO: Hent fra database" }
-            }
+            }!!
 
             call.respondHtmlContent("Hendelse detaljer") {
                 body {
@@ -30,6 +30,11 @@ fun Routing.redigerHendelse() {
                             +"Avslutt hendelse"
                         }
                     }
+
+                    a {
+                        href = "/"
+                        +"Tilbake til forsiden"
+                    }
                 }
             }
 
@@ -40,7 +45,7 @@ fun Routing.redigerHendelse() {
             ).also {
                 log.info { "TODO: Hent fra database" }
             }
-            HendelseChache.tmpClose(hendelse.id)
+            HendelseChache.tmpClose(hendelse!!.id) //TODO hent fra db
             call.respondHtmlContent("Hendelse avsluttet") {
                 body {
                     h1 { +"Hendelse avsluttet" }

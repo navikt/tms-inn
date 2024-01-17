@@ -1,12 +1,13 @@
 package no.nav.tms.brannslukning.common.gui
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
-import kotlin.math.min
 
 private val log = KotlinLogging.logger { }
 
@@ -14,9 +15,10 @@ fun Routing.opprettHendelse() {
 
     route("opprett") {
         get {
-            call.respondHtmlContent("Opprett ny hendelse") {
+            val hendelse = call.hendelseOrNull()
+            call.respondHtmlContent("Opprett hendelse – tekster") {
                 body {
-                    h1 { +"Opprett ny hendelse" }
+                    h1 { +"Legg inn tekster for varsling" }
                     form {
                         action = "/opprett"
                         method = FormMethod.post
@@ -28,16 +30,33 @@ fun Routing.opprettHendelse() {
                                 htmlFor = "beskjed-input"
                                 +"Tekst"
                             }
-                            input {
+                            textArea(classes = "text-input") {
                                 id = "beskjed-input"
                                 name = "beskjed-text"
-                                type = InputType.text
                                 required = true
-                                maxLength="150"
-                                minLength="50"
+                                maxLength = "150"
+                                minLength = "50"
+                                hendelse?.let {
+                                    text(it.varseltekst)
+                                }
+                            }
+                            label {
+                                htmlFor = "url-input"
+                                +"Link til mer informasjon"
+                            }
+                            input {
+                                id = "url-input"
+                                name = "url-text"
+                                type = InputType.url
+                                required = true
+                                minLength = "15"
+                                hendelse?.let {
+                                    value = hendelse.url
+                                }
                             }
                         }
                         fieldSet {
+                            id = "ekstern-tekst-fieldset"
                             legend {
                                 +"Varsel på sms/epost"
                             }
@@ -45,15 +64,18 @@ fun Routing.opprettHendelse() {
                                 htmlFor = "ekstern-tekst-input"
                                 +"Tekst"
                             }
-                            input {
+                            textArea(classes = "text-input") {
                                 id = "ekstern-tekst-input"
                                 name = "ekstern-text"
-                                type = InputType.text
                                 required = true
-                                maxLength="150"
-                                minLength="50"
+                                maxLength = "150"
+                                minLength = "50"
+                                hendelse?.let {
+                                    text(it.eksternTekst)
+                                }
                             }
                         }
+                        cancelAndGoBackButtons()
                         button {
                             type = ButtonType.submit
                             text("Neste")
@@ -63,91 +85,90 @@ fun Routing.opprettHendelse() {
             }
         }
         post {
+            val hendelse = call.hendelseOrNull()
             val params = call.receiveParameters()
             val beskjedTekst =
                 params["beskjed-text"] ?: throw IllegalArgumentException("Tekst for beskjed må være satt")
+            val url =
+                params["url-text"] ?: throw IllegalArgumentException("Url for beskjed må være satt")
             val eksternTekst =
                 params["ekstern-text"] ?: throw IllegalArgumentException("Tekst for sms/epost må være satt")
             val tmpHendelse =
-                TmpHendelse(varseltekst = beskjedTekst, eksternTekst = eksternTekst, initatedBy = call.user)
+                hendelse?.withUpdatedText(beskjedTekst = beskjedTekst, url = url, eksternTekst = eksternTekst)
+                    ?: TmpHendelse(
+                        varseltekst = beskjedTekst,
+                        eksternTekst = eksternTekst,
+                        initatedBy = call.user,
+                        url = url
+                    )
             HendelseChache.putHendelse(tmpHendelse)
-            call.respondHtmlContent("Opprett ny hendelse – personer som er rammet") {
-                body {
-                    h1 { +"Personer som skal motta varsel" }
-                    hendelseDl(tmpHendelse)
-                    form {
-                        action = "send/upload?hendelse=${tmpHendelse.id}"
-                        method = FormMethod.post
-                        encType = FormEncType.multipartFormData
-                        label {
-                            htmlFor = "ident-file"
-                            +"Last opp identer for personer som skal motta varsel om hendelsen"
+            call.respondSeeOther("opprett/personer?hendelse=${tmpHendelse.id}")
+        }
+
+        route("personer") {
+            get {
+                call.respondUploadFileForm(call.hendelse())
+            }
+            post {
+                val hendelse = call.hendelse()
+                val multipartData = call.receiveMultipart()
+                var fileDescription = ""
+                var fileName = ""
+                var content = byteArrayOf()
+
+                multipartData.forEachPart { part ->
+                    when (part) {
+                        is PartData.FormItem -> {
+                            fileDescription = part.value
                         }
-                        input {
-                            id = "ident-file"
-                            name = "ident"
-                            accept = ".csv"
-                            type = InputType.file
-                            required=true
+
+                        is PartData.FileItem -> {
+                            fileName = part.originalFileName as String
+                            val fileBytes = part.streamProvider().readBytes()
+                            content += fileBytes
+                            log.info { content }
                         }
-                        button {
-                            type = ButtonType.submit
-                            text("Neste")
+
+                        else -> {
+                            throw IllegalArgumentException("Ukjent innholdt i opplastet fil")
+                        }
+                    }
+                    part.dispose()
+                }
+
+                log.info { "$fileName opplastet\n$fileDescription" }
+                val idents = content.parseAndVerify() ?: hendelse.affectedUsers
+                HendelseChache.putHendelse(hendelse.withAffectedUsers(idents))
+                call.respondSeeOther("/opprett/confirm?hendelse=${hendelse.id}")
+            }
+        }
+
+        route("confirm") {
+            get {
+                val hendelse = call.hendelse()
+                call.respondHtmlContent("Opprett hendelse – bekreft") {
+                    body {
+                        h1 { +"Bekreft" }
+                        hendelseDl(hendelse)
+                        form {
+                            action = "/send/confirm?hendelse=${hendelse.id}"
+                            method = FormMethod.post
+                            button {
+                                type = ButtonType.submit
+                                text("Opprett hendelse")
+                            }
+                            cancelAndGoBackButtons("/opprett/personer?hendelse=${hendelse.id}")
                         }
                     }
                 }
 
             }
         }
+
     }
 
     route("send") {
-        post("upload") {
-            val multipartData = call.receiveMultipart()
-            var fileDescription = ""
-            var fileName = ""
-            var content = byteArrayOf()
 
-            multipartData.forEachPart { part ->
-                when (part) {
-                    is PartData.FormItem -> {
-                        fileDescription = part.value
-                    }
-
-                    is PartData.FileItem -> {
-                        fileName = part.originalFileName as String
-                        val fileBytes = part.streamProvider().readBytes()
-                        content += fileBytes
-                        log.info { content }
-                    }
-
-                    else -> {
-                        throw IllegalArgumentException("Ukjent innholdt i opplastet fil")
-                    }
-                }
-                part.dispose()
-            }
-
-            log.info { "$fileName opplastet\n$fileDescription" }
-            val idents = content.parseAndVerify()
-            val hendelse = call.hendelse().addAffectedUsers(idents)
-            HendelseChache.putHendelse(hendelse)
-
-            call.respondHtmlContent("Opprett hendelse – bekreft") {
-                body {
-                    h1 { +"Hendelsesoppsummering" }
-                    hendelseDl(hendelse)
-                    form {
-                        action = "/send/confirm?hendelse=${hendelse.id}"
-                        method = FormMethod.post
-                        button {
-                            type = ButtonType.submit
-                            text("Opprett hendelse")
-                        }
-                    }
-                }
-            }
-        }
         post("confirm") {
             val hendelse = call.hendelse()
             //TODO database og kafka og fest
@@ -171,14 +192,11 @@ fun Routing.opprettHendelse() {
     }
 }
 
-private fun ApplicationCall.hendelse(): TmpHendelse = request.queryParameters["hendelse"]?.let {
-    HendelseChache.getHendelse(it)
-} ?: throw IllegalArgumentException("queryparameter hendelse mangler")
-
-private fun ByteArray.parseAndVerify(): List<String> =
+private fun ByteArray.parseAndVerify(): List<String>? =
     String(this).lines()
         .filter { it.isNotEmpty() }
-        .apply {
+        .takeIf { it.isNotEmpty() }
+        ?.apply {
             if (this.any { identStr -> identStr.toDoubleOrNull() == null }) {
                 throw BadFileContent("Liste av identer inneholder ugyldige tegn")
             }
@@ -188,22 +206,3 @@ private fun ByteArray.parseAndVerify(): List<String> =
         }
 
 class BadFileContent(override val message: String) : IllegalArgumentException()
-
-fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String?=null) {
-    dl {
-        dt { +"Opprettet av" }
-        dd { +tmpHendelse.initatedBy.preferredUsername }
-        if (tmpHendelse.affectedUsers.isNotEmpty()) {
-            dt { +"Antall personer som mottar sms/epost og varsler på min side" }
-            dd { +"${tmpHendelse.affectedUsers.size}" }
-        }
-        dt { +"Tekst i beskjed på min side" }
-        dd { +tmpHendelse.varseltekst }
-        dt { +"Tekst i epost/SMS" }
-        dd { +tmpHendelse.eksternTekst }
-        avsluttetAv?.let {
-            dt { +"Avsluttet av" }
-            dd { +avsluttetAv }
-        }
-    }
-}

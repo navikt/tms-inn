@@ -84,7 +84,7 @@ fun Routing.startPage() {
             body {
                 h1 { +"Hendelsesvarsling" }
                 img {
-                    id = "admin-katt"
+                    id = "500-katt"
                     src = "/static/500-katt.svg"
                     alt = "500-cat loves you!"
                     title = "500-cat loves you!"
@@ -111,21 +111,6 @@ fun Routing.startPage() {
 
             }
         }
-    }
-}
-
-
-suspend fun ApplicationCall.respondHtmlContent(title: String, builder: HTML.() -> Unit) {
-    this.respondHtml {
-        head {
-            lang = "nb"
-            title(title)
-            link {
-                rel = "stylesheet"
-                href = "/static/style.css"
-            }
-        }
-        builder()
     }
 }
 
