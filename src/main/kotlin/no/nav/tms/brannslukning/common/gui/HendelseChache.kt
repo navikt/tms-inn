@@ -13,7 +13,7 @@ private val objectmapper = jacksonObjectMapper()
 internal object HendelseChache {
     private val log = KotlinLogging.logger { }
     private val cache: Cache<String, String> = Caffeine.newBuilder()
-        .expireAfterWrite(5, TimeUnit.MINUTES)
+        .expireAfterWrite(15, TimeUnit.MINUTES)
         .maximumSize(100)
         .build()
 
