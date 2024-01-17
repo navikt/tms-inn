@@ -1,6 +1,7 @@
-package no.nav.tms.brannslukning
+package no.nav.tms.brannslukning.setup.database
 
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.tms.brannslukning.Environment
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 
