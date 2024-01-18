@@ -6,18 +6,18 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
-import textForm
+import detailsForm
 
 private val log = KotlinLogging.logger { }
 
-fun Routing.opprettHendelse() {
+fun Route.opprettHendelse() {
 
     route("opprett") {
         get {
             val hendelse = call.hendelseOrNull()
             call.respondHtmlContent("Opprett hendelse – tekster") {
                 h1 { +"Opprett hendelse" }
-                textForm(tmpHendelse = hendelse, postEndpoint = "/opprett")
+                detailsForm(tmpHendelse = hendelse, postEndpoint = "/opprett")
             }
         }
 

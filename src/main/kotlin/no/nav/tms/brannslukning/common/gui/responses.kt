@@ -52,11 +52,6 @@ fun FORM.cancelAndGoBackButtons(previousUrl: String? = null) {
     }
 }
 
-fun BODY.textsForm() {
-
-
-}
-
 suspend fun ApplicationCall.respondSeeOther(endpoint: String) {
     response.headers.append(HttpHeaders.Location, "${request.headers["Origin"]}/$endpoint")
     respond(HttpStatusCode.SeeOther)

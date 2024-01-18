@@ -1,16 +1,19 @@
 package no.nav.tms.brannslukning.common.gui
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.html.*
+import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import no.nav.tms.token.support.azure.validation.AzurePrincipal
+import no.nav.tms.token.support.azure.validation.azure
 
+private val log = KotlinLogging.logger { }
 fun Application.gui() {
-    //TODO: Auth
 
     install(StatusPages) {
         status(HttpStatusCode.NotFound) { call, status ->
@@ -46,11 +49,19 @@ fun Application.gui() {
         }
     }
 
+    authentication {
+        azure {
+            setAsDefault = true
+        }
+    }
+
     routing {
-        startPage()
         meta()
-        opprettHendelse()
-        redigerHendelse()
+        authenticate {
+            startPage()
+            opprettHendelse()
+            redigerHendelse()
+        }
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)
         }
@@ -66,7 +77,7 @@ fun Routing.meta() {
     }
 }
 
-fun Routing.startPage() {
+fun Route.startPage() {
     get {
         val aktiveHendelser = HendelseChache.getAllHendelser()
         call.respondHtmlContent("Min side brannslukning – Start") {
@@ -103,5 +114,7 @@ fun Routing.startPage() {
 
 
 val ApplicationCall.user
-    get() = User("Placeholder", "Placeholder")
+    get() = principal<AzurePrincipal>()?.let {
+        User(it.decodedJWT.getClaim("oid").toString(), it.decodedJWT.getClaim("preferred_username").toString())
+    }
 

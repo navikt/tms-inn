@@ -3,7 +3,7 @@ import no.nav.tms.brannslukning.common.gui.TmpHendelse
 import no.nav.tms.brannslukning.common.gui.cancelAndGoBackButtons
 
 
-fun BODY.textForm(tmpHendelse: TmpHendelse?, postEndpoint:String) {
+fun BODY.detailsForm(tmpHendelse: TmpHendelse?, postEndpoint:String) {
     form {
         action = postEndpoint
         method = FormMethod.post
