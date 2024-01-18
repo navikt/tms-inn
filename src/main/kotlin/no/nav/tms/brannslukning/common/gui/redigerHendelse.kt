@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
-import no.nav.tms.brannslukning.alert.Actor
 import no.nav.tms.brannslukning.alert.AlertRepository
 
 private val log = KotlinLogging.logger { }
@@ -43,12 +42,12 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
 
             val hendelse = HendelseCache.getHendelse(id) ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
 
-            alertRepository.endAlert(hendelse.id, Actor(call.user.preferredUsername, call.user.oid))
+            alertRepository.endAlert(hendelse.id, call.user)
             HendelseCache.tmpClose(hendelse.id)
 
             call.respondHtmlContent("Hendelse avsluttet") {
                 h1 { +"Hendelse avsluttet" }
-                hendelseDl(hendelse, avsluttetAv = call.user.preferredUsername)
+                hendelseDl(hendelse, avsluttetAv = call.user.username)
 
                 a {
                     href = "/"

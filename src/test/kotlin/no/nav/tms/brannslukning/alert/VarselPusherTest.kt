@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
 import no.nav.tms.brannslukning.alert.setup.database.LocalPostgresDatabase
+import no.nav.tms.brannslukning.common.gui.User
 import no.nav.tms.brannslukning.setup.PodLeaderElection
 import no.nav.tms.brannslukning.setup.database.Database
 import no.nav.tms.brannslukning.setup.database.defaultObjectMapper
@@ -51,7 +52,8 @@ class VarselPusherTest {
             alertEntry = AlertEntry(
                 referenceId = UUID.randomUUID().toString(),
                 tekster = Tekster(
-                    beskrivelse = "Alert for test",
+                    tittel = "Alert for test",
+                    beskrivelse = "Alert for test med beskrivelse",
                     beskjed = WebTekst(
                         spraakkode = "nb",
                         tekst = "Alerttekst for beskjed",
@@ -62,7 +64,7 @@ class VarselPusherTest {
                         tekst = "Tekst i ekstern kanal"
                     )
                 ),
-                opprettetAv = Actor("TEST", "test")
+                opprettetAv = User("TEST", "test")
             ),
             recipients = listOf(
                 "11111111111",
@@ -110,7 +112,8 @@ class VarselPusherTest {
             alertEntry = AlertEntry(
                 referenceId = UUID.randomUUID().toString(),
                 tekster = Tekster(
-                    beskrivelse = "Alert for test",
+                    tittel = "Alert for test",
+                    beskrivelse = "Alert for test med beskrivelse",
                     beskjed = WebTekst(
                         spraakkode = "nb",
                         tekst = "Alerttekst for beskjed",
@@ -121,7 +124,7 @@ class VarselPusherTest {
                         tekst = "Tekst i ekstern kanal"
                     )
                 ),
-                opprettetAv = Actor("TEST", "test")
+                opprettetAv = User("TEST", "test")
             ),
             recipients = listOf(
                 "11111111111",
@@ -206,7 +209,7 @@ private fun Database.insertRequests(requests: AlertWithRecipients) {
 private data class AlertEntry(
     val referenceId: String,
     val tekster: Tekster,
-    val opprettetAv: Actor,
+    val opprettetAv: User,
     val aktiv: Boolean = true,
     val opprettet: ZonedDateTime = ZonedDateTime.now(),
     val avsluttet: ZonedDateTime? = null

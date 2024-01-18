@@ -117,5 +117,5 @@ fun Route.startPage(repository: AlertRepository) {
 val ApplicationCall.user
     get() = principal<AzurePrincipal>()?.let {
         User(it.decodedJWT.getClaim("oid").toString(), it.decodedJWT.getClaim("preferred_username").toString())
-    }
+    } ?: throw IllegalStateException("Må være innlogget")
 

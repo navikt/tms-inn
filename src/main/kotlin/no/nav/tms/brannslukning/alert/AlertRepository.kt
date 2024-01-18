@@ -29,12 +29,16 @@ class AlertRepository(private val database: Database) {
                 """,
                 mapOf("referenceId" to referenceId)
             ).map {
+                val tekster: Tekster = it.json("tekster", objectMapper)
+
                 TmpHendelse(
                     id = it.string("referenceId"),
-                    initatedBy = it.json<Actor>("opprettetAv", objectMapper).let { oa -> User(oa.username, oa.oid) },
-                    varseltekst = it.json<Tekster>("tekster").beskjed.tekst,
-                    eksternTekst = it.json<Tekster>("tekster").eksternTekst.tekst,
-                    url = it.json<Tekster>("tekster").beskjed.link
+                    initatedBy = it.json("opprettetAv", objectMapper),
+                    varseltekst = tekster.beskjed.tekst,
+                    eksternTekst = tekster.eksternTekst.tekst,
+                    url = tekster.beskjed.link,
+                    title = tekster.tittel,
+                    description = tekster.beskrivelse
                 )
             }.asSingle
         }
@@ -93,7 +97,7 @@ class AlertRepository(private val database: Database) {
         )
     }
 
-    fun endAlert(referenceId: String, actor: Actor) {
+    fun endAlert(referenceId: String, actor: User) {
         database.update {
             queryOf(
                 "update alert header set aktiv = false, avsluttet = :avsluttet, avsluttetAv = :avsluttetAv where referenceId = :referenceId returning *",

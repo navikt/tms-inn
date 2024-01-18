@@ -15,7 +15,7 @@ fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String? = null, showA
             dd { +it }
         }
         dt { +"Opprettet av" }
-        dd { +tmpHendelse.initatedBy.preferredUsername }
+        dd { +tmpHendelse.initatedBy.username }
         if (showAffectedUsers) {
             dt { +"Antall personer som mottar sms/epost og varsler på min side" }
             dd { +"${tmpHendelse.affectedUsers.size}" }

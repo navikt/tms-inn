@@ -67,7 +67,8 @@ data class TmpHendelse(
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
         tekster = Tekster(
-            beskrivelse = varseltekst,
+            tittel = title,
+            beskrivelse = description,
             beskjed = WebTekst(
                 spraakkode = "nb",
                 tekst = varseltekst,
@@ -78,11 +79,11 @@ data class TmpHendelse(
                 tekst = varseltekst
             )
         ),
-        opprettetAv = Actor(initatedBy.preferredUsername, initatedBy.oid),
+        opprettetAv = initatedBy,
         mottakere = affectedUsers
     )
 }
 
-data class User(val preferredUsername: String, val oid: String)
+data class User(val username: String, val oid: String)
 
 class HendelseNotFoundException : IllegalArgumentException()

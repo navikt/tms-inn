@@ -1,5 +1,6 @@
 package no.nav.tms.brannslukning.alert
 
+import no.nav.tms.brannslukning.common.gui.User
 import java.time.ZonedDateTime
 
 data class AlertInfo(
@@ -7,20 +8,21 @@ data class AlertInfo(
     val tekster: Tekster,
     val aktiv: Boolean,
     val opprettet: ZonedDateTime,
-    val opprettetAv: Actor,
+    val opprettetAv: User,
     val avsluttet: ZonedDateTime,
-    val avsluttetAv: Actor?,
+    val avsluttetAv: User?,
     val mottakere: Int
 )
 
 data class OpprettAlert(
     val referenceId: String,
     val tekster: Tekster,
-    val opprettetAv: Actor,
+    val opprettetAv: User,
     val mottakere: List<String>
 )
 
 data class Tekster(
+    val tittel: String,
     val beskrivelse: String,
     val beskjed: WebTekst,
     val eksternTekst: EksternTekst
@@ -35,16 +37,6 @@ data class WebTekst(
 data class EksternTekst(
     val tittel: String,
     val tekst: String
-)
-
-data class Actor(
-    val username: String,
-    val oid: String
-)
-
-data class AppendVarselQueue(
-    val referenceId: String,
-    val identer: List<String>
 )
 
 data class VarselRequest(
