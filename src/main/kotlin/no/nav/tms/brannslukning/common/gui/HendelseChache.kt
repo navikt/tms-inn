@@ -47,6 +47,8 @@ internal object HendelseChache {
 
 data class TmpHendelse(
     val id: String = UUID.randomUUID().toString(),
+    val title: String,
+    val description: String,
     val initatedBy: User,
     val varseltekst: String,
     val eksternTekst: String,
@@ -54,10 +56,12 @@ data class TmpHendelse(
     val url: String
 ) {
     fun withAffectedUsers(userIdents: List<String>) = copy(affectedUsers = userIdents)
-    fun withUpdatedText(beskjedTekst: String, url: String, eksternTekst: String): TmpHendelse = copy(
-        varseltekst=beskjedTekst,
+    fun withUpdatedText(beskjedTekst: String, url: String, eksternTekst: String, description: String,title: String): TmpHendelse = copy(
+        varseltekst = beskjedTekst,
         url = url,
-        eksternTekst = eksternTekst
+        eksternTekst = eksternTekst,
+        description = description,
+        title = title
     )
 }
 

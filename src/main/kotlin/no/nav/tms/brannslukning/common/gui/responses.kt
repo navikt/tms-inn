@@ -6,11 +6,17 @@ import io.ktor.server.html.*
 import io.ktor.server.response.*
 import kotlinx.html.*
 
-fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String? = null, uploadExists: Boolean = true) {
+fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String? = null, showAffectedUsers: Boolean = true) {
     dl(classes = "hendelsedl") {
+        dt { +"Tittel" }
+        dd { +tmpHendelse.title }
+        tmpHendelse.description.takeIf { it.isNotEmpty() }?.also {
+            dt { +"Beskrivelse" }
+            dd { +it }
+        }
         dt { +"Opprettet av" }
         dd { +tmpHendelse.initatedBy.preferredUsername }
-        if (uploadExists) {
+        if (showAffectedUsers) {
             dt { +"Antall personer som mottar sms/epost og varsler på min side" }
             dd { +"${tmpHendelse.affectedUsers.size}" }
         }
@@ -46,12 +52,17 @@ fun FORM.cancelAndGoBackButtons(previousUrl: String? = null) {
     }
 }
 
+fun BODY.textsForm() {
+
+
+}
+
 suspend fun ApplicationCall.respondSeeOther(endpoint: String) {
     response.headers.append(HttpHeaders.Location, "${request.headers["Origin"]}/$endpoint")
     respond(HttpStatusCode.SeeOther)
 }
 
-suspend fun ApplicationCall.respondHtmlContent(title: String, builder: HTML.() -> Unit) {
+suspend fun ApplicationCall.respondHtmlContent(title: String, builder: BODY.() -> Unit) {
     this.respondHtml {
         head {
             lang = "nb"
@@ -61,7 +72,10 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, builder: HTML.() -
                 href = "/static/style.css"
             }
         }
-        builder()
+        body {
+            builder()
+        }
+
     }
 }
 
@@ -74,33 +88,34 @@ fun ApplicationCall.hendelseOrNull(): TmpHendelse? = request.queryParameters["he
 
 internal suspend fun ApplicationCall.respondUploadFileForm(tmpHendelse: TmpHendelse) {
     respondHtmlContent("Opprett ny hendelse – personer som er rammet") {
-        body {
-            h1 { +"Legg til personer som skal varsles" }
-            hendelseDl(tmpHendelse = tmpHendelse, uploadExists = hendelse().affectedUsers.size > 0)
-            form {
-                action = "/opprett/personer?hendelse=${tmpHendelse.id}"
-                method = FormMethod.post
-                encType = FormEncType.multipartFormData
-                fieldSet {
-                    legend { +"Fødselsunmmer" }
-                    label {
-                        htmlFor = "ident-file"
-                        +"Last opp csv-fil"
-                    }
-                    input {
-                        id = "ident-file"
-                        name = "ident"
-                        accept = ".csv"
-                        type = InputType.file
-                        required = hendelse().affectedUsers.isEmpty()
-                    }
+
+        h1 { +"Legg til personer som skal varsles" }
+        hendelseDl(tmpHendelse = tmpHendelse, showAffectedUsers = hendelse().affectedUsers.size > 0)
+        form {
+            action = "/opprett/personer?hendelse=${tmpHendelse.id}"
+            method = FormMethod.post
+            encType = FormEncType.multipartFormData
+            fieldSet {
+                legend { +"Fødselsunmmer" }
+                label {
+                    htmlFor = "ident-file"
+                    +"Last opp csv-fil"
                 }
-                button {
-                    type = ButtonType.submit
-                    text("Neste")
+                input {
+                    id = "ident-file"
+                    name = "ident"
+                    accept = ".csv"
+                    type = InputType.file
+                    required = hendelse().affectedUsers.isEmpty()
                 }
-                cancelAndGoBackButtons("/opprett?hendelse=${tmpHendelse.id}")
             }
+            button {
+                type = ButtonType.submit
+                text("Neste")
+            }
+            cancelAndGoBackButtons("/opprett?hendelse=${tmpHendelse.id}")
         }
     }
 }
+
+

@@ -20,27 +20,23 @@ fun Application.gui() {
             when (cause) {
                 is BadFileContent ->
                     call.respondHtmlContent("Feil i identfil") {
-                        body {
-                            p {
-                                +cause.message
-                            }
-                            a {
-                                href = "/"
-                                +"Tilbake"
-                            }
+                        p {
+                            +cause.message
+                        }
+                        a {
+                            href = "/"
+                            +"Tilbake"
                         }
                     }
 
                 is HendelseNotFoundException ->
                     call.respondHtmlContent("Hendelse ikke funnet") {
-                        body {
-                            p {
-                                +"Hendelsen du leter etter finnes ikke"
-                            }
-                            a {
-                                href = "/"
-                                +"Tilbake"
-                            }
+                        p {
+                            +"Hendelsen du leter etter finnes ikke"
+                        }
+                        a {
+                            href = "/"
+                            +"Tilbake"
                         }
                     }
 
@@ -50,7 +46,6 @@ fun Application.gui() {
         }
     }
 
-    val registeredRoutes = mutableListOf<Route>()
     routing {
         startPage()
         meta()
@@ -59,13 +54,7 @@ fun Application.gui() {
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)
         }
-
-        registeredRoutes.addAll(children)
-
     }
-
-    log.info(registeredRoutes.joinToString("        "))
-
 }
 
 fun Routing.meta() {
@@ -81,38 +70,37 @@ fun Routing.startPage() {
     get {
         val aktiveHendelser = HendelseChache.getAllHendelser()
         call.respondHtmlContent("Min side brannslukning – Start") {
-            body {
-                h1 { +"Hendelsesvarsling" }
-                img {
-                    id = "500-katt"
-                    src = "/static/500-katt.svg"
-                    alt = "500-cat loves you!"
-                    title = "500-cat loves you!"
-                }
-                h2 { +"Aktive hendelser" }
-                if (aktiveHendelser.isEmpty())
-                    p { +"Ingen aktive hendelser" }
-                else
-                    ul {
-                        aktiveHendelser.forEach {
-                            li {
-                                a {
-                                    href = "hendelse/${it.id}"
-                                    +"Opprettet av ${it.initatedBy.preferredUsername} --sett inn dato og klokkeslett--"
-                                }
+            h1 { +"Hendelsesvarsling" }
+            img {
+                id = "500-katt"
+                src = "/static/500-katt.svg"
+                alt = "500-cat loves you!"
+                title = "500-cat loves you!"
+            }
+            h2 { +"Aktive hendelser" }
+            if (aktiveHendelser.isEmpty())
+                p { +"Ingen aktive hendelser" }
+            else
+                ul {
+                    aktiveHendelser.forEach {
+                        li {
+                            a {
+                                href = "hendelse/${it.id}"
+                                +"${it.title} --sett inn dato og klokkeslett--"
                             }
                         }
                     }
-
-                a {
-                    href = "opprett"
-                    +"Opprett ny hendelse"
                 }
 
+            a {
+                href = "opprett"
+                +"Opprett ny hendelse"
             }
+
         }
     }
 }
+
 
 val ApplicationCall.user
     get() = User("Placeholder", "Placeholder")

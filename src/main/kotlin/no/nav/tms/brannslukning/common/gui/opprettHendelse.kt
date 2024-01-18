@@ -1,13 +1,12 @@
 package no.nav.tms.brannslukning.common.gui
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import textForm
 
 private val log = KotlinLogging.logger { }
 
@@ -17,85 +16,36 @@ fun Routing.opprettHendelse() {
         get {
             val hendelse = call.hendelseOrNull()
             call.respondHtmlContent("Opprett hendelse – tekster") {
-                body {
-                    h1 { +"Legg inn tekster for varsling" }
-                    form {
-                        action = "/opprett"
-                        method = FormMethod.post
-                        fieldSet {
-                            legend {
-                                +"Beskjed på min side"
-                            }
-                            label {
-                                htmlFor = "beskjed-input"
-                                +"Tekst"
-                            }
-                            textArea(classes = "text-input") {
-                                id = "beskjed-input"
-                                name = "beskjed-text"
-                                required = true
-                                maxLength = "150"
-                                minLength = "50"
-                                hendelse?.let {
-                                    text(it.varseltekst)
-                                }
-                            }
-                            label {
-                                htmlFor = "url-input"
-                                +"Link til mer informasjon"
-                            }
-                            input {
-                                id = "url-input"
-                                name = "url-text"
-                                type = InputType.url
-                                required = true
-                                minLength = "15"
-                                hendelse?.let {
-                                    value = hendelse.url
-                                }
-                            }
-                        }
-                        fieldSet {
-                            id = "ekstern-tekst-fieldset"
-                            legend {
-                                +"Varsel på sms/epost"
-                            }
-                            label {
-                                htmlFor = "ekstern-tekst-input"
-                                +"Tekst"
-                            }
-                            textArea(classes = "text-input") {
-                                id = "ekstern-tekst-input"
-                                name = "ekstern-text"
-                                required = true
-                                maxLength = "150"
-                                minLength = "50"
-                                hendelse?.let {
-                                    text(it.eksternTekst)
-                                }
-                            }
-                        }
-                        cancelAndGoBackButtons()
-                        button {
-                            type = ButtonType.submit
-                            text("Neste")
-                        }
-                    }
-                }
+                h1 { +"Opprett hendelse" }
+                textForm(tmpHendelse = hendelse, postEndpoint = "/opprett")
             }
         }
+
         post {
             val hendelse = call.hendelseOrNull()
             val params = call.receiveParameters()
             val beskjedTekst =
                 params["beskjed-text"] ?: throw IllegalArgumentException("Tekst for beskjed må være satt")
             val url =
-                params["url-text"] ?: throw IllegalArgumentException("Url for beskjed må være satt")
+                params["url"] ?: throw IllegalArgumentException("Url for beskjed må være satt")
             val eksternTekst =
                 params["ekstern-text"] ?: throw IllegalArgumentException("Tekst for sms/epost må være satt")
+            val title =
+                params["title"] ?: throw IllegalArgumentException("Tittel må være satt")
+            val description =
+                params["description"] ?: ""
+
             val tmpHendelse =
-                hendelse?.withUpdatedText(beskjedTekst = beskjedTekst, url = url, eksternTekst = eksternTekst)
+                hendelse?.withUpdatedText(
+                    beskjedTekst = beskjedTekst,
+                    url = url,
+                    eksternTekst = eksternTekst,
+                    description = description,
+                    title = title
+                )
                     ?: TmpHendelse(
+                        description = description,
+                        title = title,
                         varseltekst = beskjedTekst,
                         eksternTekst = eksternTekst,
                         initatedBy = call.user,
@@ -147,21 +97,19 @@ fun Routing.opprettHendelse() {
             get {
                 val hendelse = call.hendelse()
                 call.respondHtmlContent("Opprett hendelse – bekreft") {
-                    body {
-                        h1 { +"Bekreft" }
-                        hendelseDl(hendelse)
-                        form {
-                            action = "/send/confirm?hendelse=${hendelse.id}"
-                            method = FormMethod.post
-                            button {
-                                type = ButtonType.submit
-                                text("Opprett hendelse")
-                            }
-                            cancelAndGoBackButtons("/opprett/personer?hendelse=${hendelse.id}")
+
+                    h1 { +"Bekreft" }
+                    hendelseDl(hendelse)
+                    form {
+                        action = "/send/confirm?hendelse=${hendelse.id}"
+                        method = FormMethod.post
+                        button {
+                            type = ButtonType.submit
+                            text("Opprett hendelse")
                         }
+                        cancelAndGoBackButtons("/opprett/personer?hendelse=${hendelse.id}")
                     }
                 }
-
             }
         }
 
@@ -176,18 +124,13 @@ fun Routing.opprettHendelse() {
             HendelseChache.invalidateHendelse(hendelse.id)
 
             call.respondHtmlContent("Hendelse opprettet") {
-                body {
-                    h1 { +"Hendelse opprettet" }
-                    hendelseDl(hendelse)
-                    a {
-                        href = "/"
-                        +"Tilbake til forsiden"
-                    }
-
+                h1 { +"Hendelse opprettet" }
+                hendelseDl(hendelse)
+                a {
+                    href = "/"
+                    +"Tilbake til forsiden"
                 }
-
             }
-
         }
     }
 }
