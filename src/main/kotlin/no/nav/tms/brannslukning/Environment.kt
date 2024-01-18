@@ -9,18 +9,14 @@ data class Environment(
     val dbUser: String = getEnvVar("DB_USERNAME"),
     val dbPassword: String = getEnvVar("DB_PASSWORD"),
     val dbUrl: String = getDbUrl(dbHost, dbPort, dbName),
-    val aivenBrokers: String = getEnvVar("KAFKA_BROKERS"),
-    val aivenSchemaRegistry: String = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
-    val securityVars: SecurityVars = SecurityVars(),
-    val rapidTopic: String = getEnvVar("VARSEL_TOPIC"),
-)
-
-data class SecurityVars(
-    val aivenTruststorePath: String = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
-    val aivenKeystorePath: String = getEnvVar("KAFKA_KEYSTORE_PATH"),
-    val aivenCredstorePassword: String = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
-    val aivenSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
-    val aivenSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD")
+    val kafkaBrokers: String = getEnvVar("KAFKA_BROKERS"),
+    val kafkaSchemaRegistry: String = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
+    val kafkaTruststorePath: String = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
+    val kafkaKeystorePath: String = getEnvVar("KAFKA_KEYSTORE_PATH"),
+    val kafkaCredstorePassword: String = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
+    val kafkaSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
+    val kafkaSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
+    val varselTopic: String = getEnvVar("VARSEL_TOPIC")
 )
 
 fun getDbUrl(host: String, port: String, name: String): String {

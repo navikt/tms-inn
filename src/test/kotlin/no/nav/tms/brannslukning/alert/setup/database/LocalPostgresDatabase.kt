@@ -15,13 +15,19 @@ class LocalPostgresDatabase private constructor() : Database {
         private val instance by lazy {
             LocalPostgresDatabase().also {
                 it.migrate()
+                it.clearTables()
             }
         }
 
         fun cleanDb(): LocalPostgresDatabase {
-            instance.update { queryOf("delete from utkast") }
             return instance
         }
+    }
+
+    fun clearTables() {
+        update { queryOf("delete from aktiv_alert_regel") }
+        update { queryOf("delete from alert_varsel_queue") }
+        update { queryOf("delete from alert_header") }
     }
 
     init {

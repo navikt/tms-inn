@@ -1,10 +1,11 @@
 create table alert_header(
     referenceId text primary key,
     tekster jsonb not null,
+    aktiv boolean not null default true,
     opprettet timestamp with time zone not null,
     opprettetAv jsonb not null,
-    aktiv boolean not null default true,
-    avsluttet timestamp with time zone
+    avsluttet timestamp with time zone,
+    avsluttetAv jsonb
 );
 
 create table aktiv_alert_regel(
@@ -21,7 +22,7 @@ create table alert_varsel_queue(
     sendt boolean not null default false,
     opprettet timestamp with time zone not null,
     ferdigstilt timestamp with time zone,
-    constraint unique (alert_ref, ident)
+    unique (alert_ref, ident)
 );
 
 create index aktiv_alert_regel_ref on aktiv_alert_regel(alert_ref);

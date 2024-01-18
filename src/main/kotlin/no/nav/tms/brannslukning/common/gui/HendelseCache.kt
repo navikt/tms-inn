@@ -5,12 +5,13 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.tms.brannslukning.alert.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 private val objectmapper = jacksonObjectMapper()
 
-internal object HendelseChache {
+internal object HendelseCache {
     private val log = KotlinLogging.logger { }
     private val cache: Cache<String, String> = Caffeine.newBuilder()
         .expireAfterWrite(15, TimeUnit.MINUTES)
@@ -62,6 +63,23 @@ data class TmpHendelse(
         eksternTekst = eksternTekst,
         description = description,
         title = title
+    )
+    fun toOpprettAlert() = OpprettAlert(
+        referenceId = id,
+        tekster = Tekster(
+            beskrivelse = varseltekst,
+            beskjed = WebTekst(
+                spraakkode = "nb",
+                tekst = varseltekst,
+                link = url
+            ),
+            eksternTekst = EksternTekst(
+                tittel = "Varsel fra NAV",
+                tekst = varseltekst
+            )
+        ),
+        opprettetAv = Actor(initatedBy.preferredUsername, initatedBy.oid),
+        mottakere = affectedUsers
     )
 }
 

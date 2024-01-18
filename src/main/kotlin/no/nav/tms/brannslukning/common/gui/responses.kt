@@ -78,7 +78,7 @@ fun ApplicationCall.hendelse(): TmpHendelse =
     hendelseOrNull() ?: throw IllegalArgumentException("queryparameter hendelse mangler")
 
 fun ApplicationCall.hendelseOrNull(): TmpHendelse? = request.queryParameters["hendelse"]?.let {
-    HendelseChache.getHendelse(it)
+    HendelseCache.getHendelse(it)
 }
 
 internal suspend fun ApplicationCall.respondUploadFileForm(tmpHendelse: TmpHendelse) {

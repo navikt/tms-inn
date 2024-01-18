@@ -4,16 +4,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import no.nav.tms.brannslukning.alert.Actor
+import no.nav.tms.brannslukning.alert.AlertRepository
 
 private val log = KotlinLogging.logger { }
-fun Route.redigerHendelse() {
+fun Route.redigerHendelse(alertRepository: AlertRepository) {
     route("hendelse") {
         get("{id}") {
-            val hendelse = HendelseChache.getHendelse(
-                call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
-            ).also {
-                log.info { "TODO: Hent fra database" }
-            }!!
+
+            val id = call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
+
+            val hendelse = HendelseCache.getHendelse(id) ?: alertRepository.fetchHendelse(id) ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
 
             call.respondHtmlContent("Hendelse detaljer") {
                 h1 {
@@ -38,12 +39,13 @@ fun Route.redigerHendelse() {
 
         }
         post("{id}") {
-            val hendelse = HendelseChache.getHendelse(
-                call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
-            ).also {
-                log.info { "TODO: Hent fra database" }
-            }
-            HendelseChache.tmpClose(hendelse!!.id) //TODO hent fra db
+            val id = call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
+
+            val hendelse = HendelseCache.getHendelse(id) ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
+
+            alertRepository.endAlert(hendelse.id, Actor(call.user.preferredUsername, call.user.oid))
+            HendelseCache.tmpClose(hendelse.id)
+
             call.respondHtmlContent("Hendelse avsluttet") {
                 h1 { +"Hendelse avsluttet" }
                 hendelseDl(hendelse, avsluttetAv = call.user.preferredUsername)
