@@ -56,6 +56,8 @@ dependencies {
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation(TmsVarselBuilder.kotlinBuilder)
+    implementation(TmsKtorTokenSupport.azureValidation)
+
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)

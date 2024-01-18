@@ -6,7 +6,7 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 
 private val log = KotlinLogging.logger { }
-fun Routing.redigerHendelse() {
+fun Route.redigerHendelse() {
     route("hendelse") {
         get("{id}") {
             val hendelse = HendelseChache.getHendelse(
