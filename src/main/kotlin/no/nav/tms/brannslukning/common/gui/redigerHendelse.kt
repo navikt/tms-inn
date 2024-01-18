@@ -16,25 +16,23 @@ fun Routing.redigerHendelse() {
             }!!
 
             call.respondHtmlContent("Hendelse detaljer") {
-                body {
-                    h1 {
-                        +"Hendelsedetaljer"
+                h1 {
+                    +"Hendelsedetaljer"
+                }
+                hendelseDl(hendelse)
+                form {
+                    action = "/hendelse/${hendelse.id}"
+                    method = FormMethod.post
+                    button {
+                        type = ButtonType.submit
+                        onClick = "return confirm('Vil du avslutte hendelsen?')"
+                        +"Avslutt hendelse"
                     }
-                    hendelseDl(hendelse)
-                    form {
-                        action = "/hendelse/${hendelse.id}"
-                        method = FormMethod.post
-                        button {
-                            type = ButtonType.submit
-                            onClick = "return confirm('Vil du avslutte hendelsen?')"
-                            +"Avslutt hendelse"
-                        }
-                    }
+                }
 
-                    a {
-                        href = "/"
-                        +"Tilbake til forsiden"
-                    }
+                a {
+                    href = "/"
+                    +"Tilbake til forsiden"
                 }
             }
 
@@ -47,14 +45,12 @@ fun Routing.redigerHendelse() {
             }
             HendelseChache.tmpClose(hendelse!!.id) //TODO hent fra db
             call.respondHtmlContent("Hendelse avsluttet") {
-                body {
-                    h1 { +"Hendelse avsluttet" }
-                    hendelseDl(hendelse, avsluttetAv = call.user.preferredUsername)
+                h1 { +"Hendelse avsluttet" }
+                hendelseDl(hendelse, avsluttetAv = call.user.preferredUsername)
 
-                    a {
-                        href = "/"
-                        +"Tilbake til forsiden"
-                    }
+                a {
+                    href = "/"
+                    +"Tilbake til forsiden"
                 }
             }
         }
