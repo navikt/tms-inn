@@ -13,14 +13,16 @@ import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
 
-private val log = KotlinLogging.logger { }
 fun Application.gui(alertRepository: AlertRepository) {
+
+    val log = KotlinLogging.logger { }
 
     install(StatusPages) {
         status(HttpStatusCode.NotFound) { call, status ->
             call.respondText(text = "404: Page Not Found", status = status)
         }
         exception<Throwable> { call, cause ->
+            log.error(cause) { "Ukjent feil" }
             when (cause) {
                 is BadFileContent ->
                     call.respondHtmlContent("Feil i identfil") {
