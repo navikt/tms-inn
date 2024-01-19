@@ -22,7 +22,7 @@ jobs:
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
           java-version: 17
@@ -38,17 +38,16 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
   deploy:
-    needs:
-      - build
+    name: Deploy to NAIS
+    needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v3
-
-      - name: 'Deployer ${{ github.ref_name }} til ${{ inputs.cluster }}'
-        uses: 'nais/deploy/actions/deploy@v2'
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: ${{ inputs.cluster }}
-          RESOURCE: ./nais/${{ inputs.cluster }}/nais.yaml
+          RESOURCE: ./nais/nais-dev.yaml
           VAR: image=${{ needs.build.outputs.image }}
-          PRINT_PAYLOAD: true
-          REF: ${{ github.sha }}
