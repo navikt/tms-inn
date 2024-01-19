@@ -9,6 +9,7 @@ env:
 
 permissions:
   packages: write
+  id-token: write
 
 jobs:
   setup:
@@ -90,7 +91,7 @@ jobs:
           ref: ${{ env.COMMIT_SHA }}
 
       - name: 'Deployer til ${{ matrix.CLUSTER }}'
-        uses: 'nais/deploy/actions/deploy@v1'
+        uses: 'nais/deploy/actions/deploy@v2'
         env:
           CLUSTER: ${{ matrix.CLUSTER }}
           RESOURCE: ./nais/${{ matrix.CLUSTER }}/nais.yaml

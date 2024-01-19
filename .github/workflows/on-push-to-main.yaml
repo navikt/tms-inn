@@ -13,6 +13,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 
 jobs:
   build:
@@ -65,10 +66,9 @@ jobs:
 
 #      - name: 'Deploy-er til ${{ matrix.cluster }}'
 #        if: env.DEPLOY_CONFIG_DEFINED == 'true'
-#        uses: 'nais/deploy/actions/deploy@v1'
+#        uses: 'nais/deploy/actions/deploy@v2'
 #        env:
 #          REF: ${{ github.sha }}
-#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
 #          CLUSTER: ${{ matrix.cluster }}
 #          RESOURCE: ./nais/${{ matrix.cluster }}/nais.yaml
 #          VAR: version=${{ needs.build.outputs.image }}

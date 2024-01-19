@@ -38,11 +38,11 @@ spec:
         diskType: SSD
         diskSize: 10
         diskAutoresize: false
-        autoBackupTime: "03:00"
+        autoBackupHour: 3
         databases:
           - name: brannslukning
             envVarPrefix: DB
-        maintenanceWindow:
+        maintenance:
           day: 1
           hour: 4
         cascadingDelete: false
