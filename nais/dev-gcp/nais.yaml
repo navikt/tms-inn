@@ -14,6 +14,7 @@ spec:
   readiness:
     path: /isready
     initialDelay: 5
+  leaderElection: true
   ingresses:
     - "https://tms-brannslukning.intern.dev.nav.no"
   azure:
