@@ -16,6 +16,7 @@ class VarselPusher(
     private val kafkaProducer: Producer<String, String>,
     private val varselTopic: String,
     private val batchSize: Int = 500,
+    private val produsentOverride: Produsent? = null,
     interval: Duration = Duration.ofSeconds(1)
 ) : PeriodicJob(interval = interval) {
 
@@ -36,6 +37,7 @@ class VarselPusher(
             type = Beskjed
             varselId = beskjedId
             ident = varselRequest.ident
+            link = varselRequest.beskjed.link
             tekst = Tekst(
                 spraakkode = varselRequest.beskjed.spraakkode,
                 tekst = varselRequest.beskjed.tekst,
@@ -43,11 +45,14 @@ class VarselPusher(
             )
             eksternVarsling = EksternVarslingBestilling(
                 prefererteKanaler = listOf(EksternKanal.SMS),
-                smsVarslingstekst = varselRequest.eksternTekst.innhold,
-                epostVarslingstekst = varselRequest.eksternTekst.innhold,
+                smsVarslingstekst = varselRequest.eksternTekst.tekst,
+                epostVarslingstekst = varselRequest.eksternTekst.tekst,
                 epostVarslingstittel = varselRequest.eksternTekst.tittel
             )
             sensitivitet = Sensitivitet.Substantial
+            produsentOverride?.let {
+                produsent = it
+            }
         }.let { beskjed ->
             kafkaProducer.send(ProducerRecord(varselTopic, beskjedId, beskjed))
         }

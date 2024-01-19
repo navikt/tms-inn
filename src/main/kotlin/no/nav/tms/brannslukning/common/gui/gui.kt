@@ -9,11 +9,12 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
 
 private val log = KotlinLogging.logger { }
-fun Application.gui() {
+fun Application.gui(alertRepository: AlertRepository) {
 
     install(StatusPages) {
         status(HttpStatusCode.NotFound) { call, status ->
@@ -58,9 +59,9 @@ fun Application.gui() {
     routing {
         meta()
         authenticate {
-            startPage()
-            opprettHendelse()
-            redigerHendelse()
+            startPage(alertRepository)
+            opprettHendelse(alertRepository)
+            redigerHendelse(alertRepository)
         }
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)
@@ -77,9 +78,9 @@ fun Routing.meta() {
     }
 }
 
-fun Route.startPage() {
+fun Route.startPage(repository: AlertRepository) {
     get {
-        val aktiveHendelser = HendelseChache.getAllHendelser()
+        val aktiveHendelser = repository.activeAlerts()
         call.respondHtmlContent("Min side brannslukning – Start") {
             h1 { +"Hendelsesvarsling" }
             img {
@@ -96,8 +97,8 @@ fun Route.startPage() {
                     aktiveHendelser.forEach {
                         li {
                             a {
-                                href = "hendelse/${it.id}"
-                                +"${it.title} --sett inn dato og klokkeslett--"
+                                href = "hendelse/${it.referenceId}"
+                                +"${it.tekster.beskrivelse} --sett inn dato og klokkeslett--"
                             }
                         }
                     }
@@ -116,5 +117,5 @@ fun Route.startPage() {
 val ApplicationCall.user
     get() = principal<AzurePrincipal>()?.let {
         User(it.decodedJWT.getClaim("oid").toString(), it.decodedJWT.getClaim("preferred_username").toString())
-    }
+    } ?: throw IllegalStateException("Må være innlogget")
 

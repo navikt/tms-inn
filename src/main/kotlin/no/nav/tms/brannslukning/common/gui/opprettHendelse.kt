@@ -6,11 +6,12 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import no.nav.tms.brannslukning.alert.AlertRepository
 import detailsForm
 
 private val log = KotlinLogging.logger { }
 
-fun Route.opprettHendelse() {
+fun Route.opprettHendelse(alertRepository: AlertRepository) {
 
     route("opprett") {
         get {
@@ -51,7 +52,7 @@ fun Route.opprettHendelse() {
                         initatedBy = call.user,
                         url = url
                     )
-            HendelseChache.putHendelse(tmpHendelse)
+            HendelseCache.putHendelse(tmpHendelse)
             call.respondSeeOther("opprett/personer?hendelse=${tmpHendelse.id}")
         }
 
@@ -88,7 +89,7 @@ fun Route.opprettHendelse() {
 
                 log.info { "$fileName opplastet\n$fileDescription" }
                 val idents = content.parseAndVerify() ?: hendelse.affectedUsers
-                HendelseChache.putHendelse(hendelse.withAffectedUsers(idents))
+                HendelseCache.putHendelse(hendelse.withAffectedUsers(idents))
                 call.respondSeeOther("/opprett/confirm?hendelse=${hendelse.id}")
             }
         }
@@ -119,9 +120,10 @@ fun Route.opprettHendelse() {
 
         post("confirm") {
             val hendelse = call.hendelse()
-            //TODO database og kafka og fest
-            log.info { "TODO: Lagre i database og send varsel på kafka" }
-            HendelseChache.invalidateHendelse(hendelse.id)
+
+            alertRepository.createAlert(hendelse.toOpprettAlert())
+
+            HendelseCache.invalidateHendelse(hendelse.id)
 
             call.respondHtmlContent("Hendelse opprettet") {
                 h1 { +"Hendelse opprettet" }
@@ -149,3 +151,4 @@ private fun ByteArray.parseAndVerify(): List<String>? =
         }
 
 class BadFileContent(override val message: String) : IllegalArgumentException()
+
