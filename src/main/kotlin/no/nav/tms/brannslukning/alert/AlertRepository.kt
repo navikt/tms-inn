@@ -86,7 +86,7 @@ class AlertRepository(private val database: Database) {
         }
 
         database.batch(
-            "insert into alert_varsel_queue(alert_ref, ident, opprettet), values(:referenceId, :ident, :opprettet) on conflict do nothing",
+            "insert into alert_varsel_queue(alert_ref, ident, opprettet) values(:referenceId, :ident, :opprettet) on conflict do nothing",
             createAlert.mottakere.map {
                 mapOf(
                     "referenceId" to createAlert.referenceId,
