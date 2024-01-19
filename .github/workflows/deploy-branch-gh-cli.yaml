@@ -13,59 +13,33 @@ permissions:
   id-token: write
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      docker_image: ${{ env.IMAGE_FULL_NAME }}
-      should_build_image: ${{ env.SHOULD_BUILD_IMAGE }}
-    steps:
-
-      - name: 'Sjekk ut ønsket commit'
-        uses: 'actions/checkout@v3'
-
-      - name: 'Utled navn på docker-image basert på siste commit'
-        run: |
-          APP_NAME=$(echo $GITHUB_REPOSITORY | rev | cut -f1 -d"/" | rev )
-          TAG_NAME="$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(git log -1 --pretty='%h')"
-          IMAGE_BASE="ghcr.io/$GITHUB_REPOSITORY/$APP_NAME"
-          echo "IMAGE_FULL_NAME=$IMAGE_BASE:$TAG_NAME" >> $GITHUB_ENV
-          echo "IMAGE_TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-
-      - name: 'Sjekker om docker-image eksisterer fra før av'
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_REPOSITORY --password-stdin
-          RESULT=$(docker manifest inspect ${{ env.IMAGE_FULL_NAME }} > /dev/null 2> /dev/null ; echo $?)
-          echo "SHOULD_BUILD_IMAGE=$([[ $RESULT == 0 ]] && echo 'false' || echo 'true' )" >> $GITHUB_ENV
-
-  build-and-push-docker-image:
-    needs: setup
-    if: needs.setup.outputs.should_build_image == 'true'
+  build:
+    name: Build and push docker image
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
       - name: Gradle build
         run: ./gradlew build
-      - name: Push docker image to GAR
+      - name: Build and push image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
           team: min-side
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # Provided as Organization Secret
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # Provided as Organization Variable
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
   deploy:
     needs:
-      - setup
-      - build-docker-image
+      - build
     runs-on: ubuntu-latest
-    if: |
-      always() &&
-      ( needs.build-docker-image.result == 'success' || needs.build-docker-image.result == 'skipped' )
     steps:
       - uses: actions/checkout@v3
 
@@ -74,6 +48,6 @@ jobs:
         env:
           CLUSTER: ${{ inputs.cluster }}
           RESOURCE: ./nais/${{ inputs.cluster }}/nais.yaml
-          VAR: version=${{ needs.setup.outputs.docker_image }}
+          VAR: image=${{ needs.build.outputs.image }}
           PRINT_PAYLOAD: true
           REF: ${{ github.sha }}
