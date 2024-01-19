@@ -9,6 +9,7 @@ import no.nav.tms.brannslukning.alert.VarselPusher
 import no.nav.tms.brannslukning.common.gui.gui
 import no.nav.tms.brannslukning.setup.PodLeaderElection
 import no.nav.tms.brannslukning.setup.database.Database
+import no.nav.tms.brannslukning.setup.database.Flyway
 import no.nav.tms.brannslukning.setup.database.PostgresDatabase
 import no.nav.tms.common.util.config.IntEnvVar.getEnvVarAsInt
 import org.apache.kafka.clients.CommonClientConfigs
@@ -41,14 +42,15 @@ fun main() {
         port = getEnvVarAsInt("PORT", 8081),
         module = {
             gui(alertRepository)
-            configureStartupHook(varselPusher)
+            configureStartupHook(environment, varselPusher)
             configureShutdownHook(varselPusher, kafkaProducer)
         }
     ).start(wait = true)
 }
 
-private fun Application.configureStartupHook(varselPusher: VarselPusher) {
+private fun Application.configureStartupHook(env: Environment, varselPusher: VarselPusher) {
     environment.monitor.subscribe(ApplicationStarted) {
+        Flyway.runFlywayMigrations(env)
         varselPusher.start()
     }
 }
