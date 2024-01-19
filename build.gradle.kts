@@ -70,7 +70,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("no.nav.personbruker.dittnav.varselbestiller.config.ApplicationKt")
+    mainClass.set("no.nav.tms.brannslukning.ApplicationKt")
 }
 
 tasks {
