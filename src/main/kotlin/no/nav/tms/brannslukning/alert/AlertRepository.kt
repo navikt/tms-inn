@@ -63,7 +63,7 @@ class AlertRepository(private val database: Database) {
                         tekster = it.json("tekster"),
                         opprettet = it.zonedDateTime("opprettet"),
                         opprettetAv = it.json("opprettetAv", objectMapper),
-                        aktiv = it.boolean("akiv"),
+                        aktiv = it.boolean("aktiv"),
                         mottakere = it.int("mottakere"),
                         avsluttet = it.zonedDateTime("avsluttet"),
                         avsluttetAv = it.json("avsluttetAv", objectMapper)
