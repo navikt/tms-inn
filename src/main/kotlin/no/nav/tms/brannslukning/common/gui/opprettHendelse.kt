@@ -15,10 +15,9 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
 
     route("opprett") {
         get {
-            val hendelse = call.hendelseOrNull()
             call.respondHtmlContent("Opprett hendelse – tekster") {
                 h1 { +"Opprett hendelse" }
-                detailsForm(tmpHendelse = hendelse, postEndpoint = "/opprett")
+                detailsForm(tmpHendelse = call.hendelseOrNull(), postEndpoint = "/opprett")
             }
         }
 

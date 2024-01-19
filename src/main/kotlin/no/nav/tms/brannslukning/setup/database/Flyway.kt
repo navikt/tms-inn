@@ -1,27 +1,21 @@
 package no.nav.tms.brannslukning.setup.database
 
-import com.zaxxer.hikari.HikariDataSource
-import no.nav.tms.brannslukning.Environment
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 
 object Flyway {
 
-    fun runFlywayMigrations(env: Environment) {
-        val flyway = configure(env).load()
+    fun runFlywayMigrations() {
+        val flyway = configure().load()
         flyway.migrate()
     }
 
-    private fun configure(env: Environment): FluentConfiguration {
+    private fun configure(): FluentConfiguration {
         val configBuilder = Flyway.configure().connectRetries(5)
-        val dataSource = createDataSourceForLocalDbWithUser(env)
+        val dataSource = PostgresDatabase.hikariFromLocalDb()
         configBuilder.dataSource(dataSource)
 
         return configBuilder
-    }
-
-    private fun createDataSourceForLocalDbWithUser(env: Environment): HikariDataSource {
-        return PostgresDatabase.hikariFromLocalDb(env)
     }
 
 }

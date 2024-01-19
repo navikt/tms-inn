@@ -91,6 +91,10 @@ internal suspend fun ApplicationCall.respondUploadFileForm(tmpHendelse: TmpHende
             method = FormMethod.post
             encType = FormEncType.multipartFormData
             fieldSet {
+                input {
+                    type=InputType.text
+                    name="teksttest"
+                }
                 legend { +"Fødselsunmmer" }
                 label {
                     htmlFor = "ident-file"
