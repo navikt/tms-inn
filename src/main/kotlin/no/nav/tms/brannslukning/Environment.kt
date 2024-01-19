@@ -16,7 +16,7 @@ data class Environment(
     val kafkaCredstorePassword: String = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
     val kafkaSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
     val kafkaSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
-    val varselTopic: String = getEnvVar("VARSEL_TOPIC")
+    val varselTopic: String = "min-side.aapen-brukervarsel-v1"
 )
 
 fun getDbUrl(host: String, port: String, name: String): String {
