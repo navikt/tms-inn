@@ -51,25 +51,25 @@ jobs:
           TAG_LATEST: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#  deploy:
-#    runs-on: ubuntu-latest
-#    needs: build
-#    strategy:
-#      matrix:
-#        cluster: [dev-gcp, prod-gcp]
-#    steps:
-#      - name: Sjekk ut koden
-#        uses: actions/checkout@v2
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        cluster: [dev-gcp, prod-gcp]
+    steps:
+      - name: Sjekk ut koden
+        uses: actions/checkout@v2
 
-#      - name: 'Sjekk om deploy til ${{ matrix.cluster }} er mulig'
-#        run: echo "DEPLOY_CONFIG_DEFINED=$([[ -f ./nais/${{ matrix.cluster }}/nais.yaml ]] && echo 'true' || echo 'false')" >> $GITHUB_ENV
+      - name: 'Sjekk om deploy til ${{ matrix.cluster }} er mulig'
+        run: echo "DEPLOY_CONFIG_DEFINED=$([[ -f ./nais/${{ matrix.cluster }}/nais.yaml ]] && echo 'true' || echo 'false')" >> $GITHUB_ENV
 
-#      - name: 'Deploy-er til ${{ matrix.cluster }}'
-#        if: env.DEPLOY_CONFIG_DEFINED == 'true'
-#        uses: 'nais/deploy/actions/deploy@v2'
-#        env:
-#          REF: ${{ github.sha }}
-#          CLUSTER: ${{ matrix.cluster }}
-#          RESOURCE: ./nais/${{ matrix.cluster }}/nais.yaml
-#          VAR: version=${{ needs.build.outputs.image }}
-#          PRINT_PAYLOAD: true
+      - name: 'Deploy-er til ${{ matrix.cluster }}'
+        if: env.DEPLOY_CONFIG_DEFINED == 'true'
+        uses: 'nais/deploy/actions/deploy@v2'
+        env:
+          REF: ${{ github.sha }}
+          CLUSTER: ${{ matrix.cluster }}
+          RESOURCE: ./nais/${{ matrix.cluster }}/nais.yaml
+          VAR: version=${{ needs.build.outputs.image }}
+          PRINT_PAYLOAD: true
