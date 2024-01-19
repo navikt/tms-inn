@@ -49,5 +49,5 @@ jobs:
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: ${{ inputs.cluster }}
-          RESOURCE: ./nais/nais-dev.yaml
+          RESOURCE: ./nais/${{ inputs.cluster }}/nais.yaml
           VAR: image=${{ needs.build.outputs.image }}
