@@ -92,7 +92,6 @@ jobs:
       - name: 'Deployer til ${{ matrix.CLUSTER }}'
         uses: 'nais/deploy/actions/deploy@v1'
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ matrix.CLUSTER }}
           RESOURCE: ./nais/${{ matrix.CLUSTER }}/nais.yaml
           VAR: version=${{ needs.setup.outputs.docker_image }}
