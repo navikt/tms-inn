@@ -76,7 +76,7 @@ data class TmpHendelse(
             ),
             eksternTekst = EksternTekst(
                 tittel = "Varsel fra NAV",
-                tekst = varseltekst
+                tekst = eksternTekst
             )
         ),
         opprettetAv = initatedBy,
