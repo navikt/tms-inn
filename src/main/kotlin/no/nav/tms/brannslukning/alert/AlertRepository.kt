@@ -100,7 +100,7 @@ class AlertRepository(private val database: Database) {
     fun endAlert(referenceId: String, actor: User) {
         database.update {
             queryOf(
-                "update alert header set aktiv = false, avsluttet = :avsluttet, avsluttetAv = :avsluttetAv where referenceId = :referenceId returning *",
+                "update alert_header set aktiv = false, avsluttet = :avsluttet, avsluttetAv = :avsluttetAv where referenceId = :referenceId",
                 mapOf(
                     "referenceId" to referenceId,
                     "avsluttet" to nowAtUtcZ(),
