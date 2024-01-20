@@ -24,7 +24,7 @@ class AlertRepository(private val database: Database) {
                 """
                     select 
                         ah.*
-                    from alert_header
+                    from alert_header as ah
                     where ah.referenceId = :referenceId
                 """,
                 mapOf("referenceId" to referenceId)

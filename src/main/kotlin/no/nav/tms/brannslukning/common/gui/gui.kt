@@ -14,6 +14,7 @@ import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
+import java.time.format.DateTimeFormatter
 
 fun Application.gui(alertRepository: AlertRepository) {
 
@@ -111,12 +112,12 @@ fun Route.startPage(repository: AlertRepository) {
             if (aktiveHendelser.isEmpty())
                 p { +"Ingen aktive hendelser" }
             else
-                ul {
+                ul(classes = "aktive-hendelser-list") {
                     aktiveHendelser.forEach {
                         li {
                             a {
                                 href = "hendelse/${it.referenceId}"
-                                +"${it.tekster.beskrivelse} --sett inn dato og klokkeslett--"
+                                +"${it.opprettet.format(DateTimeFormatter.ofPattern(" dd.MM.yyyy"))}: ${it.tekster.tittel}"
                             }
                         }
                     }
