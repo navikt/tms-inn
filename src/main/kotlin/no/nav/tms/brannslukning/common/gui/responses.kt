@@ -66,6 +66,10 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, builder: BODY.() -
                 rel = "stylesheet"
                 href = "/static/style.css"
             }
+            link {
+                rel = "stylesheet"
+                href = "/static/forms.css"
+            }
         }
         body {
             builder()

@@ -1,5 +1,7 @@
 package no.nav.tms.brannslukning.common.gui
 
+import FormInputField.Companion.getFormField
+import FormInputField.Companion.getOptionalFormField
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -15,8 +17,8 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
 
     route("opprett") {
         get {
-            call.respondHtmlContent("Opprett hendelse – tekster") {
-                h1 { +"Opprett hendelse" }
+            call.respondHtmlContent("Opprett varsel – tekster") {
+                h1 { +"Opprett varsel" }
                 detailsForm(tmpHendelse = call.hendelseOrNull(), postEndpoint = "/opprett")
             }
         }
@@ -24,16 +26,11 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
         post {
             val hendelse = call.hendelseOrNull()
             val params = call.receiveParameters()
-            val beskjedTekst =
-                params["beskjed-text"] ?: throw IllegalArgumentException("Tekst for beskjed må være satt")
-            val url =
-                params["url"] ?: throw IllegalArgumentException("Url for beskjed må være satt")
-            val eksternTekst =
-                params["ekstern-text"] ?: throw IllegalArgumentException("Tekst for sms/epost må være satt")
-            val title =
-                params["title"] ?: throw IllegalArgumentException("Tittel må være satt")
-            val description =
-                params["description"] ?: ""
+            val beskjedTekst = params.getFormField(FormInputField.MIN_SIDE_TEXT)
+            val url = params.getFormField(FormInputField.LINK)
+            val eksternTekst = params.getFormField(FormInputField.SMS_EPOST_TEKST)
+            val title = params.getFormField(FormInputField.TITLE)
+            val description = params.getOptionalFormField(FormInputField.DESCRIPTION)
 
             val tmpHendelse =
                 hendelse?.withUpdatedText(
