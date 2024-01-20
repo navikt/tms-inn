@@ -9,7 +9,7 @@ data class AlertInfo(
     val aktiv: Boolean,
     val opprettet: ZonedDateTime,
     val opprettetAv: User,
-    val avsluttet: ZonedDateTime,
+    val avsluttet: ZonedDateTime?,
     val avsluttetAv: User?,
     val mottakere: Int
 )

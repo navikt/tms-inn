@@ -65,8 +65,8 @@ class AlertRepository(private val database: Database) {
                         opprettetAv = it.json("opprettetAv", objectMapper),
                         aktiv = it.boolean("aktiv"),
                         mottakere = it.int("mottakere"),
-                        avsluttet = it.zonedDateTime("avsluttet"),
-                        avsluttetAv = it.json("avsluttetAv", objectMapper)
+                        avsluttet = null,
+                        avsluttetAv = null
                     )
                 }.asList
         }
