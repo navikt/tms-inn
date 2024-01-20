@@ -37,6 +37,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
             }
 
         }
+        //TODO fiks url
         post("{id}") {
             val id = call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
 

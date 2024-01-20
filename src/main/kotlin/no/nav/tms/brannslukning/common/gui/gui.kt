@@ -10,6 +10,7 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
@@ -92,11 +93,20 @@ fun Routing.meta() {
 
 fun Route.startPage(repository: AlertRepository) {
     get {
-        val aktiveHendelser = repository.activeAlerts()
+        val aktiveHendelser : List<AlertInfo> =
+            try {
+                repository.activeAlerts()
+            } catch (e: Exception) {
+                println("Noe gikk feil med henting fra db")
+                emptyList()
+            }
+
         call.respondHtmlContent("Min side brannslukning – Start") {
             h1 { +"Hendelsesvarsling" }
-            p { +"""Som en del av beredskapsplanen for nav.no kan du varsle brukere dersom det har skjedd en feil. 
-                |Brukeren vil motta en SMS/e-post og får en beskjed på Min side. """.trimMargin() }
+            p {
+                +"""Som en del av beredskapsplanen for nav.no kan du varsle brukere dersom det har skjedd en feil. 
+                |Brukeren vil motta en SMS/e-post og får en beskjed på Min side. """.trimMargin()
+            }
             h2 { +"Aktive hendelser" }
             if (aktiveHendelser.isEmpty())
                 p { +"Ingen aktive hendelser" }

@@ -74,7 +74,6 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, builder: BODY.() -
         body {
             builder()
         }
-
     }
 }
 
@@ -83,42 +82,6 @@ fun ApplicationCall.hendelse(): TmpHendelse =
 
 fun ApplicationCall.hendelseOrNull(): TmpHendelse? = request.queryParameters["hendelse"]?.let {
     HendelseCache.getHendelse(it)
-}
-
-internal suspend fun ApplicationCall.respondUploadFileForm(tmpHendelse: TmpHendelse) {
-    respondHtmlContent("Opprett ny hendelse – personer som er rammet") {
-
-        h1 { +"Legg til personer som skal varsles" }
-        hendelseDl(tmpHendelse = tmpHendelse, showAffectedUsers = hendelse().affectedUsers.size > 0)
-        form {
-            action = "/opprett/personer?hendelse=${tmpHendelse.id}"
-            method = FormMethod.post
-            encType = FormEncType.multipartFormData
-            fieldSet {
-                input {
-                    type=InputType.text
-                    name="teksttest"
-                }
-                legend { +"Fødselsunmmer" }
-                label {
-                    htmlFor = "ident-file"
-                    +"Last opp csv-fil"
-                }
-                input {
-                    id = "ident-file"
-                    name = "ident"
-                    accept = ".csv"
-                    type = InputType.file
-                    required = hendelse().affectedUsers.isEmpty()
-                }
-            }
-            button {
-                type = ButtonType.submit
-                text("Neste")
-            }
-            cancelAndGoBackButtons("/opprett?hendelse=${tmpHendelse.id}")
-        }
-    }
 }
 
 

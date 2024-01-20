@@ -1,13 +1,14 @@
-import FormInputField.Companion.setAttrs
+package no.nav.tms.brannslukning.common.gui
+
+import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
 import io.ktor.http.*
 import kotlinx.html.*
-import no.nav.tms.brannslukning.common.gui.TmpHendelse
-import no.nav.tms.brannslukning.common.gui.cancelAndGoBackButtons
 
-fun BODY.detailsForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
+fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
     form {
         action = postEndpoint
         method = FormMethod.post
+        encType = FormEncType.multipartFormData
         fieldSet {
             legend {
                 +"Hendelsedetaljer"
