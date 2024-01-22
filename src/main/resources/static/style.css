@@ -2,7 +2,7 @@
 @import "branslukning-logo.css";
 
 body {
-    max-width: 500px;
+    max-width: 800px;
     font-family: "Source Sans Pro", Arial, sans-serif;
     line-height: 1.333;
     font-size: 1.125rem;
@@ -11,39 +11,30 @@ body {
 }
 
 button {
-    font-size: 1.125rem;
-    border-style: solid;
-    border-width: 2px;
-    border-color: #333;
-    background-color: aliceblue;
-    margin-top: 20px;
+    height: 48px;
+    padding: 12px 20px 12px 20px;
+    border-radius: 4px;
+    gap: 8px;
+    background-color: var(--a-surface-action);
 }
 
 .btnlink {
-    padding: 0.5px 5px 0.5px 5px;
-    border-style: solid;
-    border-width: 2px;
-    border-color: #333;
-    background-color: aliceblue;
-    font-size: 1rem;
-    margin-top: 20px;
-    margin-left: 10px;
+    height: 48px;
+    padding: 12px 20px 12px 20px;
+    border-radius: 4px;
+    gap: 8px;
+    background-color: var(--a-surface-action);
+    color: var(--a-text-on-action);
     text-decoration: none;
 }
 
-form .btnlink {
-    float: right;
+#opprett-ny-btn {
+    display: inline-block;
+    margin-top: 20px;
 }
 
 dt {
     font-weight: bold;
-}
-
-.text-input {
-    height: 50px;
-    width: 400px;
-    word-break: break-word;
-    margin-bottom: 20px;
 }
 
 .hendelsedl p {
@@ -58,7 +49,32 @@ dt {
     display: block;
 }
 
-.aktive-hendelser-list{
+.aktive-hendelser-list {
     list-style: none;
     padding: 0;
+}
+
+.aktive-hendelser-list li {
+    text-decoration: none;
+    border-bottom: solid var(--a-border-divider) 1px;
+}
+
+.aktive-hendelser-list a{
+    text-decoration: none;
+}
+
+.aktive-hendelser-list a p:first-of-type{
+    text-decoration: none;
+    color: var(--a-text-action);
+    font-weight: 600;
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+.aktive-hendelser-list a p:nth-of-type(2){
+    text-decoration: none;
+    color: var(--a-text-subtle);
+    font-weight: 400;
+    margin-top: 5px;
+    margin-bottom: 10px;
 }

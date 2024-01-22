@@ -14,6 +14,7 @@ import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 fun Application.gui(alertRepository: AlertRepository) {
@@ -117,13 +118,15 @@ fun Route.startPage(repository: AlertRepository) {
                         li {
                             a {
                                 href = "hendelse/${it.referenceId}"
-                                +"${it.opprettet.format(DateTimeFormatter.ofPattern(" dd.MM.yyyy"))}: ${it.tekster.tittel}"
+                                p { +it.tekster.tittel }
+                                p { +"${it.opprettet.dayMonthYear()} ${it.opprettetAv.username}" }
                             }
                         }
                     }
                 }
 
             a(classes = "btnlink") {
+                id="opprett-ny-btn"
                 href = "opprett"
                 +"Opprett ny hendelse"
             }
@@ -131,6 +134,8 @@ fun Route.startPage(repository: AlertRepository) {
         }
     }
 }
+
+private fun ZonedDateTime.dayMonthYear() = format(DateTimeFormatter.ofPattern(" dd.MM.yyyy"))
 
 
 val ApplicationCall.user

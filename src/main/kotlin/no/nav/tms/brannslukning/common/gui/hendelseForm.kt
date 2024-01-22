@@ -11,7 +11,7 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
         encType = FormEncType.multipartFormData
         fieldSet {
             legend {
-                +"Hendelsedetaljer"
+                +"Varsel"
             }
             labelAnDescribe(FormInputField.TITLE) { ->
                 input {
@@ -24,7 +24,7 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
                 }
             }
             labelAnDescribe(FormInputField.DESCRIPTION) {
-                textArea(classes = "text-input") {
+                textArea {
                     setAttrs(FormInputField.DESCRIPTION)
                     maxLength = "300"
                     tmpHendelse?.let {
@@ -33,15 +33,10 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
                 }
             }
 
-        }
-        fieldSet {
-            legend {
-                +"Varseltekst"
-            }
             labelAnDescribe(
                 FormInputField.MIN_SIDE_TEXT
             ) {
-                textArea(classes = "text-input") {
+                textArea {
                     setAttrs(FormInputField.MIN_SIDE_TEXT)
                     required = true
                     maxLength = "150"
@@ -66,7 +61,7 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
             }
 
             labelAnDescribe(FormInputField.SMS_EPOST_TEKST) {
-                textArea(classes = "text-input") {
+                textArea {
                     setAttrs(FormInputField.SMS_EPOST_TEKST)
                     required = true
                     maxLength = "150"
@@ -98,25 +93,27 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
 
 fun FIELDSET.labelAnDescribe(
     formInputField: FormInputField,
-    inputBuilder: FIELDSET.() -> Unit
+    inputBuilder: LABEL.() -> Unit
 ) {
     label {
         id = formInputField.labelId
         htmlFor = formInputField.elementId
         +formInputField.labelText
-    }
-    formInputField.describe?.also {
-        p {
-            id = formInputField.descriptionId!!
-            +formInputField.describe
+
+        formInputField.describe?.also {
+            p(classes = "input-description") {
+                id = formInputField.descriptionId!!
+                +formInputField.describe
+            }
         }
+        inputBuilder()
     }
-    inputBuilder()
+
 }
 
 enum class FormInputField(val htmlName: String, val labelText: String, val describe: String? = null) {
-    TITLE(htmlName = "title", labelText = "Tittel"),
-    DESCRIPTION(htmlName = "description", labelText = "Beskrivelse"),
+    TITLE(htmlName = "title", labelText = "Tittel", describe = "Kun til internt bruk"),
+    DESCRIPTION(htmlName = "description", labelText = "Beskrivelse", describe = "Kun til internt bruk"),
     SMS_EPOST_TEKST(
         htmlName = "ekstern-text",
         labelText = "Varseltekst som blir sendt på SMS/e-post",
@@ -134,7 +131,8 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
     ),
     IDENT_FILE(
         htmlName = "ident",
-        labelText = "Last opp csv-fil med personnumre");
+        labelText = "Last opp csv-fil med personnumre"
+    );
 
 
     val elementId = "$htmlName-input"

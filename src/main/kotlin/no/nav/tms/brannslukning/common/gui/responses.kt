@@ -62,8 +62,6 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Bool
         head {
             lang = "nb"
             title(title)
-            //    <link rel="preload" href="https://cdn.nav.no/aksel/@navikt/ds-css/5.7.3/index.min.css" as="style" />
-
             link {
                 rel = "stylesheet"
                 href = "/static/style.css"
@@ -75,12 +73,17 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Bool
         }
         body {
             div(classes = "brannslukning-logo ${if (fireIsActive) "active-fire" else "no-active-fire"}") {
-                img {
-                    id = "brannslukning"
+                a {
+                    href="/"
+                    img {
+                        alt="Til forsiden"
+                        id = "brannslukning"
+                    }
+                    p {
+                        +"Brannslukning"
+                    }
                 }
-                p {
-                    +"Brannslukning"
-                }
+
             }
             builder()
         }

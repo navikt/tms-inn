@@ -6,6 +6,7 @@
     content:url("/static/brann.svg");
 }
 
+
 .active-fire img:hover{
     content:url("/static/brann-slukket.svg");
 }
@@ -17,3 +18,4 @@
 .no-active-fire img{
     content:url("/static/brann-slukket.svg");
 }
+/* legg til onhover for hele divven*/
