@@ -19,6 +19,7 @@ internal object HendelseCache {
         .build()
 
     fun putHendelse(tmpHendelse: TmpHendelse) {
+        //Trigg deploy
         cache.put(tmpHendelse.id, jacksonObjectMapper().writeValueAsString(tmpHendelse))
     }
 
