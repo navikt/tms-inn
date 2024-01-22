@@ -17,7 +17,7 @@ internal object HendelseCache {
         .expireAfterWrite(15, TimeUnit.MINUTES)
         .maximumSize(100)
         .build()
-
+//Trigg deploy
     fun putHendelse(tmpHendelse: TmpHendelse) {
         cache.put(tmpHendelse.id, jacksonObjectMapper().writeValueAsString(tmpHendelse))
     }
