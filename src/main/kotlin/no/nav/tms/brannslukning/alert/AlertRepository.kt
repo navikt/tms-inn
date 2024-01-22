@@ -56,19 +56,19 @@ class AlertRepository(private val database: Database) {
                     where ah.aktiv = :aktiv
                     group by ah.referenceId
                 """,
-                    mapOf("aktiv" to aktiv)
-                ).map {
-                    AlertInfo(
-                        referenceId = it.string("referenceId"),
-                        tekster = it.json("tekster"),
-                        opprettet = it.zonedDateTime("opprettet"),
-                        opprettetAv = it.json("opprettetAv", objectMapper),
-                        aktiv = it.boolean("aktiv"),
-                        mottakere = it.int("mottakere"),
-                        avsluttet = null,
-                        avsluttetAv = null
-                    )
-                }.asList
+                mapOf("aktiv" to aktiv)
+            ).map {
+                AlertInfo(
+                    referenceId = it.string("referenceId"),
+                    tekster = it.json("tekster"),
+                    opprettet = it.zonedDateTime("opprettet"),
+                    opprettetAv = it.json("opprettetAv", objectMapper),
+                    aktiv = it.boolean("aktiv"),
+                    mottakere = it.int("mottakere"),
+                    avsluttet = it.zonedDateTimeOrNull("avsluttet"),
+                    avsluttetAv = if (aktiv) null else it.json("avsluttetAv", objectMapper)
+                )
+            }.asList
         }
     }
 
