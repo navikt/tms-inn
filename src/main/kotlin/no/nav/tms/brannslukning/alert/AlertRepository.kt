@@ -24,7 +24,7 @@ class AlertRepository(private val database: Database) {
                 """
                     select 
                         ah.*
-                    from alert_header
+                    from alert_header as ah
                     where ah.referenceId = :referenceId
                 """,
                 mapOf("referenceId" to referenceId)
@@ -56,19 +56,19 @@ class AlertRepository(private val database: Database) {
                     where ah.aktiv = :aktiv
                     group by ah.referenceId
                 """,
-                    mapOf("aktiv" to aktiv)
-                ).map {
-                    AlertInfo(
-                        referenceId = it.string("referenceId"),
-                        tekster = it.json("tekster"),
-                        opprettet = it.zonedDateTime("opprettet"),
-                        opprettetAv = it.json("opprettetAv", objectMapper),
-                        aktiv = it.boolean("aktiv"),
-                        mottakere = it.int("mottakere"),
-                        avsluttet = it.zonedDateTime("avsluttet"),
-                        avsluttetAv = it.json("avsluttetAv", objectMapper)
-                    )
-                }.asList
+                mapOf("aktiv" to aktiv)
+            ).map {
+                AlertInfo(
+                    referenceId = it.string("referenceId"),
+                    tekster = it.json("tekster"),
+                    opprettet = it.zonedDateTime("opprettet"),
+                    opprettetAv = it.json("opprettetAv", objectMapper),
+                    aktiv = it.boolean("aktiv"),
+                    mottakere = it.int("mottakere"),
+                    avsluttet = it.zonedDateTimeOrNull("avsluttet"),
+                    avsluttetAv = if (aktiv) null else it.json("avsluttetAv", objectMapper)
+                )
+            }.asList
         }
     }
 
@@ -100,7 +100,7 @@ class AlertRepository(private val database: Database) {
     fun endAlert(referenceId: String, actor: User) {
         database.update {
             queryOf(
-                "update alert header set aktiv = false, avsluttet = :avsluttet, avsluttetAv = :avsluttetAv where referenceId = :referenceId returning *",
+                "update alert_header set aktiv = false, avsluttet = :avsluttet, avsluttetAv = :avsluttetAv where referenceId = :referenceId",
                 mapOf(
                     "referenceId" to referenceId,
                     "avsluttet" to nowAtUtcZ(),

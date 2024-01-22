@@ -8,7 +8,6 @@ import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.brannslukning.alert.VarselPusher
 import no.nav.tms.brannslukning.common.gui.gui
 import no.nav.tms.brannslukning.setup.PodLeaderElection
-import no.nav.tms.brannslukning.setup.database.Database
 import no.nav.tms.brannslukning.setup.database.Flyway
 import no.nav.tms.brannslukning.setup.database.PostgresDatabase
 import no.nav.tms.common.util.config.IntEnvVar.getEnvVarAsInt
@@ -21,13 +20,30 @@ import org.apache.kafka.common.serialization.StringSerializer
 import java.util.*
 
 fun main() {
+    val alertRepository = AlertRepository(PostgresDatabase())
 
+    embeddedServer(
+        Netty,
+        port = getEnvVarAsInt("PORT", 8081),
+        module = {
+            gui(alertRepository)
+            if (environment.developmentMode) {
+                environment.monitor.subscribe(ApplicationStarted) {
+                    Flyway.runFlywayMigrations()
+                }
+            } else {
+                setupVarselPusher(alertRepository)
+            }
+
+        }
+    ).start(wait = true)
+
+}
+
+private fun Application.setupVarselPusher(alertRepository: AlertRepository) {
     val environment = Environment()
-    val database: Database = PostgresDatabase(environment)
 
-    val alertRepository = AlertRepository(database)
     val kafkaProducer = initializeRapidKafkaProducer(environment)
-
     val leaderElection = PodLeaderElection()
 
     val varselPusher = VarselPusher(
@@ -37,20 +53,15 @@ fun main() {
         environment.varselTopic
     )
 
-    embeddedServer(
-        Netty,
-        port = getEnvVarAsInt("PORT", 8081),
-        module = {
-            gui(alertRepository)
-            configureStartupHook(environment, varselPusher)
-            configureShutdownHook(varselPusher, kafkaProducer)
-        }
-    ).start(wait = true)
+    configureStartupHook(varselPusher)
+    configureShutdownHook(varselPusher, kafkaProducer)
+
+
 }
 
-private fun Application.configureStartupHook(env: Environment, varselPusher: VarselPusher) {
+private fun Application.configureStartupHook(varselPusher: VarselPusher) {
     environment.monitor.subscribe(ApplicationStarted) {
-        Flyway.runFlywayMigrations(env)
+        Flyway.runFlywayMigrations()
         varselPusher.start()
     }
 }

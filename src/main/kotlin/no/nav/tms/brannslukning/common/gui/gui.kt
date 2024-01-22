@@ -4,14 +4,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.html.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
+import java.time.format.DateTimeFormatter
 
 fun Application.gui(alertRepository: AlertRepository) {
 
@@ -47,7 +50,16 @@ fun Application.gui(alertRepository: AlertRepository) {
                     }
 
                 else ->
-                    call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
+                    call.respondHtmlContent("Feil") {
+                        p { +"Oups..Nå ble det noe feil" }
+                        p { +"${cause.message}" }
+                        img {
+                            id = "500-katt"
+                            src = "/static/500-katt.svg"
+                            alt = "500-cat loves you!"
+                            title = "500-cat loves you!"
+                        }
+                    }
             }
         }
     }
@@ -82,31 +94,36 @@ fun Routing.meta() {
 
 fun Route.startPage(repository: AlertRepository) {
     get {
-        val aktiveHendelser = repository.activeAlerts()
+        val aktiveHendelser : List<AlertInfo> =
+            try {
+                repository.activeAlerts()
+            } catch (e: Exception) {
+                println("Noe gikk feil med henting fra db")
+                emptyList()
+            }
+
         call.respondHtmlContent("Min side brannslukning – Start") {
             h1 { +"Hendelsesvarsling" }
-            img {
-                id = "500-katt"
-                src = "/static/500-katt.svg"
-                alt = "500-cat loves you!"
-                title = "500-cat loves you!"
+            p {
+                +"""Som en del av beredskapsplanen for nav.no kan du varsle brukere dersom det har skjedd en feil. 
+                |Brukeren vil motta en SMS/e-post og får en beskjed på Min side. """.trimMargin()
             }
             h2 { +"Aktive hendelser" }
             if (aktiveHendelser.isEmpty())
                 p { +"Ingen aktive hendelser" }
             else
-                ul {
+                ul(classes = "aktive-hendelser-list") {
                     aktiveHendelser.forEach {
                         li {
                             a {
                                 href = "hendelse/${it.referenceId}"
-                                +"${it.tekster.beskrivelse} --sett inn dato og klokkeslett--"
+                                +"${it.opprettet.format(DateTimeFormatter.ofPattern(" dd.MM.yyyy"))}: ${it.tekster.tittel}"
                             }
                         }
                     }
                 }
 
-            a {
+            a(classes = "btnlink") {
                 href = "opprett"
                 +"Opprett ny hendelse"
             }

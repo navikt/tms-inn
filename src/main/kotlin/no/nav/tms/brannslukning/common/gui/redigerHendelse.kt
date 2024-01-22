@@ -13,7 +13,8 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
 
             val id = call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
 
-            val hendelse = HendelseCache.getHendelse(id) ?: alertRepository.fetchHendelse(id) ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
+            val hendelse = HendelseCache.getHendelse(id) ?: alertRepository.fetchHendelse(id)
+            ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
 
             call.respondHtmlContent("Hendelse detaljer") {
                 h1 {
@@ -37,11 +38,11 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
             }
 
         }
+        //TODO fiks url
         post("{id}") {
             val id = call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
-
-            val hendelse = HendelseCache.getHendelse(id) ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
-
+            val hendelse =
+                alertRepository.fetchHendelse(id) ?: throw IllegalArgumentException("Fant ikke hendelse med id $id")
             alertRepository.endAlert(hendelse.id, call.user)
             HendelseCache.tmpClose(hendelse.id)
 

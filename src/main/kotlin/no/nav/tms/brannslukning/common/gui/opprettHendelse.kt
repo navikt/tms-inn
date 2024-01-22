@@ -7,7 +7,6 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
 import no.nav.tms.brannslukning.alert.AlertRepository
-import detailsForm
 
 private val log = KotlinLogging.logger { }
 
@@ -15,26 +14,50 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
 
     route("opprett") {
         get {
-            val hendelse = call.hendelseOrNull()
-            call.respondHtmlContent("Opprett hendelse – tekster") {
-                h1 { +"Opprett hendelse" }
-                detailsForm(tmpHendelse = hendelse, postEndpoint = "/opprett")
+            call.respondHtmlContent("Opprett varsel – tekster") {
+                h1 { +"Opprett varsel" }
+                hendelseForm(tmpHendelse = call.hendelseOrNull(), postEndpoint = "/opprett")
             }
         }
 
         post {
             val hendelse = call.hendelseOrNull()
-            val params = call.receiveParameters()
-            val beskjedTekst =
-                params["beskjed-text"] ?: throw IllegalArgumentException("Tekst for beskjed må være satt")
-            val url =
-                params["url"] ?: throw IllegalArgumentException("Url for beskjed må være satt")
-            val eksternTekst =
-                params["ekstern-text"] ?: throw IllegalArgumentException("Tekst for sms/epost må være satt")
-            val title =
-                params["title"] ?: throw IllegalArgumentException("Tittel må være satt")
-            val description =
-                params["description"] ?: ""
+            var beskjedTekst = ""
+            var url = ""
+            var eksternTekst = ""
+            var title = ""
+            var description = ""
+
+            val multipartData = call.receiveMultipart()
+            var content = byteArrayOf()
+
+            multipartData.forEachPart { part ->
+                when (part) {
+                    is PartData.FormItem -> {
+                        when (part.name) {
+                            FormInputField.TITLE.htmlName -> title = part.value
+                            FormInputField.DESCRIPTION.htmlName -> description = part.value
+                            FormInputField.MIN_SIDE_TEXT.htmlName -> beskjedTekst = part.value
+                            FormInputField.LINK.htmlName -> url = part.value
+                            FormInputField.SMS_EPOST_TEKST.htmlName -> eksternTekst = part.value
+
+                        }
+
+                    }
+
+                    is PartData.FileItem -> {
+                        val fileBytes = part.streamProvider().readBytes()
+                        content += fileBytes
+                        log.info { content }
+                    }
+
+                    else -> {
+                        throw IllegalArgumentException("Ukjent innholdt i opplastet fil")
+                    }
+                }
+                part.dispose()
+            }
+
 
             val tmpHendelse =
                 hendelse?.withUpdatedText(
@@ -50,48 +73,11 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                         varseltekst = beskjedTekst,
                         eksternTekst = eksternTekst,
                         initatedBy = call.user,
-                        url = url
+                        url = url,
+                        affectedUsers = content.parseAndVerify() ?: emptyList()
                     )
             HendelseCache.putHendelse(tmpHendelse)
-            call.respondSeeOther("opprett/personer?hendelse=${tmpHendelse.id}")
-        }
-
-        route("personer") {
-            get {
-                call.respondUploadFileForm(call.hendelse())
-            }
-            post {
-                val hendelse = call.hendelse()
-                val multipartData = call.receiveMultipart()
-                var fileDescription = ""
-                var fileName = ""
-                var content = byteArrayOf()
-
-                multipartData.forEachPart { part ->
-                    when (part) {
-                        is PartData.FormItem -> {
-                            fileDescription = part.value
-                        }
-
-                        is PartData.FileItem -> {
-                            fileName = part.originalFileName as String
-                            val fileBytes = part.streamProvider().readBytes()
-                            content += fileBytes
-                            log.info { content }
-                        }
-
-                        else -> {
-                            throw IllegalArgumentException("Ukjent innholdt i opplastet fil")
-                        }
-                    }
-                    part.dispose()
-                }
-
-                log.info { "$fileName opplastet\n$fileDescription" }
-                val idents = content.parseAndVerify() ?: hendelse.affectedUsers
-                HendelseCache.putHendelse(hendelse.withAffectedUsers(idents))
-                call.respondSeeOther("/opprett/confirm?hendelse=${hendelse.id}")
-            }
+            call.respondSeeOther("/opprett/confirm?hendelse=${tmpHendelse.id}")
         }
 
         route("confirm") {
@@ -117,12 +103,9 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
     }
 
     route("send") {
-
         post("confirm") {
             val hendelse = call.hendelse()
-
             alertRepository.createAlert(hendelse.toOpprettAlert())
-
             HendelseCache.invalidateHendelse(hendelse.id)
 
             call.respondHtmlContent("Hendelse opprettet") {
