@@ -144,10 +144,6 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
         describe?.let { "${descriptionId},${labelId}" } ?: labelId
 
     companion object {
-        fun Parameters.getFormField(field: FormInputField) =
-            this[field.htmlName] ?: throw IllegalArgumentException("${field.htmlName} er ikke satt")
-
-        fun Parameters.getOptionalFormField(field: FormInputField) = this[field.htmlName] ?: ""
 
         fun INPUT.setAttrs(field: FormInputField) {
             attributes["aria-describedby"] = field.describedBy

@@ -91,6 +91,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                         action = "/send/confirm?hendelse=${hendelse.id}"
                         method = FormMethod.post
                         button {
+                            onClick = "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedUsers.size} personer?')"
                             type = ButtonType.submit
                             text("Opprett hendelse")
                         }
