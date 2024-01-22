@@ -28,7 +28,7 @@ fun Application.gui(alertRepository: AlertRepository) {
             log.error(cause) { "Ukjent feil" }
             when (cause) {
                 is BadFileContent ->
-                    call.respondHtmlContent("Feil i identfil") {
+                    call.respondHtmlContent("Feil i identfil", true) {
                         p {
                             +cause.message
                         }
@@ -39,7 +39,7 @@ fun Application.gui(alertRepository: AlertRepository) {
                     }
 
                 is HendelseNotFoundException ->
-                    call.respondHtmlContent("Hendelse ikke funnet") {
+                    call.respondHtmlContent("Hendelse ikke funnet", true) {
                         p {
                             +"Hendelsen du leter etter finnes ikke"
                         }
@@ -50,7 +50,7 @@ fun Application.gui(alertRepository: AlertRepository) {
                     }
 
                 else ->
-                    call.respondHtmlContent("Feil") {
+                    call.respondHtmlContent("Feil", true) {
                         p { +"Oups..Nå ble det noe feil" }
                         p { +"${cause.message}" }
                         img {
@@ -94,7 +94,7 @@ fun Routing.meta() {
 
 fun Route.startPage(repository: AlertRepository) {
     get {
-        val aktiveHendelser : List<AlertInfo> =
+        val aktiveHendelser: List<AlertInfo> =
             try {
                 repository.activeAlerts()
             } catch (e: Exception) {
@@ -102,7 +102,7 @@ fun Route.startPage(repository: AlertRepository) {
                 emptyList()
             }
 
-        call.respondHtmlContent("Min side brannslukning – Start") {
+        call.respondHtmlContent("Min side brannslukning – Start", aktiveHendelser.isNotEmpty()) {
             h1 { +"Hendelsesvarsling" }
             p {
                 +"""Som en del av beredskapsplanen for nav.no kan du varsle brukere dersom det har skjedd en feil. 

@@ -57,11 +57,13 @@ suspend fun ApplicationCall.respondSeeOther(endpoint: String) {
     respond(HttpStatusCode.SeeOther)
 }
 
-suspend fun ApplicationCall.respondHtmlContent(title: String, builder: BODY.() -> Unit) {
+suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Boolean, builder: BODY.() -> Unit) {
     this.respondHtml {
         head {
             lang = "nb"
             title(title)
+            //    <link rel="preload" href="https://cdn.nav.no/aksel/@navikt/ds-css/5.7.3/index.min.css" as="style" />
+
             link {
                 rel = "stylesheet"
                 href = "/static/style.css"
@@ -72,6 +74,14 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, builder: BODY.() -
             }
         }
         body {
+            div(classes = "brannslukning-logo ${if (fireIsActive) "active-fire" else "no-active-fire"}") {
+                img {
+                    id = "brannslukning"
+                }
+                p {
+                    +"Brannslukning"
+                }
+            }
             builder()
         }
     }

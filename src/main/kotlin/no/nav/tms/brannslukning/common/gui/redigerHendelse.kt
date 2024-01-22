@@ -16,7 +16,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
             val hendelse = HendelseCache.getHendelse(id) ?: alertRepository.fetchHendelse(id)
             ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
 
-            call.respondHtmlContent("Hendelse detaljer") {
+            call.respondHtmlContent("Hendelse detaljer", true) {
                 h1 {
                     +"Hendelsedetaljer"
                 }
@@ -46,7 +46,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
             alertRepository.endAlert(hendelse.id, call.user)
             HendelseCache.tmpClose(hendelse.id)
 
-            call.respondHtmlContent("Hendelse avsluttet") {
+            call.respondHtmlContent("Hendelse avsluttet", false) {
                 h1 { +"Hendelse avsluttet" }
                 hendelseDl(hendelse, avsluttetAv = call.user.username)
 

@@ -14,7 +14,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
 
     route("opprett") {
         get {
-            call.respondHtmlContent("Opprett varsel – tekster") {
+            call.respondHtmlContent("Opprett varsel – tekster", true) {
                 h1 { +"Opprett varsel" }
                 hendelseForm(tmpHendelse = call.hendelseOrNull(), postEndpoint = "/opprett")
             }
@@ -83,7 +83,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
         route("confirm") {
             get {
                 val hendelse = call.hendelse()
-                call.respondHtmlContent("Opprett hendelse – bekreft") {
+                call.respondHtmlContent("Opprett hendelse – bekreft", true) {
 
                     h1 { +"Bekreft" }
                     hendelseDl(hendelse)
@@ -91,7 +91,8 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                         action = "/send/confirm?hendelse=${hendelse.id}"
                         method = FormMethod.post
                         button {
-                            onClick = "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedUsers.size} personer?')"
+                            onClick =
+                                "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedUsers.size} personer?')"
                             type = ButtonType.submit
                             text("Opprett hendelse")
                         }
@@ -109,7 +110,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
             alertRepository.createAlert(hendelse.toOpprettAlert())
             HendelseCache.invalidateHendelse(hendelse.id)
 
-            call.respondHtmlContent("Hendelse opprettet") {
+            call.respondHtmlContent("Hendelse opprettet", true) {
                 h1 { +"Hendelse opprettet" }
                 hendelseDl(hendelse)
                 a {
