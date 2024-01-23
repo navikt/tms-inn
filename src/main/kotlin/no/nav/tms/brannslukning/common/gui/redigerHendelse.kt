@@ -20,8 +20,8 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
                 h1 {
                     +"Hendelsedetaljer"
                 }
-                hendelseDl(hendelse)
-                form {
+                hendelseDl(hendelse, classes = "composite-box-top")
+                form(classes = "composite-box-bottom") {
                     action = "/hendelse/${hendelse.id}"
                     method = FormMethod.post
                     button {
@@ -31,7 +31,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
                     }
                 }
 
-                a {
+                a(classes="btnlink back-and-cancel") {
                     href = "/"
                     +"Tilbake til forsiden"
                 }
@@ -48,7 +48,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
 
             call.respondHtmlContent("Hendelse avsluttet", false) {
                 h1 { +"Hendelse avsluttet" }
-                hendelseDl(hendelse, avsluttetAv = call.user.username)
+                hendelseDl(hendelse, "",avsluttetAv = call.user.username,)
 
                 a {
                     href = "/"

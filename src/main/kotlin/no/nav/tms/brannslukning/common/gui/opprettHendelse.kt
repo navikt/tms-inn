@@ -86,8 +86,8 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                 call.respondHtmlContent("Opprett hendelse – bekreft", true) {
 
                     h1 { +"Bekreft" }
-                    hendelseDl(hendelse)
-                    form {
+                    hendelseDl(hendelse,"composite-box-top")
+                    form(classes = "composite-box-bottom") {
                         action = "/send/confirm?hendelse=${hendelse.id}"
                         method = FormMethod.post
                         button {
@@ -96,8 +96,8 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                             type = ButtonType.submit
                             text("Opprett hendelse")
                         }
-                        cancelAndGoBackButtons("/opprett/personer?hendelse=${hendelse.id}")
                     }
+                    cancelAndGoBackButtons("/opprett?hendelse=${hendelse.id}")
                 }
             }
         }
@@ -111,9 +111,26 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
             HendelseCache.invalidateHendelse(hendelse.id)
 
             call.respondHtmlContent("Hendelse opprettet", true) {
-                h1 { +"Hendelse opprettet" }
-                hendelseDl(hendelse)
-                a {
+                h1 { +"Kvittering" }
+                div {
+                    id = "kvittering"
+                    div {
+                        h2 {+"Hendelse opprettet"}
+                        p { +"Bra jobba!" }
+                        p { +"Du er med å slukke branner"}
+                    }
+                    img {
+                        id = "Brannmannkatt"
+                        src = "/static/brannkatt.svg"
+                        alt = "Brannmannkatt loves you!"
+                        title = "Brannmannkatt loves you!"
+                    }
+
+                }
+                h2 { +"Detaljer" }
+                hendelseDl(hendelse,"")
+                a(classes="btnlink") {
+                    id="kvittering-back-btn"
                     href = "/"
                     +"Tilbake til forsiden"
                 }

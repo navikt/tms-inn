@@ -83,12 +83,12 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
                 }
             }
         }
-        cancelAndGoBackButtons()
         button {
             type = ButtonType.submit
             text("Neste")
         }
     }
+    cancelAndGoBackButtons()
 }
 
 fun FIELDSET.labelAnDescribe(

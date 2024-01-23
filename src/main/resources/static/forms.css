@@ -14,7 +14,7 @@ form {
     padding: 40px;
     border-radius: 12px 12px 0 0;
     gap: 40px;
-    background-color: var(--a-surface-selected);
+    background-color: var(--composite-box-backround-color);
     max-width: 808px;
 }
 
@@ -67,6 +67,13 @@ input[type="file"]::file-selector-button{
 
 input[type="file"]{
     width: 600px;
-    padding:0px;
+    padding:0;
     vertical-align: center;
+}
+
+.back-and-cancel {
+    display: inline-block;
+    margin-top: 20px;
+    color: var(--a-surface-action);
+    background: transparent;
 }

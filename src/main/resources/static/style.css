@@ -1,5 +1,11 @@
 @import url("https://cdn.nav.no/aksel/@navikt/ds-css/5.7.3/index.min.css");
 @import "branslukning-logo.css";
+@import "definitionlist.css";
+@import "kvittering.css";
+
+:root {
+    --composite-box-backround-color: var(--a-surface-selected);;
+}
 
 body {
     max-width: 800px;
@@ -7,16 +13,19 @@ body {
     line-height: 1.333;
     font-size: 1.125rem;
     color: var(--a-text-default);
-    margin: 0 auto;
+    margin: 5px auto;
 }
 
 button {
     height: 48px;
     padding: 12px 20px 12px 20px;
     border-radius: 4px;
+    border-style: none;
     gap: 8px;
     background-color: var(--a-surface-action);
+    color: white;
 }
+
 
 .btnlink {
     height: 48px;
@@ -31,15 +40,6 @@ button {
 #opprett-ny-btn {
     display: inline-block;
     margin-top: 20px;
-}
-
-dt {
-    font-weight: bold;
-}
-
-.hendelsedl p {
-    max-width: 600px;
-    word-break: break-word;
 }
 
 #500-katt {
@@ -59,11 +59,11 @@ dt {
     border-bottom: solid var(--a-border-divider) 1px;
 }
 
-.aktive-hendelser-list a{
+.aktive-hendelser-list a {
     text-decoration: none;
 }
 
-.aktive-hendelser-list a p:first-of-type{
+.aktive-hendelser-list a p:first-of-type {
     text-decoration: none;
     color: var(--a-text-action);
     font-weight: 600;
@@ -71,10 +71,25 @@ dt {
     margin-top: 10px;
 }
 
-.aktive-hendelser-list a p:nth-of-type(2){
+.aktive-hendelser-list a p:nth-of-type(2) {
     text-decoration: none;
     color: var(--a-text-subtle);
     font-weight: 400;
     margin-top: 5px;
     margin-bottom: 10px;
+}
+
+.composite-box-top {
+    max-width: 808px;
+    border-radius: 12px 12px 0 0;
+    padding: 20px 20px 20px 40px;
+    background-color: var(--composite-box-backround-color);
+    margin-bottom: 2px;
+}
+
+.composite-box-bottom {
+    max-width: 808px;
+    border-radius: 0 0 12px 12px;
+    padding: 20px 20px 20px 40px;
+    background-color: var(--composite-box-backround-color);
 }

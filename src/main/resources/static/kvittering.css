@@ -1,0 +1,36 @@
+#kvittering-back-btn {
+    color: black;
+}
+
+#kvittering {
+    background-color: #CCF1D6;
+    padding: 40px;
+    border-radius: 12px 12px 12px 12px;
+}
+
+#kvittering img {
+    height: 160px
+}
+
+#kvittering div {
+    height: 160px;
+    width: 560px;
+    display: inline-block;
+}
+
+#kvittering h2 {
+    color: #003B0F;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 24px;
+}
+
+#kvittering p {
+    color: #003B0F;
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 40px;
+    margin-bottom: 2px;
+    margin-top: 0;
+}
+

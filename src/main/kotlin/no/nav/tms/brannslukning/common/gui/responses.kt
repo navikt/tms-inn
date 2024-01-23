@@ -6,8 +6,13 @@ import io.ktor.server.html.*
 import io.ktor.server.response.*
 import kotlinx.html.*
 
-fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String? = null, showAffectedUsers: Boolean = true) {
-    dl(classes = "hendelsedl") {
+fun BODY.hendelseDl(
+    tmpHendelse: TmpHendelse,
+    classes: String,
+    avsluttetAv: String? = null,
+    showAffectedUsers: Boolean = true,
+) {
+    dl(classes = "hendelsedl $classes") {
         dt { +"Tittel" }
         dd { +tmpHendelse.title }
         tmpHendelse.description.takeIf { it.isNotEmpty() }?.also {
@@ -39,14 +44,14 @@ fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String? = null, showA
     }
 }
 
-fun FORM.cancelAndGoBackButtons(previousUrl: String? = null) {
+fun BODY.cancelAndGoBackButtons(previousUrl: String? = null) {
     if (previousUrl != null) {
-        a(classes = "btnlink") {
+        a(classes = "btnlink back-and-cancel") {
             href = previousUrl
-            +"Forrige"
+            +"Rediger"
         }
     }
-    a(classes = "btnlink") {
+    a(classes = "btnlink back-and-cancel") {
         href = "/"
         +"Avbryt"
     }
@@ -74,9 +79,9 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Bool
         body {
             div(classes = "brannslukning-logo ${if (fireIsActive) "active-fire" else "no-active-fire"}") {
                 a {
-                    href="/"
+                    href = "/"
                     img {
-                        alt="Til forsiden"
+                        alt = "Til forsiden"
                         id = "brannslukning"
                     }
                     p {
