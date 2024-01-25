@@ -1,6 +1,5 @@
 package no.nav.tms.brannslukning.alert
 
-import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -54,14 +53,17 @@ class VarselPusherTest {
                 tekster = Tekster(
                     tittel = "Alert for test",
                     beskrivelse = "Alert for test med beskrivelse",
-                    beskjed = WebTekst(
+                    beskjed = Beskjed.withTekst(
+                        link = "https://test",
                         spraakkode = "nb",
-                        tekst = "Alerttekst for beskjed",
-                        link = "https://test"
+                        internTekst = "Alerttekst for beskjed" ,
+                        eksternTittel = "Tittel for epost",
+                        eksternTekst = "Tekst i ekstern kanal"
+
                     ),
-                    eksternTekst = EksternTekst(
-                        tittel = "Tittel for epost",
-                        tekst = "Tekst i ekstern kanal"
+                    webTekst = WebTekst(
+                        emptyList(),
+                        emptyList()
                     )
                 ),
                 opprettetAv = User("TEST", "test")
@@ -114,14 +116,17 @@ class VarselPusherTest {
                 tekster = Tekster(
                     tittel = "Alert for test",
                     beskrivelse = "Alert for test med beskrivelse",
-                    beskjed = WebTekst(
+                    beskjed = Beskjed.withTekst(
+                        link = "https://test",
                         spraakkode = "nb",
-                        tekst = "Alerttekst for beskjed",
-                        link = "https://test"
+                        internTekst = "Alerttekst for beskjed" ,
+                        eksternTittel = "Tittel for epost",
+                        eksternTekst = "Tekst i ekstern kanal"
+
                     ),
-                    eksternTekst = EksternTekst(
-                        tittel = "Tittel for epost",
-                        tekst = "Tekst i ekstern kanal"
+                    webTekst = WebTekst(
+                        emptyList(),
+                        emptyList()
                     )
                 ),
                 opprettetAv = User("TEST", "test")
@@ -206,7 +211,7 @@ private fun Database.insertRequests(requests: AlertWithRecipients) {
     )
 }
 
-private data class AlertEntry(
+data class AlertEntry(
     val referenceId: String,
     val tekster: Tekster,
     val opprettetAv: User,
@@ -215,7 +220,7 @@ private data class AlertEntry(
     val avsluttet: ZonedDateTime? = null
 )
 
-private data class AlertWithRecipients(
+data class AlertWithRecipients(
     val alertEntry: AlertEntry,
     val recipients: List<String>
 )

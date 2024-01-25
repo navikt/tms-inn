@@ -36,6 +36,7 @@ dependencies {
     implementation(JacksonDatatype.moduleKotlin)
     implementation(KotliQuery.kotliquery)
     implementation(KotlinLogging.logging)
+    implementation(Ktor.Server.contentNegotiation)
     implementation(Ktor.Server.core)
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.htmlDsl)
@@ -53,7 +54,8 @@ dependencies {
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation(TmsVarselBuilder.kotlinBuilder)
-    implementation(TmsKtorTokenSupport.azureValidation)
+    implementation(TmsKtorTokenSupport.tokenXValidation)
+
 
 
     testImplementation(Junit.api)
@@ -63,7 +65,9 @@ dependencies {
     testImplementation(TestContainers.postgresql)
     testImplementation(Kotest.runnerJunit5)
     testImplementation(Kotest.assertionsCore)
-    implementation(TmsKtorTokenSupport.azureValidationMock)
+    testImplementation(Ktor.Test.serverTestHost)
+    testImplementation(TmsKtorTokenSupport.azureValidationMock)
+    testImplementation(TmsKtorTokenSupport.tokenXValidationMock)
 }
 
 application {

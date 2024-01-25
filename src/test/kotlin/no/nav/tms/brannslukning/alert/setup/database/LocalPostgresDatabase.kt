@@ -25,7 +25,7 @@ class LocalPostgresDatabase private constructor() : Database {
     }
 
     fun clearTables() {
-        update { queryOf("delete from aktiv_alert_regel") }
+        update { queryOf("delete from web_alert_mottakere") }
         update { queryOf("delete from alert_varsel_queue") }
         update { queryOf("delete from alert_header") }
     }

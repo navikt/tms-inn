@@ -3,6 +3,7 @@ package no.nav.tms.brannslukning.alert
 import no.nav.tms.brannslukning.setup.PeriodicJob
 import no.nav.tms.brannslukning.setup.PodLeaderElection
 import no.nav.tms.varsel.action.*
+import no.nav.tms.varsel.action.Tekst
 import no.nav.tms.varsel.action.Varseltype.Beskjed
 import no.nav.tms.varsel.builder.VarselActionBuilder
 import org.apache.kafka.clients.producer.Producer
@@ -38,11 +39,13 @@ class VarselPusher(
             varselId = beskjedId
             ident = varselRequest.ident
             link = varselRequest.beskjed.link
-            tekst = Tekst(
-                spraakkode = varselRequest.beskjed.spraakkode,
-                tekst = varselRequest.beskjed.tekst,
-                default = true
-            )
+            varselRequest.beskjed.tekster.forEach {
+                tekster += Tekst(
+                    spraakkode = it.spraakkode,
+                    tekst = it.tekst,
+                    default = it.default
+                )
+            }
             eksternVarsling = EksternVarslingBestilling(
                 prefererteKanaler = listOf(EksternKanal.SMS),
                 smsVarslingstekst = varselRequest.eksternTekst.tekst,

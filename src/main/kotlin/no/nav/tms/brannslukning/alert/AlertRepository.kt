@@ -34,8 +34,8 @@ class AlertRepository(private val database: Database) {
                 TmpHendelse(
                     id = it.string("referenceId"),
                     initatedBy = it.json("opprettetAv", objectMapper),
-                    varseltekst = tekster.beskjed.tekst,
-                    eksternTekst = tekster.eksternTekst.tekst,
+                    varseltekst = tekster.beskjed.defaultTekst().tekst,
+                    eksternTekst = tekster.beskjed.eksternTekst.tekst,
                     url = tekster.beskjed.link,
                     title = tekster.tittel,
                     description = tekster.beskrivelse
@@ -75,12 +75,13 @@ class AlertRepository(private val database: Database) {
     fun createAlert(createAlert: OpprettAlert) {
         database.update {
             queryOf(
-                "insert into alert_header(referenceId, tekster, opprettet, opprettetAv) values(:referenceId, :tekster, :opprettet, :opprettetAv)",
+                "insert into alert_header(referenceId, tekster, aktivFremTil, opprettet, opprettetAv) values(:referenceId, :tekster, :aktivFremTil, :opprettet, :opprettetAv)",
                 mapOf(
                     "referenceId" to createAlert.referenceId,
                     "tekster" to createAlert.tekster.toJsonb(objectMapper),
-                    "opprettetAv" to createAlert.opprettetAv.toJsonb(objectMapper),
-                    "opprettet" to nowAtUtcZ()
+                    "aktivFremTil" to createAlert.aktivFremTil,
+                    "opprettet" to nowAtUtcZ(),
+                    "opprettetAv" to createAlert.opprettetAv.toJsonb(objectMapper)
                 )
             )
         }
@@ -95,6 +96,17 @@ class AlertRepository(private val database: Database) {
                 )
             }
         )
+
+        database.update {
+            queryOf(
+                "insert into web_alert_mottakere(alert_ref, mottakere, opprettet) values(:refereneId, :mottakere, :opprettet)",
+                mapOf(
+                    "referenceId" to createAlert.referenceId,
+                    "mottakere" to createAlert.mottakere,
+                    "opprettet" to nowAtUtcZ()
+                )
+            )
+        }
     }
 
     fun endAlert(referenceId: String, actor: User) {
@@ -107,6 +119,37 @@ class AlertRepository(private val database: Database) {
                     "avsluttetAv" to actor.toJsonb(objectMapper)
                 )
             )
+        }
+
+        database.update {
+            queryOf(
+                "delete from alert_varsel_queue where alert_ref = :referenceId",
+                mapOf("referenceId" to referenceId)
+            )
+        }
+
+        database.update {
+            queryOf(
+                "delete from web_alert_mottakere where alert_ref = :referenceId",
+                mapOf("referenceId" to referenceId)
+            )
+        }
+    }
+
+    fun webAlertsForUser(ident: String): List<WebTekst> {
+        return database.list {
+            queryOf(
+                """
+                    select ah.tekster->'webTekst' as webTekst from alert_header as ah
+                        join web_alert_mottakere as wam on ah.referenceId = wam.alert_ref
+                    where wam.mottakere @> :ident and ah.tekster->'webTekst' is not null
+                """,
+                mapOf(
+                    "ident" to ident.toJsonb(objectMapper)
+                )
+            ).map {
+                it.json<WebTekst>("webTekst", objectMapper)
+            }.asList
         }
     }
 

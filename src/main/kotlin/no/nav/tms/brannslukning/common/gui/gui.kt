@@ -1,10 +1,12 @@
 package no.nav.tms.brannslukning.common.gui
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.html.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
@@ -12,13 +14,36 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
+import no.nav.tms.brannslukning.alert.userApi
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
+import no.nav.tms.token.support.tokenx.validation.TokenXAuthenticator
+import no.nav.tms.token.support.tokenx.validation.tokenX
+import java.text.DateFormat
 import java.time.format.DateTimeFormatter
 
-fun Application.gui(alertRepository: AlertRepository) {
+fun Application.brannslukningApi(
+    alertRepository: AlertRepository,
+    authenticationConfig: Application.() -> Unit = {
+        authentication {
+            azure {
+                setAsDefault = true
+            }
+            tokenX {
+                setAsDefault = false
+            }
+        }
+    }
+) {
 
     val log = KotlinLogging.logger { }
+
+    install(ContentNegotiation) {
+        jackson {
+            registerModule(JavaTimeModule())
+            dateFormat = DateFormat.getDateTimeInstance()
+        }
+    }
 
     install(StatusPages) {
         status(HttpStatusCode.NotFound) { call, status ->
@@ -27,7 +52,8 @@ fun Application.gui(alertRepository: AlertRepository) {
         exception<Throwable> { call, cause ->
             log.error(cause) { "Ukjent feil" }
             when (cause) {
-                is BadFileContent ->
+                is BadFileContent -> {
+                    log.error(cause) { "Feil i fil" }
                     call.respondHtmlContent("Feil i identfil") {
                         p {
                             +cause.message
@@ -37,8 +63,10 @@ fun Application.gui(alertRepository: AlertRepository) {
                             +"Tilbake"
                         }
                     }
+                }
 
-                is HendelseNotFoundException ->
+                is HendelseNotFoundException -> {
+                    log.info(cause) { "Fant ikke hendelse" }
                     call.respondHtmlContent("Hendelse ikke funnet") {
                         p {
                             +"Hendelsen du leter etter finnes ikke"
@@ -48,8 +76,10 @@ fun Application.gui(alertRepository: AlertRepository) {
                             +"Tilbake"
                         }
                     }
+                }
 
-                else ->
+                else -> {
+                    log.error(cause) { "Ukjent feil" }
                     call.respondHtmlContent("Feil") {
                         p { +"Oups..Nå ble det noe feil" }
                         p { +"${cause.message}" }
@@ -60,15 +90,13 @@ fun Application.gui(alertRepository: AlertRepository) {
                             title = "500-cat loves you!"
                         }
                     }
+                }
+
             }
         }
     }
 
-    authentication {
-        azure {
-            setAsDefault = true
-        }
-    }
+    authenticationConfig()
 
     routing {
         meta()
@@ -76,6 +104,9 @@ fun Application.gui(alertRepository: AlertRepository) {
             startPage(alertRepository)
             opprettHendelse(alertRepository)
             redigerHendelse(alertRepository)
+        }
+        authenticate(TokenXAuthenticator.name) {
+            userApi(alertRepository)
         }
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)

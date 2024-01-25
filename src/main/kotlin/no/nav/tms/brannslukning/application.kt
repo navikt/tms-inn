@@ -6,7 +6,7 @@ import io.ktor.server.netty.*
 import kotlinx.coroutines.runBlocking
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.brannslukning.alert.VarselPusher
-import no.nav.tms.brannslukning.common.gui.gui
+import no.nav.tms.brannslukning.common.gui.brannslukningApi
 import no.nav.tms.brannslukning.setup.PodLeaderElection
 import no.nav.tms.brannslukning.setup.database.Flyway
 import no.nav.tms.brannslukning.setup.database.PostgresDatabase
@@ -26,7 +26,7 @@ fun main() {
         Netty,
         port = getEnvVarAsInt("PORT", 8081),
         module = {
-            gui(alertRepository)
+            brannslukningApi(alertRepository)
             if (environment.developmentMode) {
                 environment.monitor.subscribe(ApplicationStarted) {
                     Flyway.runFlywayMigrations()

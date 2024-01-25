@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.brannslukning.alert.*
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -53,23 +54,27 @@ data class TmpHendelse(
         description = description,
         title = title
     )
+
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
         tekster = Tekster(
             tittel = title,
             beskrivelse = description,
-            beskjed = WebTekst(
+            beskjed = Beskjed.withTekst(
                 spraakkode = "nb",
-                tekst = varseltekst,
+                internTekst = varseltekst,
+                eksternTekst = eksternTekst,
+                eksternTittel = "Varsel fra NAV",
                 link = url
             ),
-            eksternTekst = EksternTekst(
-                tittel = "Varsel fra NAV",
-                tekst = eksternTekst
+            webTekst = WebTekst(
+                tekster = listOf(Tekst("nb", varseltekst, default = true)),
+                domener = listOf("www.intern.dev.nav.no")
             )
         ),
         opprettetAv = initatedBy,
-        mottakere = affectedUsers
+        mottakere = affectedUsers,
+        aktivFremTil = nowAtUtcZ().plusDays(7)
     )
 }
 
