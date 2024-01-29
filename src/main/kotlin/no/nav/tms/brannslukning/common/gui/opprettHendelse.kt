@@ -129,7 +129,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                 }
                 h2 { +"Detaljer" }
                 hendelseDl(hendelse,"")
-                a(classes="btnlink") {
+                a(classes="btnlink neutral") {
                     id="kvittering-back-btn"
                     href = "/"
                     +"Tilbake til forsiden"

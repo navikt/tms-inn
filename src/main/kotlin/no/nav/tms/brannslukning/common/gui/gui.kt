@@ -106,6 +106,7 @@ fun Route.startPage(repository: AlertRepository) {
         call.respondHtmlContent("Min side brannslukning – Start", aktiveHendelser.isNotEmpty()) {
             h1 { +"Hendelsesvarsling" }
             p {
+                id="startpage-ingress"
                 +"""Som en del av beredskapsplanen for nav.no kan du varsle brukere dersom det har skjedd en feil. 
                 |Brukeren vil motta en SMS/e-post og får en beskjed på Min side. """.trimMargin()
             }

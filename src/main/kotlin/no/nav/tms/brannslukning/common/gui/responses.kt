@@ -6,7 +6,7 @@ import io.ktor.server.html.*
 import io.ktor.server.response.*
 import kotlinx.html.*
 
-fun BODY.hendelseDl(
+fun MAIN.hendelseDl(
     tmpHendelse: TmpHendelse,
     classes: String,
     avsluttetAv: String? = null,
@@ -44,7 +44,7 @@ fun BODY.hendelseDl(
     }
 }
 
-fun BODY.cancelAndGoBackButtons(previousUrl: String? = null) {
+fun MAIN.cancelAndGoBackButtons(previousUrl: String? = null) {
     if (previousUrl != null) {
         a(classes = "btnlink back-and-cancel") {
             href = previousUrl
@@ -62,7 +62,7 @@ suspend fun ApplicationCall.respondSeeOther(endpoint: String) {
     respond(HttpStatusCode.SeeOther)
 }
 
-suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Boolean, builder: BODY.() -> Unit) {
+suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Boolean, builder: MAIN.() -> Unit) {
     this.respondHtml {
         head {
             lang = "nb"
@@ -90,7 +90,9 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Bool
                 }
 
             }
-            builder()
+            main {
+                builder()
+            }
         }
     }
 }

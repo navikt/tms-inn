@@ -1,0 +1,47 @@
+#startpage-ingress {
+    line-height: 28px;
+    width: 600px;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--a-text-subtle);
+}
+
+.aktive-hendelser-list {
+    list-style: none;
+    padding: 0;
+}
+
+.aktive-hendelser-list li {
+    text-decoration: none;
+    border-bottom: solid var(--a-border-divider) 1px;
+}
+
+.aktive-hendelser-list a {
+    text-decoration: none;
+}
+
+.aktive-hendelser-list a p:first-of-type {
+    text-decoration: none;
+    color: var(--a-text-action);
+    font-weight: 600;
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+.aktive-hendelser-list a p:nth-of-type(2) {
+    text-decoration: none;
+    color: var(--a-text-subtle);
+    font-weight: 400;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.aktive-hendelser-list a p:nth-of-type(2)::after {
+    content: url("chevron.svg");
+    float: right;
+}
+
+#opprett-ny-btn {
+    display: inline-block;
+    margin-top: 20px;
+}

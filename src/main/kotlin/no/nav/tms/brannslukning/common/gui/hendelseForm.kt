@@ -4,7 +4,7 @@ import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
 import io.ktor.http.*
 import kotlinx.html.*
 
-fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
+fun MAIN.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
     form {
         action = postEndpoint
         method = FormMethod.post

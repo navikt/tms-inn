@@ -50,7 +50,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
                 h1 { +"Hendelse avsluttet" }
                 hendelseDl(hendelse, "",avsluttetAv = call.user.username,)
 
-                a {
+                a(classes="btnlink neutral") {
                     href = "/"
                     +"Tilbake til forsiden"
                 }

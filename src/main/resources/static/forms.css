@@ -11,7 +11,7 @@ legend {
 }
 
 form {
-    padding: 40px;
+    padding: 20px;
     border-radius: 12px 12px 0 0;
     gap: 40px;
     background-color: var(--composite-box-backround-color);

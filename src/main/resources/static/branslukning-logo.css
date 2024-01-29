@@ -1,5 +1,13 @@
 .brannslukning-logo p {
     display: inline;
+    margin-left:5px;
+    font-weight:600;
+    text-transform:uppercase;
+}
+
+.brannslukning-logo a{
+    text-decoration:none;
+    color:var(--a-text-default)
 }
 
 .active-fire img{
