@@ -28,19 +28,23 @@ button {
     border-style: none;
     gap: 8px;
     background-color: var(--a-surface-action);
-    color: white;
+    color: var(--a-text-on-action);
 }
 
 h1 {
     font-size: var(--a-font-size-heading-xlarge);
+    line-height: var(--a-font-line-height-heading-xlarge);
     color: var(--a-text-default);
     font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 h2 {
     font-size: var(--a-font-size-heading-large);
+    line-height: var(--a-font-line-height-heading-large);
     color: var(--a-text-default);
     font-weight: 600;
+    letter-spacing: -0.008em;
 }
 
 .btnlink {
@@ -86,4 +90,13 @@ h2 {
     border-radius: 0 0 12px 12px;
     padding: 20px 20px 20px 40px;
     background-color: var(--composite-box-backround-color);
+}
+
+p {
+
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    letter-spacing: -0.02px;
+
 }

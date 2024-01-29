@@ -93,51 +93,6 @@ fun Routing.meta() {
     }
 }
 
-fun Route.startPage(repository: AlertRepository) {
-    get {
-        val aktiveHendelser: List<AlertInfo> =
-            try {
-                repository.activeAlerts()
-            } catch (e: Exception) {
-                println("Noe gikk feil med henting fra db")
-                emptyList()
-            }
-
-        call.respondHtmlContent("Min side brannslukning – Start", aktiveHendelser.isNotEmpty()) {
-            h1 { +"Hendelsesvarsling" }
-            p {
-                id="startpage-ingress"
-                +"""Som en del av beredskapsplanen for nav.no kan du varsle brukere dersom det har skjedd en feil. 
-                |Brukeren vil motta en SMS/e-post og får en beskjed på Min side. """.trimMargin()
-            }
-            h2 { +"Aktive hendelser" }
-            if (aktiveHendelser.isEmpty())
-                p { +"Ingen aktive hendelser" }
-            else
-                ul(classes = "aktive-hendelser-list") {
-                    aktiveHendelser.forEach {
-                        li {
-                            a {
-                                href = "hendelse/${it.referenceId}"
-                                p { +it.tekster.tittel }
-                                p { +"${it.opprettet.dayMonthYear()} ${it.opprettetAv.username}" }
-                            }
-                        }
-                    }
-                }
-
-            a(classes = "btnlink") {
-                id="opprett-ny-btn"
-                href = "opprett"
-                +"Opprett ny hendelse"
-            }
-
-        }
-    }
-}
-
-private fun ZonedDateTime.dayMonthYear() = format(DateTimeFormatter.ofPattern(" dd.MM.yyyy"))
-
 
 val ApplicationCall.user
     get() = principal<AzurePrincipal>()?.let {
