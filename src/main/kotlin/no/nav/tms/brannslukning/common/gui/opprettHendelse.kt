@@ -15,7 +15,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
     route("opprett") {
         get {
             call.respondHtmlContent("Opprett varsel – tekster", true) {
-                h1 { +"Opprett varsel" }
+                h1 { +"Lag varsel" }
                 hendelseForm(tmpHendelse = call.hendelseOrNull(), postEndpoint = "/opprett")
             }
         }

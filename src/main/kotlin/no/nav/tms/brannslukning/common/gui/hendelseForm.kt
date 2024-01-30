@@ -1,7 +1,6 @@
 package no.nav.tms.brannslukning.common.gui
 
 import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
-import io.ktor.http.*
 import kotlinx.html.*
 
 fun MAIN.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
@@ -73,13 +72,25 @@ fun MAIN.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
             }
         }
         fieldSet {
-            legend { +"Mottakere" }
+            legend { +"Hvem skal motta varselet?" }
             labelAnDescribe(FormInputField.IDENT_FILE) {
                 input {
                     setAttrs(FormInputField.IDENT_FILE)
                     accept = ".csv"
                     type = InputType.file
+                    onChange="document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
                     required = tmpHendelse?.affectedUsers?.isEmpty() ?: true
+                }
+
+                p {
+                    attributes["aria-hidden"] = "true"
+                    span(classes = "file-input") {
+                        id="file-input-value"
+                        +" Ingen fil valgt"
+                    }
+                    span(classes="file-input-button") {
+                        +"Søk etter fil"
+                    }
                 }
             }
         }
@@ -112,26 +123,30 @@ fun FIELDSET.labelAnDescribe(
 }
 
 enum class FormInputField(val htmlName: String, val labelText: String, val describe: String? = null) {
-    TITLE(htmlName = "title", labelText = "Tittel", describe = "Kun til internt bruk"),
-    DESCRIPTION(htmlName = "description", labelText = "Beskrivelse", describe = "Kun til internt bruk"),
+    TITLE(htmlName = "title", labelText = "Tittel", describe = "Skriv en tittel på varselet (for intern bruk)"),
+    DESCRIPTION(
+        htmlName = "description",
+        labelText = "Beskrivelse",
+        describe = "Skriv inn hva som har skjedd i korte trekk (Kun til internt bruk)"
+    ),
     SMS_EPOST_TEKST(
         htmlName = "ekstern-text",
-        labelText = "Varseltekst som blir sendt på SMS/e-post",
+        labelText = "Varsel på SMS og/eller e-post",
         describe = "Husk: ikke sensitive opplysninger som ytelse etc."
     ),
     LINK(
         htmlName = "url",
-        labelText = "Link",
-        describe = "Til en side med mer informasjon. Eksempelvis en nyhetssak."
+        labelText = "Lenke i beskjed på Min side/varselbjella (ikke obligatorisk)",
+        describe = "Lim inn en lenke for mer informasjon (f.eks. en annen innlogget side eller nyhetsartikkel)."
     ),
     MIN_SIDE_TEXT(
         htmlName = "beskjed-text",
         labelText = "Beskjed på min side",
-        describe = "Teksten som vises i varsler på Min side og i varselbjella i dekoratøren"
+        describe = "Skriv en tekst som vises på Min side og i varselbjella (maks 500 tegn)"
     ),
     IDENT_FILE(
         htmlName = "ident",
-        labelText = "Last opp csv-fil med personnumre"
+        labelText = "Last opp en csv-fil med personnumre"
     );
 
 
