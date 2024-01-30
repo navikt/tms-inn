@@ -1,51 +1,73 @@
+@import url("https://cdn.nav.no/aksel/@navikt/ds-css/5.7.3/index.min.css");
+@import "branslukning-logo.css";
+@import "definitionlist.css";
+@import "kvittering.css";
+@import "startpage.css";
+
+:root {
+    --composite-box-backround-color: var(--a-surface-selected);;
+}
+
 body {
-    max-width: 500px;
     font-family: "Source Sans Pro", Arial, sans-serif;
     line-height: 1.333;
     font-size: 1.125rem;
-    color: #333;
-    margin: 0 auto;
+    color: var(--a-text-default);
+    padding: 30px;
+}
+
+main {
+    max-width: 800px;
+    margin: 50px auto;
 }
 
 button {
-    font-size: 1.125rem;
-    border-style: solid;
-    border-width: 2px;
-    border-color: #333;
-    background-color: aliceblue;
-    margin-top: 20px;
+    height: 48px;
+    padding: 12px 20px 12px 20px;
+    border-radius: 4px;
+    border-style: none;
+    gap: 8px;
+    background-color: var(--a-surface-action);
+    color: var(--a-text-on-action);
+}
+
+h1 {
+    font-size: var(--a-font-size-heading-xlarge);
+    line-height: var(--a-font-line-height-heading-xlarge);
+    color: var(--a-text-default);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+h2 {
+    font-size: var(--a-font-size-heading-large);
+    line-height: var(--a-font-line-height-heading-large);
+    color: var(--a-text-default);
+    font-weight: 600;
+    letter-spacing: -0.008em;
 }
 
 .btnlink {
-    padding: 0.5px 5px 0.5px 5px;
-    border-style: solid;
-    border-width: 2px;
-    border-color: #333;
-    background-color: aliceblue;
-    font-size: 1rem;
-    margin-top: 20px;
-    margin-left: 10px;
+    height: 48px;
+    padding: 12px 20px 12px 20px;
+    border-radius: 4px;
+    gap: 8px;
+    background-color: var(--a-surface-action);
+    color: var(--a-text-on-action);
     text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
 }
 
-form .btnlink {
-    float: right;
-}
-
-dt {
-    font-weight: bold;
-}
-
-.text-input {
-    height: 50px;
-    width: 400px;
-    word-break: break-word;
-    margin-bottom: 20px;
-}
-
-.hendelsedl p {
-    max-width: 600px;
-    word-break: break-word;
+.neutral {
+    background-color: white;
+    color: var(--a-text-default);
+    border-style: solid;
+    border-width: 1px;
+    margin-top: 50px;
+    display: inline-block;
+    font-weight: 400;
 }
 
 #500-katt {
@@ -55,7 +77,26 @@ dt {
     display: block;
 }
 
-.aktive-hendelser-list{
-    list-style: none;
-    padding: 0;
+.composite-box-top {
+    max-width: 808px;
+    border-radius: 12px 12px 0 0;
+    padding: 20px 20px 20px 40px;
+    background-color: var(--composite-box-backround-color);
+    margin-bottom: 2px;
+}
+
+.composite-box-bottom {
+    max-width: 808px;
+    border-radius: 0 0 12px 12px;
+    padding: 20px 20px 20px 40px;
+    background-color: var(--composite-box-backround-color);
+}
+
+p {
+
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    letter-spacing: -0.02px;
+
 }

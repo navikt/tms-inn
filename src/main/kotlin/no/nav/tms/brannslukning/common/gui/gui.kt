@@ -14,6 +14,7 @@ import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 fun Application.gui(alertRepository: AlertRepository) {
@@ -28,7 +29,7 @@ fun Application.gui(alertRepository: AlertRepository) {
             log.error(cause) { "Ukjent feil" }
             when (cause) {
                 is BadFileContent ->
-                    call.respondHtmlContent("Feil i identfil") {
+                    call.respondHtmlContent("Feil i identfil", true) {
                         p {
                             +cause.message
                         }
@@ -39,7 +40,7 @@ fun Application.gui(alertRepository: AlertRepository) {
                     }
 
                 is HendelseNotFoundException ->
-                    call.respondHtmlContent("Hendelse ikke funnet") {
+                    call.respondHtmlContent("Hendelse ikke funnet", true) {
                         p {
                             +"Hendelsen du leter etter finnes ikke"
                         }
@@ -50,7 +51,7 @@ fun Application.gui(alertRepository: AlertRepository) {
                     }
 
                 else ->
-                    call.respondHtmlContent("Feil") {
+                    call.respondHtmlContent("Feil", true) {
                         p { +"Oups..Nå ble det noe feil" }
                         p { +"${cause.message}" }
                         img {
@@ -89,46 +90,6 @@ fun Routing.meta() {
     }
     get("isready") {
         call.respond(HttpStatusCode.OK)
-    }
-}
-
-fun Route.startPage(repository: AlertRepository) {
-    get {
-        val aktiveHendelser : List<AlertInfo> =
-            try {
-                repository.activeAlerts()
-            } catch (e: Exception) {
-                println("Noe gikk feil med henting fra db")
-                emptyList()
-            }
-
-        call.respondHtmlContent("Min side brannslukning – Start") {
-            h1 { +"Hendelsesvarsling" }
-            p {
-                +"""Som en del av beredskapsplanen for nav.no kan du varsle brukere dersom det har skjedd en feil. 
-                |Brukeren vil motta en SMS/e-post og får en beskjed på Min side. """.trimMargin()
-            }
-            h2 { +"Aktive hendelser" }
-            if (aktiveHendelser.isEmpty())
-                p { +"Ingen aktive hendelser" }
-            else
-                ul(classes = "aktive-hendelser-list") {
-                    aktiveHendelser.forEach {
-                        li {
-                            a {
-                                href = "hendelse/${it.referenceId}"
-                                +"${it.opprettet.format(DateTimeFormatter.ofPattern(" dd.MM.yyyy"))}: ${it.tekster.tittel}"
-                            }
-                        }
-                    }
-                }
-
-            a(classes = "btnlink") {
-                href = "opprett"
-                +"Opprett ny hendelse"
-            }
-
-        }
     }
 }
 

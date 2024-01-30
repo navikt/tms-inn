@@ -1,0 +1,29 @@
+.brannslukning-logo p {
+    display: inline;
+    margin-left:5px;
+    font-weight:600;
+    text-transform:uppercase;
+}
+
+.brannslukning-logo a{
+    text-decoration:none;
+    color:var(--a-text-default)
+}
+
+.active-fire img{
+    content:url("/static/brann.svg");
+}
+
+
+.active-fire img:hover{
+    content:url("/static/brann-slukket.svg");
+}
+
+.no-active-fire img:hover{
+    content:url("/static/brann.svg");
+}
+
+.no-active-fire img{
+    content:url("/static/brann-slukket.svg");
+}
+/* legg til onhover for hele divven*/

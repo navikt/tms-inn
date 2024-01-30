@@ -17,7 +17,7 @@ internal object HendelseCache {
         .expireAfterWrite(15, TimeUnit.MINUTES)
         .maximumSize(100)
         .build()
-//Trigg deploy
+
     fun putHendelse(tmpHendelse: TmpHendelse) {
         cache.put(tmpHendelse.id, jacksonObjectMapper().writeValueAsString(tmpHendelse))
     }
@@ -46,13 +46,20 @@ data class TmpHendelse(
     val url: String
 ) {
     fun withAffectedUsers(userIdents: List<String>) = copy(affectedUsers = userIdents)
-    fun withUpdatedText(beskjedTekst: String, url: String, eksternTekst: String, description: String,title: String): TmpHendelse = copy(
+    fun withUpdatedText(
+        beskjedTekst: String,
+        url: String,
+        eksternTekst: String,
+        description: String,
+        title: String
+    ): TmpHendelse = copy(
         varseltekst = beskjedTekst,
         url = url,
         eksternTekst = eksternTekst,
         description = description,
         title = title
     )
+
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
         tekster = Tekster(

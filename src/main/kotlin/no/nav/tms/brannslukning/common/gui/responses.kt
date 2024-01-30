@@ -6,23 +6,24 @@ import io.ktor.server.html.*
 import io.ktor.server.response.*
 import kotlinx.html.*
 
-fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String? = null, showAffectedUsers: Boolean = true) {
-    dl(classes = "hendelsedl") {
+fun MAIN.hendelseDl(
+    tmpHendelse: TmpHendelse,
+    classes: String,
+    avsluttetAv: String? = null,
+    showAffectedUsers: Boolean = true,
+) {
+    dl(classes = "hendelsedl $classes") {
         dt { +"Tittel" }
         dd { +tmpHendelse.title }
         tmpHendelse.description.takeIf { it.isNotEmpty() }?.also {
             dt { +"Beskrivelse" }
             dd { +it }
         }
-        dt { +"Opprettet av" }
+        dt { +"Varselet er opprettet av" }
         dd { +tmpHendelse.initatedBy.username }
-        if (showAffectedUsers) {
-            dt { +"Antall personer som mottar sms/epost og varsler på min side" }
-            dd { +"${tmpHendelse.affectedUsers.size}" }
-        }
         dt { +"Tekst i beskjed på min side" }
         dd { +tmpHendelse.varseltekst }
-        dt { +"Link til mer informasjon i beskjed på min side" }
+        dt { +"Lenke i beskjed på min side/varselbjella" }
         dd {
             a {
                 target = "_blank"
@@ -36,17 +37,21 @@ fun BODY.hendelseDl(tmpHendelse: TmpHendelse, avsluttetAv: String? = null, showA
             dt { +"Avsluttet av" }
             dd { +avsluttetAv }
         }
+        if (showAffectedUsers) {
+            dt { +"Antall personer som mottar sms/epost og varsel på min side" }
+            dd { +"${tmpHendelse.affectedUsers.size}" }
+        }
     }
 }
 
-fun FORM.cancelAndGoBackButtons(previousUrl: String? = null) {
+fun MAIN.cancelAndGoBackButtons(previousUrl: String? = null) {
     if (previousUrl != null) {
-        a(classes = "btnlink") {
+        a(classes = "btnlink back-and-cancel edit") {
             href = previousUrl
-            +"Forrige"
+            +"Rediger"
         }
     }
-    a(classes = "btnlink") {
+    a(classes = "btnlink back-and-cancel") {
         href = "/"
         +"Avbryt"
     }
@@ -57,7 +62,7 @@ suspend fun ApplicationCall.respondSeeOther(endpoint: String) {
     respond(HttpStatusCode.SeeOther)
 }
 
-suspend fun ApplicationCall.respondHtmlContent(title: String, builder: BODY.() -> Unit) {
+suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Boolean, builder: MAIN.() -> Unit) {
     this.respondHtml {
         head {
             lang = "nb"
@@ -72,7 +77,22 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, builder: BODY.() -
             }
         }
         body {
-            builder()
+            div(classes = "brannslukning-logo ${if (fireIsActive) "active-fire" else "no-active-fire"}") {
+                a {
+                    href = "/"
+                    img {
+                        alt = "Til forsiden"
+                        id = "brannslukning"
+                    }
+                    p {
+                        +"Brannslukning"
+                    }
+                }
+
+            }
+            main {
+                builder()
+            }
         }
     }
 }

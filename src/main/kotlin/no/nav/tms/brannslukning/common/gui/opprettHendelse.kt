@@ -14,8 +14,8 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
 
     route("opprett") {
         get {
-            call.respondHtmlContent("Opprett varsel – tekster") {
-                h1 { +"Opprett varsel" }
+            call.respondHtmlContent("Opprett varsel – tekster", true) {
+                h1 { +"Lag varsel" }
                 hendelseForm(tmpHendelse = call.hendelseOrNull(), postEndpoint = "/opprett")
             }
         }
@@ -83,19 +83,21 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
         route("confirm") {
             get {
                 val hendelse = call.hendelse()
-                call.respondHtmlContent("Opprett hendelse – bekreft") {
+                call.respondHtmlContent("Opprett hendelse – oppsummering", true) {
 
-                    h1 { +"Bekreft" }
-                    hendelseDl(hendelse)
-                    form {
+                    h1 { +"Oppsummering" }
+                    hendelseDl(hendelse,"composite-box-top")
+                    form(classes = "composite-box-bottom") {
                         action = "/send/confirm?hendelse=${hendelse.id}"
                         method = FormMethod.post
                         button {
+                            onClick =
+                                "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedUsers.size} personer?')"
                             type = ButtonType.submit
-                            text("Opprett hendelse")
+                            text("Send varsel")
                         }
-                        cancelAndGoBackButtons("/opprett/personer?hendelse=${hendelse.id}")
                     }
+                    cancelAndGoBackButtons("/opprett?hendelse=${hendelse.id}")
                 }
             }
         }
@@ -108,12 +110,29 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
             alertRepository.createAlert(hendelse.toOpprettAlert())
             HendelseCache.invalidateHendelse(hendelse.id)
 
-            call.respondHtmlContent("Hendelse opprettet") {
-                h1 { +"Hendelse opprettet" }
-                hendelseDl(hendelse)
-                a {
+            call.respondHtmlContent("Hendelse opprettet", true) {
+                h1 { +"Kvittering" }
+                div {
+                    id = "kvittering"
+                    div {
+                        h2 {+"Hendelse opprettet"}
+                        p { +"Du er ferdig!" }
+                        p { +"Takk for at du er med å slukke branner"}
+                    }
+                    img {
+                        id = "Brannmannkatt"
+                        src = "/static/brannkatt.svg"
+                        alt = "Brannmannkatt loves you!"
+                        title = "Brannmannkatt loves you!"
+                    }
+
+                }
+                h2 { +"Detaljer" }
+                hendelseDl(hendelse,"")
+                a(classes="btnlink neutral") {
+                    id="kvittering-back-btn"
                     href = "/"
-                    +"Tilbake til forsiden"
+                    +"Til forsiden"
                 }
             }
         }

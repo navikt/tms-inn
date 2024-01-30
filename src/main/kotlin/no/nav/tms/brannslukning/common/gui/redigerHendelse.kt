@@ -16,12 +16,12 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
             val hendelse = HendelseCache.getHendelse(id) ?: alertRepository.fetchHendelse(id)
             ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
 
-            call.respondHtmlContent("Hendelse detaljer") {
+            call.respondHtmlContent("Hendelse detaljer", true) {
                 h1 {
                     +"Hendelsedetaljer"
                 }
-                hendelseDl(hendelse)
-                form {
+                hendelseDl(hendelse, classes = "composite-box-top")
+                form(classes = "composite-box-bottom") {
                     action = "/hendelse/${hendelse.id}"
                     method = FormMethod.post
                     button {
@@ -31,7 +31,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
                     }
                 }
 
-                a {
+                a(classes="btnlink back-and-cancel") {
                     href = "/"
                     +"Tilbake til forsiden"
                 }
@@ -46,11 +46,11 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
             alertRepository.endAlert(hendelse.id, call.user)
             HendelseCache.tmpClose(hendelse.id)
 
-            call.respondHtmlContent("Hendelse avsluttet") {
+            call.respondHtmlContent("Hendelse avsluttet", false) {
                 h1 { +"Hendelse avsluttet" }
-                hendelseDl(hendelse, avsluttetAv = call.user.username)
+                hendelseDl(hendelse, "",avsluttetAv = call.user.username,)
 
-                a {
+                a(classes="btnlink neutral") {
                     href = "/"
                     +"Tilbake til forsiden"
                 }

@@ -1,17 +1,16 @@
 package no.nav.tms.brannslukning.common.gui
 
 import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
-import io.ktor.http.*
 import kotlinx.html.*
 
-fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
+fun MAIN.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
     form {
         action = postEndpoint
         method = FormMethod.post
         encType = FormEncType.multipartFormData
         fieldSet {
             legend {
-                +"Hendelsedetaljer"
+                +"Varsel"
             }
             labelAnDescribe(FormInputField.TITLE) { ->
                 input {
@@ -24,7 +23,7 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
                 }
             }
             labelAnDescribe(FormInputField.DESCRIPTION) {
-                textArea(classes = "text-input") {
+                textArea {
                     setAttrs(FormInputField.DESCRIPTION)
                     maxLength = "300"
                     tmpHendelse?.let {
@@ -33,15 +32,10 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
                 }
             }
 
-        }
-        fieldSet {
-            legend {
-                +"Varseltekst"
-            }
             labelAnDescribe(
                 FormInputField.MIN_SIDE_TEXT
             ) {
-                textArea(classes = "text-input") {
+                textArea {
                     setAttrs(FormInputField.MIN_SIDE_TEXT)
                     required = true
                     maxLength = "150"
@@ -66,7 +60,7 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
             }
 
             labelAnDescribe(FormInputField.SMS_EPOST_TEKST) {
-                textArea(classes = "text-input") {
+                textArea {
                     setAttrs(FormInputField.SMS_EPOST_TEKST)
                     required = true
                     maxLength = "150"
@@ -78,63 +72,82 @@ fun BODY.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
             }
         }
         fieldSet {
-            legend { +"Mottakere" }
+            legend { +"Hvem skal motta varselet?" }
             labelAnDescribe(FormInputField.IDENT_FILE) {
                 input {
                     setAttrs(FormInputField.IDENT_FILE)
                     accept = ".csv"
                     type = InputType.file
+                    onChange="document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
                     required = tmpHendelse?.affectedUsers?.isEmpty() ?: true
+                }
+
+                p {
+                    attributes["aria-hidden"] = "true"
+                    span(classes = "file-input") {
+                        id="file-input-value"
+                        +" Ingen fil valgt"
+                    }
+                    span(classes="file-input-button") {
+                        +"Søk etter fil"
+                    }
                 }
             }
         }
-        cancelAndGoBackButtons()
         button {
             type = ButtonType.submit
             text("Neste")
         }
     }
+    cancelAndGoBackButtons()
 }
 
 fun FIELDSET.labelAnDescribe(
     formInputField: FormInputField,
-    inputBuilder: FIELDSET.() -> Unit
+    inputBuilder: LABEL.() -> Unit
 ) {
     label {
         id = formInputField.labelId
         htmlFor = formInputField.elementId
         +formInputField.labelText
-    }
-    formInputField.describe?.also {
-        p {
-            id = formInputField.descriptionId!!
-            +formInputField.describe
+
+        formInputField.describe?.also {
+            p(classes = "input-description") {
+                id = formInputField.descriptionId!!
+                +formInputField.describe
+            }
         }
+        inputBuilder()
     }
-    inputBuilder()
+
 }
 
 enum class FormInputField(val htmlName: String, val labelText: String, val describe: String? = null) {
-    TITLE(htmlName = "title", labelText = "Tittel"),
-    DESCRIPTION(htmlName = "description", labelText = "Beskrivelse"),
+    TITLE(htmlName = "title", labelText = "Tittel", describe = "Skriv en tittel på varselet (for intern bruk)"),
+    DESCRIPTION(
+        htmlName = "description",
+        labelText = "Beskrivelse",
+        describe = "Skriv inn hva som har skjedd i korte trekk (Kun til internt bruk)"
+    ),
     SMS_EPOST_TEKST(
         htmlName = "ekstern-text",
-        labelText = "Varseltekst som blir sendt på SMS/e-post",
+        labelText = "Varsel på SMS og/eller e-post",
         describe = "Husk: ikke sensitive opplysninger som ytelse etc."
     ),
     LINK(
         htmlName = "url",
-        labelText = "Link",
-        describe = "Til en side med mer informasjon. Eksempelvis en nyhetssak."
+        labelText = "Lenke i beskjed på Min side/varselbjella (ikke obligatorisk)",
+        describe = "Lim inn en lenke for mer informasjon (f.eks. en annen innlogget side eller nyhetsartikkel)."
     ),
     MIN_SIDE_TEXT(
         htmlName = "beskjed-text",
         labelText = "Beskjed på min side",
-        describe = "Teksten som vises i varsler på Min side og i varselbjella i dekoratøren"
+        describe = "Skriv en tekst som vises på Min side og i varselbjella (maks 500 tegn)"
     ),
     IDENT_FILE(
         htmlName = "ident",
-        labelText = "Last opp csv-fil med personnumre");
+        labelText = "Last opp en csv-fil med personnumre"
+    );
 
 
     val elementId = "$htmlName-input"
@@ -144,10 +157,6 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
         describe?.let { "${descriptionId},${labelId}" } ?: labelId
 
     companion object {
-        fun Parameters.getFormField(field: FormInputField) =
-            this[field.htmlName] ?: throw IllegalArgumentException("${field.htmlName} er ikke satt")
-
-        fun Parameters.getOptionalFormField(field: FormInputField) = this[field.htmlName] ?: ""
 
         fun INPUT.setAttrs(field: FormInputField) {
             attributes["aria-describedby"] = field.describedBy
