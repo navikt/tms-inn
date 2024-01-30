@@ -19,15 +19,11 @@ fun MAIN.hendelseDl(
             dt { +"Beskrivelse" }
             dd { +it }
         }
-        dt { +"Opprettet av" }
+        dt { +"Varselet er opprettet av" }
         dd { +tmpHendelse.initatedBy.username }
-        if (showAffectedUsers) {
-            dt { +"Antall personer som mottar sms/epost og varsler på min side" }
-            dd { +"${tmpHendelse.affectedUsers.size}" }
-        }
         dt { +"Tekst i beskjed på min side" }
         dd { +tmpHendelse.varseltekst }
-        dt { +"Link til mer informasjon i beskjed på min side" }
+        dt { +"Lenke i beskjed på min side/varselbjella" }
         dd {
             a {
                 target = "_blank"
@@ -41,12 +37,16 @@ fun MAIN.hendelseDl(
             dt { +"Avsluttet av" }
             dd { +avsluttetAv }
         }
+        if (showAffectedUsers) {
+            dt { +"Antall personer som mottar sms/epost og varsel på min side" }
+            dd { +"${tmpHendelse.affectedUsers.size}" }
+        }
     }
 }
 
 fun MAIN.cancelAndGoBackButtons(previousUrl: String? = null) {
     if (previousUrl != null) {
-        a(classes = "btnlink back-and-cancel") {
+        a(classes = "btnlink back-and-cancel edit") {
             href = previousUrl
             +"Rediger"
         }

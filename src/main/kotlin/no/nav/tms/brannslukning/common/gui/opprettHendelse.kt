@@ -83,9 +83,9 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
         route("confirm") {
             get {
                 val hendelse = call.hendelse()
-                call.respondHtmlContent("Opprett hendelse – bekreft", true) {
+                call.respondHtmlContent("Opprett hendelse – oppsummering", true) {
 
-                    h1 { +"Bekreft" }
+                    h1 { +"Oppsummering" }
                     hendelseDl(hendelse,"composite-box-top")
                     form(classes = "composite-box-bottom") {
                         action = "/send/confirm?hendelse=${hendelse.id}"
@@ -94,7 +94,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                             onClick =
                                 "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedUsers.size} personer?')"
                             type = ButtonType.submit
-                            text("Opprett hendelse")
+                            text("Send varsel")
                         }
                     }
                     cancelAndGoBackButtons("/opprett?hendelse=${hendelse.id}")
@@ -116,8 +116,8 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                     id = "kvittering"
                     div {
                         h2 {+"Hendelse opprettet"}
-                        p { +"Bra jobba!" }
-                        p { +"Du er med å slukke branner"}
+                        p { +"Du er ferdig!" }
+                        p { +"Takk for at du er med å slukke branner"}
                     }
                     img {
                         id = "Brannmannkatt"
