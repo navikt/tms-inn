@@ -132,7 +132,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                 a(classes="btnlink neutral") {
                     id="kvittering-back-btn"
                     href = "/"
-                    +"Tilbake til forsiden"
+                    +"Til forsiden"
                 }
             }
         }
