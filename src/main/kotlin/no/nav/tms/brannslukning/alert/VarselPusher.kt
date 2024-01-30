@@ -53,6 +53,8 @@ class VarselPusher(
             produsentOverride?.let {
                 produsent = it
             }
+            metadata["beredskap_tittel"] = varselRequest.tittel
+
         }.let { beskjed ->
             kafkaProducer.send(ProducerRecord(varselTopic, beskjedId, beskjed))
         }

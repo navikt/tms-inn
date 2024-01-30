@@ -43,5 +43,6 @@ data class VarselRequest(
     val referenceId: String,
     val ident: String,
     val beskjed: WebTekst,
-    val eksternTekst: EksternTekst
+    val eksternTekst: EksternTekst,
+    val tittel: String
 )
