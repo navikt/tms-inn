@@ -24,6 +24,7 @@ spec:
       claims:
         groups:
           - id: '77cce29b-3cb8-45f7-8014-a551fb93f8a6'
+          - id: '24428c96-4dee-4ce7-b0aa-f06ce4ce2cc2'
       tenant: nav.no
     sidecar:
       enabled: true
