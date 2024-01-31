@@ -115,7 +115,7 @@ class AlertRepository(private val database: Database) {
             queryOf(
                 """
                     select 
-                        avq.*, ah.tekster->'beskjed' as beskjed, ah.tekster->'eksternTekst' as eksternTekst 
+                        avq.*, ah.tekster->'beskjed' as beskjed, ah.tekster->'eksternTekst' as eksternTekst, ah.tekster -> 'tittel' as tittel
                     from 
                         alert_varsel_queue as avq
                         join alert_header as ah on avq.alert_ref = ah.referenceId
@@ -127,6 +127,7 @@ class AlertRepository(private val database: Database) {
                     ident = it.string("ident"),
                     beskjed = it.json("beskjed", objectMapper),
                     eksternTekst = it.json("eksternTekst", objectMapper),
+                    tittel = it.string("tittel")
                 )
             }.asList
         }
