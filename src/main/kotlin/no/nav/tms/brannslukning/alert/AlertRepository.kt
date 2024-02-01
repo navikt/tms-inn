@@ -34,12 +34,13 @@ class AlertRepository(private val database: Database) {
                 TmpHendelse(
                     id = it.string("referenceId"),
                     initatedBy = it.json("opprettetAv", objectMapper),
-                    varseltekst = tekster.beskjed.tekst,
-                    eksternTekst = tekster.eksternTekst.tekst,
-                    url = tekster.beskjed.link,
                     title = tekster.tittel,
                     description = tekster.beskrivelse
-                )
+                ).apply {
+                    varseltekst = tekster.beskjed.tekst
+                    eksternTekst = tekster.eksternTekst.tekst
+                    url = tekster.beskjed.link
+                }
             }.asSingle
         }
     }

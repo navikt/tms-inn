@@ -1,106 +1,7 @@
 package no.nav.tms.brannslukning.common.gui
 
-import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
+import io.ktor.http.*
 import kotlinx.html.*
-
-fun MAIN.hendelseForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
-    form {
-        action = postEndpoint
-        method = FormMethod.post
-        encType = FormEncType.multipartFormData
-        fieldSet {
-            legend {
-                +"Varsel"
-            }
-            labelAnDescribe(FormInputField.TITLE) { ->
-                input {
-                    setAttrs(FormInputField.TITLE)
-                    required = true
-                    maxLength = "50"
-                    tmpHendelse?.let {
-                        value = tmpHendelse.title
-                    }
-                }
-            }
-            labelAnDescribe(FormInputField.DESCRIPTION) {
-                textArea {
-                    setAttrs(FormInputField.DESCRIPTION)
-                    maxLength = "300"
-                    tmpHendelse?.let {
-                        text(it.description)
-                    }
-                }
-            }
-
-            labelAnDescribe(
-                FormInputField.MIN_SIDE_TEXT
-            ) {
-                textArea {
-                    setAttrs(FormInputField.MIN_SIDE_TEXT)
-                    required = true
-                    maxLength = "150"
-                    minLength = "50"
-                    tmpHendelse?.let {
-                        text(it.varseltekst)
-                    }
-                }
-            }
-
-            labelAnDescribe(FormInputField.LINK) {
-                input {
-                    setAttrs(FormInputField.LINK)
-                    type = InputType.url
-                    required = true
-                    minLength = "15"
-                    tmpHendelse?.let {
-                        value = tmpHendelse.url
-                    }
-                }
-
-            }
-
-            labelAnDescribe(FormInputField.SMS_EPOST_TEKST) {
-                textArea {
-                    setAttrs(FormInputField.SMS_EPOST_TEKST)
-                    required = true
-                    maxLength = "150"
-                    minLength = "50"
-                    tmpHendelse?.let {
-                        text(it.eksternTekst)
-                    }
-                }
-            }
-        }
-        fieldSet {
-            legend { +"Hvem skal motta varselet?" }
-            labelAnDescribe(FormInputField.IDENT_FILE) {
-                input {
-                    setAttrs(FormInputField.IDENT_FILE)
-                    accept = ".csv"
-                    type = InputType.file
-                    onChange="document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
-                    required = tmpHendelse?.affectedUsers?.isEmpty() ?: true
-                }
-
-                p {
-                    attributes["aria-hidden"] = "true"
-                    span(classes = "file-input") {
-                        id="file-input-value"
-                        +" Ingen fil valgt"
-                    }
-                    span(classes="file-input-button") {
-                        +"Søk etter fil"
-                    }
-                }
-            }
-        }
-        button {
-            type = ButtonType.submit
-            text("Neste")
-        }
-    }
-    cancelAndGoBackButtons()
-}
 
 fun FIELDSET.labelAnDescribe(
     formInputField: FormInputField,
@@ -169,6 +70,11 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
             id = field.elementId
             name = field.htmlName
         }
+
+        fun Parameters.getFormFieldValue(field: FormInputField)=
+            this[field.htmlName]?:throw MissingFormFieldException(field)
     }
 }
 
+//TODO Statuspages
+class MissingFormFieldException(val formField: FormInputField): IllegalArgumentException()

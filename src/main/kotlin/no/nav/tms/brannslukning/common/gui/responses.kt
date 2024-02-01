@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.html.*
 import io.ktor.server.response.*
 import kotlinx.html.*
+import no.nav.tms.brannslukning.alert.AlertRepository
 
 fun MAIN.hendelseDl(
     tmpHendelse: TmpHendelse,
@@ -22,17 +23,17 @@ fun MAIN.hendelseDl(
         dt { +"Varselet er opprettet av" }
         dd { +tmpHendelse.initatedBy.username }
         dt { +"Tekst i beskjed på min side" }
-        dd { +tmpHendelse.varseltekst }
+        dd { +tmpHendelse.varseltekst!! }
         dt { +"Lenke i beskjed på min side/varselbjella" }
         dd {
             a {
                 target = "_blank"
-                href = tmpHendelse.url
-                +tmpHendelse.url
+                href = tmpHendelse.url!!
+                +tmpHendelse.url!!
             }
         }
         dt { +"Tekst i epost/SMS" }
-        dd { +tmpHendelse.eksternTekst }
+        dd { +tmpHendelse.eksternTekst!! }
         avsluttetAv?.let {
             dt { +"Avsluttet av" }
             dd { +avsluttetAv }
@@ -97,11 +98,13 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Bool
     }
 }
 
-fun ApplicationCall.hendelse(): TmpHendelse =
-    hendelseOrNull() ?: throw IllegalArgumentException("queryparameter hendelse mangler")
+fun ApplicationCall.tmpHendelse(): TmpHendelse = parameters["varselId"]?.let {
+    HendelseCache.getHendelse(it)
+} ?: throw IllegalArgumentException("Ukjent hendelse")
 
-fun ApplicationCall.hendelseOrNull(): TmpHendelse? = request.queryParameters["hendelse"]?.let {
+fun ApplicationCall.tmpHendelseOrNull(): TmpHendelse? = request.queryParameters["hendelse"]?.let {
     HendelseCache.getHendelse(it)
 }
+
 
 

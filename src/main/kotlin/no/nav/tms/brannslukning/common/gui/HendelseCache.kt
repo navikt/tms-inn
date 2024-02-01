@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit
 private val objectmapper = jacksonObjectMapper()
 
 internal object HendelseCache {
-    private val log = KotlinLogging.logger { }
     private val cache: Cache<String, String> = Caffeine.newBuilder()
         .expireAfterWrite(15, TimeUnit.MINUTES)
         .maximumSize(100)
@@ -39,26 +38,18 @@ data class TmpHendelse(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
     val description: String,
-    val initatedBy: User,
-    val varseltekst: String,
-    val eksternTekst: String,
-    val affectedUsers: List<String> = emptyList(),
-    val url: String
+    val initatedBy: User
 ) {
-    fun withAffectedUsers(userIdents: List<String>) = copy(affectedUsers = userIdents)
-    fun withUpdatedText(
-        beskjedTekst: String,
-        url: String,
-        eksternTekst: String,
-        description: String,
-        title: String
-    ): TmpHendelse = copy(
-        varseltekst = beskjedTekst,
-        url = url,
-        eksternTekst = eksternTekst,
-        description = description,
-        title = title
-    )
+    var varseltekst: String? = null
+    fun varseltekstGuaranteed(): String = varseltekst.stringPropertyAssured("varseltekst")
+
+    var eksternTekst: String? = null
+    fun eksternTekstGuaranteed(): String = eksternTekst.stringPropertyAssured("eksternTekst")
+
+    var affectedUsers: List<String> = emptyList()
+    var url: String? = null
+    fun urlGuaranteed() = url.stringPropertyAssured("url")
+
 
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
@@ -67,12 +58,12 @@ data class TmpHendelse(
             beskrivelse = description,
             beskjed = WebTekst(
                 spraakkode = "nb",
-                tekst = varseltekst,
-                link = url
+                tekst = varseltekstGuaranteed(),
+                link = urlGuaranteed()
             ),
             eksternTekst = EksternTekst(
                 tittel = "Varsel fra NAV",
-                tekst = eksternTekst
+                tekst = eksternTekstGuaranteed()
             )
         ),
         opprettetAv = initatedBy,
@@ -83,3 +74,6 @@ data class TmpHendelse(
 data class User(val username: String, val oid: String)
 
 class HendelseNotFoundException : IllegalArgumentException()
+class PropertyAccessException(property: String) : Exception("$property er ikke satt")
+
+fun String?.stringPropertyAssured(propertyName: String): String = this ?: throw PropertyAccessException(propertyName)
