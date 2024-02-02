@@ -96,6 +96,9 @@ fun Routing.meta() {
 
 val ApplicationCall.user
     get() = principal<AzurePrincipal>()?.let {
-        User(it.decodedJWT.getClaim("oid").toString(), it.decodedJWT.getClaim("preferred_username").toString())
+        User(
+            oid = it.decodedJWT.getClaim("oid").toString(),
+            username = it.decodedJWT.getClaim("preferred_username").toString().removeSurrounding("\"")
+        )
     } ?: throw IllegalStateException("Må være innlogget")
 

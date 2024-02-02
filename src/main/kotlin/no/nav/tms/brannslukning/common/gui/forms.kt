@@ -79,7 +79,7 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                 textArea {
                     setAttrs(FormInputField.SMS_EPOST_TEKST)
                     required = true
-                    maxLength = "150"
+                    maxLength = "500"
                     minLength = "50"
                     tmpHendelse.eksternTekst?.let {
                         text(it)
