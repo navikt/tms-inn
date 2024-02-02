@@ -40,7 +40,7 @@ fun MAIN.hendelseDl(
         }
         if (showAffectedUsers) {
             dt { +"Antall personer som mottar sms/epost og varsel på min side" }
-            dd { +"${tmpHendelse.affectedUsers.size}" }
+            dd { +"${tmpHendelse.affectedCount}" }
         }
     }
 }

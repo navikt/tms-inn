@@ -34,12 +34,30 @@ internal object HendelseCache {
     }
 }
 
-data class TmpHendelse(
+abstract class Hendelse(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
     val description: String,
     val initatedBy: User
-) {
+)
+
+class ReadOnlyHendelse(
+    id: String,
+    title: String,
+    description: String,
+    initatedBy: User,
+    val varselTekst: String,
+    val eksternTekst: String,
+    val url: String,
+    val affectedCount: Int
+) : Hendelse(id, title, description, initatedBy)
+
+class TmpHendelse(
+    id: String = UUID.randomUUID().toString(),
+    title: String,
+    description: String,
+    initatedBy: User
+) : Hendelse(id, title, description, initatedBy) {
     var varseltekst: String? = null
     fun varseltekstGuaranteed(): String = varseltekst.stringPropertyAssured("varseltekst")
 
@@ -47,9 +65,13 @@ data class TmpHendelse(
     fun eksternTekstGuaranteed(): String = eksternTekst.stringPropertyAssured("eksternTekst")
 
     var affectedUsers: List<String> = emptyList()
+        set(value)  {
+            field = value
+            affectedCount = value.size
+        }
+    var affectedCount: Int = 0
     var url: String? = null
     fun urlGuaranteed() = url.stringPropertyAssured("url")
-
 
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
