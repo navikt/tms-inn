@@ -22,7 +22,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
         route(bakgrunnEndpoint) {
             get {
                 call.respondHtmlContent("Lag varsel – Bakgrunn", true) {
-                    bakgrunnForm(tmpHendelse = call.tmpHendelseOrNull(), postEndpoint = "$bakgrunnEndpoint")
+                    bakgrunnForm(tmpHendelse = call.tmpHendelseOrNull(), postEndpoint = bakgrunnEndpoint)
                 }
             }
 

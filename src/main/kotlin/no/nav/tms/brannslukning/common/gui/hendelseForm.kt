@@ -5,12 +5,18 @@ import kotlinx.html.*
 
 fun FIELDSET.labelAnDescribe(
     formInputField: FormInputField,
+    standardTextBuilder: (DIV.() -> Unit)? = null,
     inputBuilder: LABEL.() -> Unit
 ) {
     label {
         id = formInputField.labelId
         htmlFor = formInputField.elementId
         +formInputField.labelText
+
+        if(standardTextBuilder!=null)
+        div(classes = "checkbox-div") {
+            standardTextBuilder()
+        }
 
         formInputField.describe?.also {
             p(classes = "input-description") {
@@ -23,7 +29,12 @@ fun FIELDSET.labelAnDescribe(
 
 }
 
-enum class FormInputField(val htmlName: String, val labelText: String, val describe: String? = null) {
+enum class FormInputField(
+    val htmlName: String,
+    val labelText: String,
+    val describe: String? = null,
+    val default: String? = null
+) {
     TITLE(htmlName = "title", labelText = "Tittel", describe = "Skriv en tittel på varselet (for intern bruk)"),
     DESCRIPTION(
         htmlName = "description",
@@ -33,7 +44,8 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
     SMS_EPOST_TEKST(
         htmlName = "ekstern-text",
         labelText = "Varsel på SMS og/eller e-post",
-        describe = "Husk: ikke sensitive opplysninger som ytelse etc."
+        describe = "Husk: ikke sensitive opplysninger som ytelse etc.",
+        default = "Hei! Du har fått en ny beskjed fra NAV. Logg inn på NAV for å se hva beskjeden gjelder. Vennlig hilsen NAV"
     ),
     LINK(
         htmlName = "url",
@@ -43,7 +55,7 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
     MIN_SIDE_TEXT(
         htmlName = "beskjed-text",
         labelText = "Beskjed på min side",
-        describe = "Skriv en tekst som vises på Min side og i varselbjella (maks 500 tegn)"
+        describe = "Skriv en mer utfyllende tekst om saken som vises på Min side og i varselbjella (maks 500 tegn)"
     ),
     IDENT_FILE(
         htmlName = "ident",
@@ -71,10 +83,10 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
             name = field.htmlName
         }
 
-        fun Parameters.getFormFieldValue(field: FormInputField)=
-            this[field.htmlName]?:throw MissingFormFieldException(field)
+        fun Parameters.getFormFieldValue(field: FormInputField) =
+            this[field.htmlName] ?: throw MissingFormFieldException(field)
     }
 }
 
 //TODO Statuspages
-class MissingFormFieldException(val formField: FormInputField): IllegalArgumentException()
+class MissingFormFieldException(val formField: FormInputField) : IllegalArgumentException()

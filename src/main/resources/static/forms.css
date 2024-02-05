@@ -57,8 +57,22 @@ textarea {
     margin-bottom: 20px;
 }
 
-input[type="file"]::file-selector-button {
+.checkbox-div {
+    width: 300px;
+    margin-top: 5px;
 }
+
+.checkbox-div label {
+    display: inline-block;
+    font-weight: 400;
+}
+
+input[type=checkbox] {
+    display: inline-block;
+    width: 14px;
+    margin-right: 10px;
+}
+
 
 input[type="file"] {
     width: 600px;
