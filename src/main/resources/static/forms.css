@@ -57,13 +57,21 @@ textarea {
     margin-bottom: 20px;
 }
 
-input[type="file"]::file-selector-button {
-}
-
 input[type="file"] {
     width: 600px;
     display: none;
 }
+
+label:has(input[type=checkbox]){
+    display: inline-block;
+    width: 200px;
+}
+
+input[type=checkbox] {
+    display: inline-block;
+    width: 50px;
+}
+
 
 .file-input {
     color: var(--a-text-subtle);

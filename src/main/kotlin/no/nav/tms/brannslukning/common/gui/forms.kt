@@ -2,6 +2,7 @@ package no.nav.tms.brannslukning.common.gui
 
 import kotlinx.html.*
 import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
+import org.intellij.lang.annotations.Language
 
 fun MAIN.bakgrunnForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
     form {
@@ -55,7 +56,6 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                     required = true
                     maxLength = "150"
                     minLength = "50"
-                    //TODO: evt sette defaulttekst?
                     tmpHendelse.varseltekst?.let {
                         text(it)
                     }
@@ -86,6 +86,14 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                     }
                 }
             }
+            label {
+                +"Bruk standardtekst"
+                input {
+                    type = InputType.checkBox
+                    onChange = onChangedDefaultSmsText
+                }
+            }
+
             fieldSet {
                 legend { +"Hvem skal motta varselet?" }
                 labelAnDescribe(FormInputField.IDENT_FILE) {
@@ -116,3 +124,13 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
         }
     }
 }
+
+
+@Language("JavaScript")
+private val onChangedDefaultSmsText = """
+    if(this.checked == true){
+        document.getElementsByName("${FormInputField.SMS_EPOST_TEKST.htmlName}")[0].value = "${FormInputField.SMS_EPOST_TEKST.default}";
+            document.getElementsByName("${FormInputField.SMS_EPOST_TEKST.htmlName}")[0].setAttribute("disabled","true")      
+    }else{
+            document.getElementsByName("${FormInputField.SMS_EPOST_TEKST.htmlName}")[0].removeAttribute("disabled") 
+    }"""

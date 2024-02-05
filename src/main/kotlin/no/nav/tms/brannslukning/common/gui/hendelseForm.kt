@@ -23,7 +23,12 @@ fun FIELDSET.labelAnDescribe(
 
 }
 
-enum class FormInputField(val htmlName: String, val labelText: String, val describe: String? = null) {
+enum class FormInputField(
+    val htmlName: String,
+    val labelText: String,
+    val describe: String? = null,
+    val default: String? = null
+) {
     TITLE(htmlName = "title", labelText = "Tittel", describe = "Skriv en tittel på varselet (for intern bruk)"),
     DESCRIPTION(
         htmlName = "description",
@@ -33,7 +38,8 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
     SMS_EPOST_TEKST(
         htmlName = "ekstern-text",
         labelText = "Varsel på SMS og/eller e-post",
-        describe = "Husk: ikke sensitive opplysninger som ytelse etc."
+        describe = "Husk: ikke sensitive opplysninger som ytelse etc.",
+        default = "Hei! Du har fått en ny beskjed fra NAV. Logg inn på NAV for å se hva beskjeden gjelder. Vennlig hilsen NAV"
     ),
     LINK(
         htmlName = "url",
@@ -71,10 +77,10 @@ enum class FormInputField(val htmlName: String, val labelText: String, val descr
             name = field.htmlName
         }
 
-        fun Parameters.getFormFieldValue(field: FormInputField)=
-            this[field.htmlName]?:throw MissingFormFieldException(field)
+        fun Parameters.getFormFieldValue(field: FormInputField) =
+            this[field.htmlName] ?: throw MissingFormFieldException(field)
     }
 }
 
 //TODO Statuspages
-class MissingFormFieldException(val formField: FormInputField): IllegalArgumentException()
+class MissingFormFieldException(val formField: FormInputField) : IllegalArgumentException()
