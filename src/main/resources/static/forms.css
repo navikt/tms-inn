@@ -57,21 +57,27 @@ textarea {
     margin-bottom: 20px;
 }
 
-input[type="file"] {
-    width: 600px;
-    display: none;
+.checkbox-div {
+    width: 300px;
+    margin-top: 5px;
 }
 
-label:has(input[type=checkbox]){
+.checkbox-div label {
     display: inline-block;
-    width: 200px;
+    font-weight: 400;
 }
 
 input[type=checkbox] {
     display: inline-block;
-    width: 50px;
+    width: 14px;
+    margin-right: 10px;
 }
 
+
+input[type="file"] {
+    width: 600px;
+    display: none;
+}
 
 .file-input {
     color: var(--a-text-subtle);

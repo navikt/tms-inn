@@ -5,12 +5,18 @@ import kotlinx.html.*
 
 fun FIELDSET.labelAnDescribe(
     formInputField: FormInputField,
+    standardTextBuilder: (DIV.() -> Unit)? = null,
     inputBuilder: LABEL.() -> Unit
 ) {
     label {
         id = formInputField.labelId
         htmlFor = formInputField.elementId
         +formInputField.labelText
+
+        if(standardTextBuilder!=null)
+        div(classes = "checkbox-div") {
+            standardTextBuilder()
+        }
 
         formInputField.describe?.also {
             p(classes = "input-description") {
@@ -49,7 +55,7 @@ enum class FormInputField(
     MIN_SIDE_TEXT(
         htmlName = "beskjed-text",
         labelText = "Beskjed på min side",
-        describe = "Skriv en tekst som vises på Min side og i varselbjella (maks 500 tegn)"
+        describe = "Skriv en mer utfyllende tekst om saken som vises på Min side og i varselbjella (maks 500 tegn)"
     ),
     IDENT_FILE(
         htmlName = "ident",
