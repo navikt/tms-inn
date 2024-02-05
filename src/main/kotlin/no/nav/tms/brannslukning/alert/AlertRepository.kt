@@ -17,15 +17,16 @@ class AlertRepository(private val database: Database) {
     fun activeAlerts() = alerts(aktiv = true)
 
     fun inactiveAlerts() = alerts(aktiv = false)
-
     fun fetchHendelse(referenceId: String): TmpHendelse? {
         return database.singleOrNull {
             queryOf(
+                //language=PostgreSQL
                 """
-                    select 
-                        ah.*
+                    select ah.*, count(aq.ident)
                     from alert_header as ah
+                    left join alert_varsel_queue as aq on ah.referenceid = aq.alert_ref
                     where ah.referenceId = :referenceId
+                    group by referenceid, tekster, aktiv, ah.opprettet, opprettetav, avsluttet, avsluttetav
                 """,
                 mapOf("referenceId" to referenceId)
             ).map {
@@ -34,12 +35,14 @@ class AlertRepository(private val database: Database) {
                 TmpHendelse(
                     id = it.string("referenceId"),
                     initatedBy = it.json("opprettetAv", objectMapper),
-                    varseltekst = tekster.beskjed.tekst,
-                    eksternTekst = tekster.eksternTekst.tekst,
-                    url = tekster.beskjed.link,
                     title = tekster.tittel,
                     description = tekster.beskrivelse
-                )
+                ).apply {
+                    varseltekst = tekster.beskjed.tekst
+                    eksternTekst = tekster.eksternTekst.tekst
+                    url = tekster.beskjed.link
+                    affectedCount = it.int("count")
+                }
             }.asSingle
         }
     }

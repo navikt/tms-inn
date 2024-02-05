@@ -45,7 +45,7 @@ fun Route.startPage(repository: AlertRepository) {
 
             a(classes = "btnlink") {
                 id = "opprett-ny-btn"
-                href = "opprett"
+                href = "varsel/bakgrunn"
                 +"Lag nytt varsel"
             }
 
