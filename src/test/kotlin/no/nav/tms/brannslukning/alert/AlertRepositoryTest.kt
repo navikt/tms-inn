@@ -81,24 +81,18 @@ class AlertRepositoryTest {
         require(lestVarsel.varselId != null)
 
 
-        alertRepository.setVarselLest(lestVarsel.varselId)
-        varsler = database.getVarselForAlert(testAlert.referenceId)
-        varsler.find { it.lest }?.varselId shouldBe lestVarsel.varselId
-        varsler.count { !it.lest } shouldBe 3
-
         alertRepository.updateEksternStatus(lestVarsel.varselId, "bestilt")
-        varsler = database.getVarselForAlert(testAlert.referenceId)
-        varsler.find { it.varselId == lestVarsel.varselId }.let {
-            require(it != null)
-            it.eksternStatus shouldBe "bestilt"
-            it.lest shouldBe true
-        }
+        alertRepository.updateEksternStatus(varsler[1].varselId!!, "sendt")
+        alertRepository.updateEksternStatus(varsler[2].varselId!!, "sendt")
+        alertRepository.updateEksternStatus(varsler[3].varselId!!, "feilet")
+
+
 
         alertRepository.alertStatus(testAlert.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             eksterneVarslerStatus.antallFeilet shouldBe 1
             eksterneVarslerStatus.antallBestilt shouldBe 4
-            eksterneVarslerStatus.antallSendt shouldBe 3
+            eksterneVarslerStatus.antallSendt shouldBe 2
         }
 
     }

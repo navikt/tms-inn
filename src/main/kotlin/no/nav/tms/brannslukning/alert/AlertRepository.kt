@@ -162,8 +162,16 @@ class AlertRepository(private val database: Database) {
         }
     }
 
-    fun updateEksternStatus(varselid: String, status: String) {
-        TODO("Oppdatere ekstern status")
+    fun updateEksternStatus(varselId: String, status: String) {
+        database.update {
+            queryOf(
+                //language=PostgreSQL
+                """update alert_varsel_queue 
+                    set status_ekstern = :status 
+                    where varselId= :varselId""".trimIndent(),
+                mapOf("varselId" to varselId, "status" to status)
+            )
+        }
     }
 
     fun alertStatus(alertRefId: String): AlertStatus =
