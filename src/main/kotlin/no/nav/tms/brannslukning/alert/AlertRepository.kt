@@ -163,13 +163,24 @@ class AlertRepository(private val database: Database) {
     }
 
     fun updateEksternStatus(varselId: String, status: String) {
+        val oldStatus = database.singleOrNull {
+            queryOf(
+                //language=PostgreSQL
+                """select status_ekstern from alert_varsel_queue 
+                    where varselId= :varselId""".trimIndent(),
+                mapOf("varselId" to varselId)
+            ).map {
+                it.stringOrNull("status_ekstern")
+            }.asSingle
+        }
+
         database.update {
             queryOf(
                 //language=PostgreSQL
                 """update alert_varsel_queue 
                     set status_ekstern = :status 
                     where varselId= :varselId""".trimIndent(),
-                mapOf("varselId" to varselId, "status" to status)
+                mapOf("varselId" to varselId, "status" to EksternStatus.resolve(oldStatus, status))
             )
         }
     }
@@ -221,3 +232,17 @@ class EksterneVarslerStatus(
     val antallSendt: Int,
     val antallFeilet: Int
 )
+
+
+enum class EksternStatus(val priority: Int) {
+    bestilt(1), feilet(2), sendt(3);
+
+    companion object {
+        fun resolve(old: String?, new: String): String =
+            when {
+                old == null -> new
+                valueOf(old).priority > valueOf(new).priority -> old
+                else -> new
+            }
+    }
+}

@@ -56,7 +56,13 @@ class AlertRepositoryTest {
         alertRepository.updateEksternStatus(varsler[0].varselId!!, "bestilt")
         alertRepository.updateEksternStatus(varsler[1].varselId!!, "sendt")
         alertRepository.updateEksternStatus(varsler[2].varselId!!, "sendt")
+        alertRepository.updateEksternStatus(varsler[1].varselId!!, "feilet")
+        alertRepository.updateEksternStatus(varsler[2].varselId!!, "bestilt")
+
         alertRepository.updateEksternStatus(varsler[3].varselId!!, "feilet")
+        alertRepository.updateEksternStatus(varsler[3].varselId!!, "bestilt")
+
+
 
 
         alertRepository.alertStatus(testAlertRef.referenceId).apply {
