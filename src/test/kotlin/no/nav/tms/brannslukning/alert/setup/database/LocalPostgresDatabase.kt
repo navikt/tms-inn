@@ -55,4 +55,33 @@ class LocalPostgresDatabase private constructor() : Database {
             .load()
             .migrate()
     }
+
+    fun getVarselForAlert(referenceId: String): List<VarselData> =
+        list {
+            queryOf(
+                """
+                select * from alert_varsel_queue
+                where alert_ref = :refId 
+            """.trimIndent(), mapOf("refId" to referenceId)
+            ).map { row ->
+                row.stringOrNull("varselId")?.let {
+                    VarselData(
+                        varselId = it,
+                        ident = row.string("ident"),
+                        lest = row.boolean("varsel_lest"),
+                        eksternStatus = row.stringOrNull("status_ekstern")
+
+                    )
+                } ?: VarselData(
+                    ident = row.string("ident")
+                )
+            }.asList
+        }
 }
+
+class VarselData(
+    val varselId: String? = null,
+    val lest: Boolean = false,
+    val eksternStatus: String? = null,
+    val ident: String
+)

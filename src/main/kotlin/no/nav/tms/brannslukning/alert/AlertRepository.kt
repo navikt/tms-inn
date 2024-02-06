@@ -136,18 +136,80 @@ class AlertRepository(private val database: Database) {
         }
     }
 
-    fun markAsSent(referenceId: String, ident: String) {
+    fun markAsSent(referenceId: String, ident: String, varselId: String) {
         database.update {
             queryOf(
-                "update alert_varsel_queue set sendt = true, ferdigstilt = :ferdigstilt where alert_ref = :referenceId and ident = :ident",
+                "update alert_varsel_queue set sendt = true, ferdigstilt = :ferdigstilt, varselId = :varselId where alert_ref = :referenceId and ident = :ident",
                 mapOf(
                     "ident" to ident,
                     "referenceId" to referenceId,
-                    "ferdigstilt" to nowAtUtcZ()
+                    "ferdigstilt" to nowAtUtcZ(),
+                    "varselId" to varselId
                 )
             )
         }
     }
+
+    fun setVarselLest(varselId: String) {
+        database.update {
+            queryOf(
+                //language=PostgreSQL
+                """update alert_varsel_queue 
+                    set varsel_lest = true 
+                    where varselId= :varselId""".trimIndent(),
+                mapOf("varselId" to varselId)
+            )
+        }
+    }
+
+    fun updateEksternStatus(varselid: String, status: String) {
+        TODO("Oppdatere ekstern status")
+    }
+
+    fun alertStatus(alertRefId: String): AlertStatus =
+        database.singleOrNull {
+            queryOf( //language=PostgreSQL
+                """
+                |select sum(case when ferdigstilt is not null then 1 else 0 end) as ferdigstilte_varsler,
+                | sum(case when varsel_lest is true then 1 else 0 end ) as leste_varsler,
+                | sum(case when status_ekstern is not null then 1 else 0 end) as bestilte_varsler,
+                |sum(case when status_ekstern='sendt' then 1 else 0 end) as sendte_varsler,
+                | sum(case when status_ekstern='feilet' then 1 else 0 end) as feilende_varsler
+                | from alert_varsel_queue
+                | where alert_ref = :alertRef """.trimMargin(),
+                mapOf("alertRef" to alertRefId)
+            ).map { row ->
+                AlertStatus(
+                    antallLesteVarsler = row.int("leste_varsler"),
+                    antallFerdigstilteVarsler = row.int("ferdigstilte_varsler"),
+                    eksterneVarslerStatus = EksterneVarslerStatus(
+                        antallBestilt = row.int("bestilte_varsler"),
+                        antallSendt = row.int("sendte_varsler"),
+                        antallFeilet = row.int("feilende_varsler")
+                    )
+                )
+            }.asSingle
+        } ?: AlertStatus.empty()
 }
 
 fun nowAtUtcZ() = ZonedDateTime.now(ZoneId.of("Z"))
+
+class AlertStatus(
+    val antallFerdigstilteVarsler: Int,
+    val antallLesteVarsler: Int,
+    val eksterneVarslerStatus: EksterneVarslerStatus
+) {
+    companion object {
+        fun empty(): AlertStatus = AlertStatus(
+            0, 0, EksterneVarslerStatus(
+                0, 0, 0
+            )
+        )
+    }
+}
+
+class EksterneVarslerStatus(
+    val antallBestilt: Int,
+    val antallSendt: Int,
+    val antallFeilet: Int
+)

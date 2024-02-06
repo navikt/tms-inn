@@ -24,13 +24,17 @@ class VarselPusher(
         if (leaderElection.isLeader()) {
             alertRepository.nextInVarselQueue(batchSize)
                 .forEach { request ->
-                    sendBeskjed(request)
-                    alertRepository.markAsSent(referenceId = request.referenceId, ident = request.ident)
+                    val varselId = sendBeskjed(request)
+                    alertRepository.markAsSent(
+                        referenceId = request.referenceId,
+                        ident = request.ident,
+                        varselId = varselId
+                    )
                 }
         }
     }
 
-    private fun sendBeskjed(varselRequest: VarselRequest) {
+    private fun sendBeskjed(varselRequest: VarselRequest): String {
         val beskjedId = UUID.randomUUID().toString()
 
         VarselActionBuilder.opprett {
@@ -59,5 +63,7 @@ class VarselPusher(
         }.let { beskjed ->
             kafkaProducer.send(ProducerRecord(varselTopic, beskjedId, beskjed))
         }
+
+        return beskjedId
     }
 }

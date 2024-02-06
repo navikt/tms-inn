@@ -12,10 +12,14 @@ import no.nav.tms.brannslukning.setup.database.Flyway
 import no.nav.tms.brannslukning.setup.database.PostgresDatabase
 import no.nav.tms.common.util.config.IntEnvVar.getEnvVarAsInt
 import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.*
 
@@ -101,3 +105,15 @@ private fun initializeRapidKafkaProducer(environment: Environment) = KafkaProduc
         put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "")
     }
 )
+
+private fun initializeVarselHendelseConsumer(environment: Environment): KafkaConsumer<String, ByteArray> =
+    mapOf(
+        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to environment.kafkaBrokers,
+        ConsumerConfig.AUTO_OFFSET_RESET_DOC to "latest",
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+        ConsumerConfig.GROUP_ID_CONFIG to "??",
+
+        "security.protocol" to "PLAINTEXT"
+    ).let { KafkaConsumer<String, ByteArray>(it) }
+

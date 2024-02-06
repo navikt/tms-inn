@@ -94,7 +94,7 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                         accept = ".csv"
                         type = InputType.file
                         onChange = "document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
-                        required = tmpHendelse.affectedUsers.isEmpty() ?: true
+                        required = tmpHendelse.affectedUsers.isEmpty()
                     }
 
                     p {
