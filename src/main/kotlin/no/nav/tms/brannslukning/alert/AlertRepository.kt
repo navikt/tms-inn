@@ -178,11 +178,11 @@ class AlertRepository(private val database: Database) {
         database.singleOrNull {
             queryOf( //language=PostgreSQL
                 """
-                |select sum(case when ferdigstilt is not null then 1 else 0 end) as ferdigstilte_varsler,
-                | sum(case when varsel_lest is true then 1 else 0 end ) as leste_varsler,
-                | sum(case when status_ekstern is not null then 1 else 0 end) as bestilte_varsler,
-                | sum(case when status_ekstern='sendt' then 1 else 0 end) as sendte_varsler,
-                | sum(case when status_ekstern='feilet' then 1 else 0 end) as feilende_varsler
+                |select count(1) filter ( where ferdigstilt is not null) as ferdigstilte_varsler,
+                | count(1) filter ( where varsel_lest is true) as leste_varsler,
+                | count(1) filter ( where status_ekstern is not null) as bestilte_varsler,
+                | count(1) filter ( where status_ekstern='sendt') as sendte_varsler,
+                | count(1)filter ( where status_ekstern='feilet') as feilende_varsler
                 | from alert_varsel_queue
                 | where alert_ref = :alertRef """.trimMargin(),
                 mapOf("alertRef" to alertRefId)
