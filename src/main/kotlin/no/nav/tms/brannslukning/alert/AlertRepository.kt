@@ -181,7 +181,7 @@ class AlertRepository(private val database: Database) {
                 |select sum(case when ferdigstilt is not null then 1 else 0 end) as ferdigstilte_varsler,
                 | sum(case when varsel_lest is true then 1 else 0 end ) as leste_varsler,
                 | sum(case when status_ekstern is not null then 1 else 0 end) as bestilte_varsler,
-                |sum(case when status_ekstern='sendt' then 1 else 0 end) as sendte_varsler,
+                | sum(case when status_ekstern='sendt' then 1 else 0 end) as sendte_varsler,
                 | sum(case when status_ekstern='feilet' then 1 else 0 end) as feilende_varsler
                 | from alert_varsel_queue
                 | where alert_ref = :alertRef """.trimMargin(),

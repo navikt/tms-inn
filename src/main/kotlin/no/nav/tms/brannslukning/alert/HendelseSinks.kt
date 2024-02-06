@@ -17,6 +17,7 @@ class EksterntVarselStatusSink(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        //sendt trumfer bestilt og feilet
         alertRepository.updateEksternStatus(packet["varselId"].asText(), packet["status"].asText())
     }
 }
@@ -37,10 +38,5 @@ class VarselInaktivertSink(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         alertRepository.setVarselLest(packet["varselId"].asText())
-    }
-
-    override fun onError(problems: MessageProblems, context: MessageContext) {
-        print(problems.toExtendedReport())
-        super.onError(problems, context)
     }
 }
