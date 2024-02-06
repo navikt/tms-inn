@@ -4,7 +4,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.tms.brannslukning.alert.setup.database.LocalPostgresDatabase
 import no.nav.tms.brannslukning.alert.setup.database.VarselData
-import no.nav.tms.brannslukning.alert.setup.database.defaultTestAlert
 import no.nav.tms.brannslukning.alert.setup.database.setupTestAltert
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -28,10 +27,10 @@ class VarselHendelseSinksTest {
 
     @Test
     fun `plukker opp lest-hendelse`() {
-        val varsler = setupTestAltert(alertRepository, database)
+        var (testAlertRef, varsler) = setupTestAltert(alertRepository, database)
         testRapid.sendVarselInaktivert(varsler[0], varsler[1])
 
-        alertRepository.alertStatus(defaultTestAlert.referenceId).apply {
+        alertRepository.alertStatus(testAlertRef.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             antallLesteVarsler shouldBe 2
         }
@@ -39,14 +38,15 @@ class VarselHendelseSinksTest {
 
     @Test
     fun `plukker opp endring i status for eksternt varsel`() {
-        val varsler = setupTestAltert(alertRepository, database)
+        val (testAlertRef, varsler) = setupTestAltert(alertRepository, database)
+
         testRapid.sendEksterntVarselEndret("bestilt", varsler[0], varsler[1], varsler[2], varsler[3])
         testRapid.sendEksterntVarselEndret("feilet", varsler[2])
         testRapid.sendEksterntVarselEndret("sendt", varsler[0], varsler[1])
         testRapid.sendVarselInaktivert(varsler[0], varsler[1])
 
 
-        alertRepository.alertStatus(defaultTestAlert.referenceId).apply {
+        alertRepository.alertStatus(testAlertRef.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             antallLesteVarsler shouldBe 2
             eksterneVarslerStatus.antallFeilet shouldBe 1
