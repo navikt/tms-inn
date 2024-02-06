@@ -3,41 +3,31 @@ package no.nav.tms.brannslukning.alert
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.tms.brannslukning.alert.setup.database.LocalPostgresDatabase
-import no.nav.tms.brannslukning.common.gui.User
+import no.nav.tms.brannslukning.alert.setup.database.defaultTestAlert
+import no.nav.tms.brannslukning.alert.setup.database.setupTestAltert
+import org.junit.After
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
 import java.util.UUID
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AlertRepositoryTest {
 
     private val database = LocalPostgresDatabase.cleanDb()
     private val alertRepository = AlertRepository(database)
 
-    private val testAlert = OpprettAlert(
-        referenceId = UUID.randomUUID().toString(),
-        tekster = Tekster(
-            tittel = "Larisa",
-            beskrivelse = "Shain",
-            beskjed = WebTekst(link = "Kerstin", spraakkode = "Brittan", tekst = "Hazel"),
-            eksternTekst = EksternTekst(tittel = "Lucretia", tekst = "Laquana")
-        ),
-        opprettetAv = User("Testuser", "test-user"),
-        mottakere = listOf("12345", "678910", "111213", "98764")
-    )
-
-    @BeforeEach
+    @AfterEach
     fun cleandb() {
         database.clearTables()
     }
 
     @Test
     fun `oppdaterer leststatus`() {
-        alertRepository.createAlert(testAlert)
-        var varsler = database.getVarselForAlert(testAlert.referenceId)
-        varsler.forEach { alertRepository.markAsSent(testAlert.referenceId, it.ident, UUID.randomUUID().toString()) }
+        var varsler = setupTestAltert(alertRepository, database)
 
-        varsler = database.getVarselForAlert(testAlert.referenceId)
         varsler.forEach {
             it.varselId shouldNotBe null
             it.lest shouldBe false
@@ -49,13 +39,13 @@ class AlertRepositoryTest {
 
 
         alertRepository.setVarselLest(lestVarsel.varselId)
-        varsler = database.getVarselForAlert(testAlert.referenceId)
+        varsler = database.getVarselForAlert(defaultTestAlert.referenceId)
         varsler.find { it.lest }?.varselId shouldBe lestVarsel.varselId
         varsler.count { !it.lest } shouldBe 3
 
         alertRepository.setVarselLest(varsler[1].varselId!!)
 
-        alertRepository.alertStatus(testAlert.referenceId).apply {
+        alertRepository.alertStatus(defaultTestAlert.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             antallLesteVarsler shouldBe 2
             eksterneVarslerStatus.antallFeilet shouldBe 0
@@ -66,29 +56,16 @@ class AlertRepositoryTest {
 
     @Test
     fun `oppdaterer ekstern status`() {
-        alertRepository.createAlert(testAlert)
-        var varsler = database.getVarselForAlert(testAlert.referenceId)
-        varsler.forEach { alertRepository.markAsSent(testAlert.referenceId, it.ident, UUID.randomUUID().toString()) }
 
-        varsler = database.getVarselForAlert(testAlert.referenceId)
-        varsler.forEach {
-            it.varselId shouldNotBe null
-            it.lest shouldBe false
-            it.eksternStatus shouldBe null
-        }
+        val varsler = setupTestAltert(alertRepository, database)
 
-        val lestVarsel = varsler.first()
-        require(lestVarsel.varselId != null)
-
-
-        alertRepository.updateEksternStatus(lestVarsel.varselId, "bestilt")
+        alertRepository.updateEksternStatus(varsler[0].varselId!!, "bestilt")
         alertRepository.updateEksternStatus(varsler[1].varselId!!, "sendt")
         alertRepository.updateEksternStatus(varsler[2].varselId!!, "sendt")
         alertRepository.updateEksternStatus(varsler[3].varselId!!, "feilet")
 
 
-
-        alertRepository.alertStatus(testAlert.referenceId).apply {
+        alertRepository.alertStatus(defaultTestAlert.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             eksterneVarslerStatus.antallFeilet shouldBe 1
             eksterneVarslerStatus.antallBestilt shouldBe 4
@@ -97,10 +74,3 @@ class AlertRepositoryTest {
 
     }
 }
-
-/*
-* ident text not null,
-    sendt boolean not null default false,
-    opprettet timestamp with time zone not null,
-    ferdigstilt timestamp with time zone,
-* */

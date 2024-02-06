@@ -54,6 +54,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation(TmsVarselBuilder.kotlinBuilder)
     implementation(TmsKtorTokenSupport.azureValidation)
+    implementation(RapidsAndRivers.rapidsAndRivers)
 
 
     testImplementation(Junit.api)
@@ -63,7 +64,7 @@ dependencies {
     testImplementation(TestContainers.postgresql)
     testImplementation(Kotest.runnerJunit5)
     testImplementation(Kotest.assertionsCore)
-    implementation(TmsKtorTokenSupport.azureValidationMock)
+    testImplementation(TmsKtorTokenSupport.azureValidationMock)
 }
 
 application {
