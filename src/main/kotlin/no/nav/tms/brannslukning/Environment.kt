@@ -11,7 +11,6 @@ data class Environment(
     val kafkaSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
     val kafkaSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
     val varselTopic: String = "min-side.aapen-brukervarsel-v1",
-    val varselHendelseTopic: String = getEnvVar("VARSEL_HENDELSE_TOPIC")
 ) {
     val rapidConfig = mapOf(
         "KAFKA_BROKERS" to kafkaBrokers,
