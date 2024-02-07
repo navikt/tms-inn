@@ -15,7 +15,7 @@ data class Environment(
     val rapidConfig = mapOf(
         "KAFKA_BROKERS" to kafkaBrokers,
         "KAFKA_CONSUMER_GROUP_ID" to "brannslukning-01",
-        "KAFKA_RAPID_TOPIC" to "aapen-varsel-hendelse-v1",
+        "KAFKA_RAPID_TOPIC" to "min-side.aapen-varsel-hendelse-v1",
         "KAFKA_KEYSTORE_PATH" to kafkaKeystorePath,
         "KAFKA_CREDSTORE_PASSWORD" to kafkaCredstorePassword,
         "KAFKA_TRUSTSTORE_PATH" to kafkaTruststorePath,
