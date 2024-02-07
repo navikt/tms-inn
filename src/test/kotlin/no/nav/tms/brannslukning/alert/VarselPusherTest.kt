@@ -1,6 +1,5 @@
 package no.nav.tms.brannslukning.alert
 
-import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -20,10 +19,12 @@ import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.time.Duration
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class VarselPusherTest {
 
     private val database = LocalPostgresDatabase.cleanDb()
@@ -170,13 +171,14 @@ class VarselPusherTest {
             queryOf("select count(*) as antall from alert_varsel_queue where not sendt")
                 .map { it.int("antall") }
                 .asSingle
-        }?: 0
+        } ?: 0
     }
 }
 
 private fun Database.insertRequests(requests: AlertWithRecipients) {
     update {
-        queryOf("""
+        queryOf(
+            """
                 insert into alert_header(referenceId, tekster, opprettet, opprettetAv, aktiv)
                 values (:referenceId, :tekster, :opprettet, :opprettetAv, :aktiv)
             """,
@@ -191,7 +193,7 @@ private fun Database.insertRequests(requests: AlertWithRecipients) {
     }
 
     batch(
-    """
+        """
             insert into alert_varsel_queue(alert_ref, ident, sendt, opprettet)
             values(:alertRef, :ident, :sendt, :opprettet)
         """,

@@ -136,18 +136,113 @@ class AlertRepository(private val database: Database) {
         }
     }
 
-    fun markAsSent(referenceId: String, ident: String) {
+    fun markAsSent(referenceId: String, ident: String, varselId: String) {
         database.update {
             queryOf(
-                "update alert_varsel_queue set sendt = true, ferdigstilt = :ferdigstilt where alert_ref = :referenceId and ident = :ident",
+                "update alert_varsel_queue set sendt = true, ferdigstilt = :ferdigstilt, varselId = :varselId where alert_ref = :referenceId and ident = :ident",
                 mapOf(
                     "ident" to ident,
                     "referenceId" to referenceId,
-                    "ferdigstilt" to nowAtUtcZ()
+                    "ferdigstilt" to nowAtUtcZ(),
+                    "varselId" to varselId
                 )
             )
         }
     }
+
+    fun setVarselLest(varselId: String) {
+        database.update {
+            queryOf(
+                //language=PostgreSQL
+                """update alert_varsel_queue 
+                    set varsel_lest = true 
+                    where varselId= :varselId""".trimIndent(),
+                mapOf("varselId" to varselId)
+            )
+        }
+    }
+
+    fun updateEksternStatus(varselId: String, status: String) {
+        val oldStatus = database.singleOrNull {
+            queryOf(
+                //language=PostgreSQL
+                """select status_ekstern from alert_varsel_queue 
+                    where varselId= :varselId""".trimIndent(),
+                mapOf("varselId" to varselId)
+            ).map {
+                it.stringOrNull("status_ekstern")
+            }.asSingle
+        }
+
+        database.update {
+            queryOf(
+                //language=PostgreSQL
+                """update alert_varsel_queue 
+                    set status_ekstern = :status 
+                    where varselId= :varselId""".trimIndent(),
+                mapOf("varselId" to varselId, "status" to EksternStatus.resolve(oldStatus, status))
+            )
+        }
+    }
+
+    fun alertStatus(alertRefId: String): AlertStatus =
+        database.singleOrNull {
+            queryOf( //language=PostgreSQL
+                """
+                |select count(1) filter ( where ferdigstilt is not null) as ferdigstilte_varsler,
+                | count(1) filter ( where varsel_lest is true) as leste_varsler,
+                | count(1) filter ( where status_ekstern is not null) as bestilte_varsler,
+                | count(1) filter ( where status_ekstern='sendt') as sendte_varsler,
+                | count(1)filter ( where status_ekstern='feilet') as feilende_varsler
+                | from alert_varsel_queue
+                | where alert_ref = :alertRef """.trimMargin(),
+                mapOf("alertRef" to alertRefId)
+            ).map { row ->
+                AlertStatus(
+                    antallLesteVarsler = row.int("leste_varsler"),
+                    antallFerdigstilteVarsler = row.int("ferdigstilte_varsler"),
+                    eksterneVarslerStatus = EksterneVarslerStatus(
+                        antallBestilt = row.int("bestilte_varsler"),
+                        antallSendt = row.int("sendte_varsler"),
+                        antallFeilet = row.int("feilende_varsler")
+                    )
+                )
+            }.asSingle
+        } ?: AlertStatus.empty()
 }
 
 fun nowAtUtcZ() = ZonedDateTime.now(ZoneId.of("Z"))
+
+class AlertStatus(
+    val antallFerdigstilteVarsler: Int,
+    val antallLesteVarsler: Int,
+    val eksterneVarslerStatus: EksterneVarslerStatus
+) {
+    companion object {
+        fun empty(): AlertStatus = AlertStatus(
+            0, 0, EksterneVarslerStatus(
+                0, 0, 0
+            )
+        )
+    }
+}
+
+class EksterneVarslerStatus(
+    val antallBestilt: Int,
+    val antallSendt: Int,
+    val antallFeilet: Int
+)
+
+
+enum class EksternStatus(val priority: Int) {
+    bestilt(1), feilet(2), sendt(3);
+
+    companion object {
+        fun resolve(old: String?, new: String): String =
+            when {
+                old == null -> new
+                valueOf(old).priority > valueOf(new).priority -> old
+                else -> new
+            }
+    }
+}

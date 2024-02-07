@@ -44,5 +44,5 @@ data class VarselRequest(
     val ident: String,
     val beskjed: WebTekst,
     val eksternTekst: EksternTekst,
-    val tittel: String
+    val tittel: String,
 )

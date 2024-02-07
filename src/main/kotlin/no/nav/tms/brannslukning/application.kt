@@ -4,7 +4,11 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.rapids_rivers.RapidApplication
+import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.tms.brannslukning.alert.AlertRepository
+import no.nav.tms.brannslukning.alert.EksterntVarselStatusSink
+import no.nav.tms.brannslukning.alert.VarselInaktivertSink
 import no.nav.tms.brannslukning.alert.VarselPusher
 import no.nav.tms.brannslukning.common.gui.gui
 import no.nav.tms.brannslukning.setup.PodLeaderElection
@@ -22,60 +26,63 @@ import java.util.*
 fun main() {
     val alertRepository = AlertRepository(PostgresDatabase())
 
+    if (Environment.isDevMode)
+        startDevServer(alertRepository)
+    else
+        startRapidApplication(alertRepository)
+
+}
+
+private fun startDevServer(alertRepository: AlertRepository) {
     embeddedServer(
         Netty,
         port = getEnvVarAsInt("PORT", 8081),
         module = {
             gui(alertRepository)
-            if (environment.developmentMode) {
-                environment.monitor.subscribe(ApplicationStarted) {
-                    Flyway.runFlywayMigrations()
-                }
-            } else {
-                setupVarselPusher(alertRepository)
+            environment.monitor.subscribe(ApplicationStarted) {
+                Flyway.runFlywayMigrations()
             }
-
         }
     ).start(wait = true)
-
 }
 
-private fun Application.setupVarselPusher(alertRepository: AlertRepository) {
+private fun startRapidApplication(alertRepository: AlertRepository) {
     val environment = Environment()
 
     val kafkaProducer = initializeRapidKafkaProducer(environment)
-    val leaderElection = PodLeaderElection()
-
     val varselPusher = VarselPusher(
-        alertRepository,
-        leaderElection,
-        kafkaProducer,
-        environment.varselTopic
+        alertRepository = alertRepository,
+        leaderElection = PodLeaderElection(),
+        kafkaProducer = initializeRapidKafkaProducer(environment),
+        varselTopic = environment.varselTopic
     )
 
-    configureStartupHook(varselPusher)
-    configureShutdownHook(varselPusher, kafkaProducer)
+    RapidApplication.Builder(RapidApplication.RapidApplicationConfig.fromEnv(environment.rapidConfig))
+        .withKtorModule {
+            gui(
+                alertRepository
+            )
+        }.build().apply {
+            VarselInaktivertSink(this, alertRepository)
+            EksterntVarselStatusSink(this, alertRepository)
 
+        }.apply {
+            register(object : RapidsConnection.StatusListener {
+                override fun onStartup(rapidsConnection: RapidsConnection) {
+                    Flyway.runFlywayMigrations()
+                    varselPusher.start()
+                }
 
+                override fun onShutdown(rapidsConnection: RapidsConnection) {
+                    runBlocking {
+                        varselPusher.stop()
+                        kafkaProducer.flush()
+                        kafkaProducer.close()
+                    }
+                }
+            })
+        }.start()
 }
-
-private fun Application.configureStartupHook(varselPusher: VarselPusher) {
-    environment.monitor.subscribe(ApplicationStarted) {
-        Flyway.runFlywayMigrations()
-        varselPusher.start()
-    }
-}
-
-private fun Application.configureShutdownHook(varselPusher: VarselPusher, kafkaProducer: KafkaProducer<*, *>) {
-    environment.monitor.subscribe(ApplicationStopPreparing) {
-        runBlocking {
-            varselPusher.stop()
-            kafkaProducer.flush()
-            kafkaProducer.close()
-        }
-    }
-}
-
 
 private fun initializeRapidKafkaProducer(environment: Environment) = KafkaProducer<String, String>(
     Properties().apply {

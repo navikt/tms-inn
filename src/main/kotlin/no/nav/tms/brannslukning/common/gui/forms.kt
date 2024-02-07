@@ -80,7 +80,7 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                     setAttrs(FormInputField.LINK)
                     type = InputType.url
                     required = true
-                    minLength = "15"
+                    minLength = "10"
                     tmpHendelse.url?.let {
                         value = it
                     }
@@ -94,9 +94,9 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                 textArea {
                     setAttrs(FormInputField.MIN_SIDE_TEXT)
                     required = true
-                    maxLength = "150"
-                    minLength = "50"
-                    tmpHendelse.varseltekst?.let {
+                    maxLength = "160"
+                    minLength = "30"
+                    tmpHendelse.eksternTekst?.let {
                         text(it)
                     }
                 }
@@ -110,7 +110,7 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                         accept = ".csv"
                         type = InputType.file
                         onChange = "document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
-                        required = tmpHendelse.affectedUsers.isEmpty() ?: true
+                        required = tmpHendelse.affectedUsers.isEmpty()
                     }
 
                     p {
