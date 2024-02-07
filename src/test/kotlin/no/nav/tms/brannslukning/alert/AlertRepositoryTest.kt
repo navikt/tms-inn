@@ -40,7 +40,7 @@ class AlertRepositoryTest {
 
         alertRepository.setVarselLest(varsler[1].varselId!!)
 
-        alertRepository.alertStatus(testAlertRef.referenceId).apply {
+        alertRepository.varselStatus(testAlertRef.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             antallLesteVarsler shouldBe 2
             eksterneVarslerStatus.antallFeilet shouldBe 0
@@ -65,7 +65,7 @@ class AlertRepositoryTest {
 
 
 
-        alertRepository.alertStatus(testAlertRef.referenceId).apply {
+        alertRepository.varselStatus(testAlertRef.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             eksterneVarslerStatus.antallFeilet shouldBe 1
             eksterneVarslerStatus.antallBestilt shouldBe 4

@@ -6,14 +6,13 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 import no.nav.tms.brannslukning.alert.AlertRepository
 
-private val log = KotlinLogging.logger { }
-fun Route.redigerHendelse(alertRepository: AlertRepository) {
+fun Route.redigerBeredskapvarsel(alertRepository: AlertRepository) {
     route("hendelse") {
         get("{id}") {
 
             val id = call.parameters["id"] ?: throw IllegalArgumentException("hendelseid må være tilstede i path")
 
-            val hendelse = HendelseCache.getHendelse(id) ?: alertRepository.fetchHendelse(id)
+            val hendelse = BeredskapvarselCache.getHendelse(id) ?: alertRepository.fetchHendelse(id)
             ?: throw IllegalArgumentException("Fant ikke hendelse med gitt id")
 
             call.respondHtmlContent("Hendelse detaljer", true) {
@@ -44,7 +43,7 @@ fun Route.redigerHendelse(alertRepository: AlertRepository) {
             val hendelse =
                 alertRepository.fetchHendelse(id) ?: throw IllegalArgumentException("Fant ikke hendelse med id $id")
             alertRepository.endAlert(hendelse.id, call.user)
-            HendelseCache.tmpClose(hendelse.id)
+            BeredskapvarselCache.tmpClose(hendelse.id)
 
             call.respondHtmlContent("Hendelse avsluttet", false) {
                 h1 { +"Hendelse avsluttet" }

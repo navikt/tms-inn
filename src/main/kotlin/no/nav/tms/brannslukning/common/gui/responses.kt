@@ -5,10 +5,9 @@ import io.ktor.server.application.*
 import io.ktor.server.html.*
 import io.ktor.server.response.*
 import kotlinx.html.*
-import no.nav.tms.brannslukning.alert.AlertRepository
 
 fun MAIN.hendelseDl(
-    tmpHendelse: TmpHendelse,
+    tmpHendelse: TmpBeredskapsvarsel,
     classes: String,
     avsluttetAv: String? = null,
     showAffectedUsers: Boolean = true,
@@ -98,12 +97,12 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Bool
     }
 }
 
-fun ApplicationCall.tmpHendelse(): TmpHendelse = parameters["varselId"]?.let {
-    HendelseCache.getHendelse(it)
+fun ApplicationCall.tmpHendelse(): TmpBeredskapsvarsel = parameters["varselId"]?.let {
+    BeredskapvarselCache.getHendelse(it)
 } ?: throw IllegalArgumentException("Ukjent hendelse")
 
-fun ApplicationCall.tmpHendelseOrNull(): TmpHendelse? = request.queryParameters["hendelse"]?.let {
-    HendelseCache.getHendelse(it)
+fun ApplicationCall.tmpHendelseOrNull(): TmpBeredskapsvarsel? = request.queryParameters["hendelse"]?.let {
+    BeredskapvarselCache.getHendelse(it)
 }
 
 

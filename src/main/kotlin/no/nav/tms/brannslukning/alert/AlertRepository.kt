@@ -1,8 +1,11 @@
 package no.nav.tms.brannslukning.alert
 
+import EksterneVarslerStatus
+import VarselStatus
 import kotliquery.queryOf
-import no.nav.tms.brannslukning.common.gui.TmpHendelse
+import no.nav.tms.brannslukning.common.gui.TmpBeredskapsvarsel
 import no.nav.tms.brannslukning.common.gui.User
+import no.nav.tms.brannslukning.common.gui.VarslerNotFoundException
 import no.nav.tms.brannslukning.setup.database.Database
 import no.nav.tms.brannslukning.setup.database.defaultObjectMapper
 import no.nav.tms.brannslukning.setup.database.json
@@ -17,7 +20,7 @@ class AlertRepository(private val database: Database) {
     fun activeAlerts() = alerts(aktiv = true)
 
     fun inactiveAlerts() = alerts(aktiv = false)
-    fun fetchHendelse(referenceId: String): TmpHendelse? {
+    fun fetchHendelse(referenceId: String): TmpBeredskapsvarsel? {
         return database.singleOrNull {
             queryOf(
                 //language=PostgreSQL
@@ -32,7 +35,7 @@ class AlertRepository(private val database: Database) {
             ).map {
                 val tekster: Tekster = it.json("tekster", objectMapper)
 
-                TmpHendelse(
+                TmpBeredskapsvarsel(
                     id = it.string("referenceId"),
                     initatedBy = it.json("opprettetAv", objectMapper),
                     title = tekster.tittel,
@@ -185,7 +188,7 @@ class AlertRepository(private val database: Database) {
         }
     }
 
-    fun alertStatus(alertRefId: String): AlertStatus =
+    fun varselStatus(alertRefId: String): VarselStatus =
         database.singleOrNull {
             queryOf( //language=PostgreSQL
                 """
@@ -198,7 +201,7 @@ class AlertRepository(private val database: Database) {
                 | where alert_ref = :alertRef """.trimMargin(),
                 mapOf("alertRef" to alertRefId)
             ).map { row ->
-                AlertStatus(
+                VarselStatus(
                     antallLesteVarsler = row.int("leste_varsler"),
                     antallFerdigstilteVarsler = row.int("ferdigstilte_varsler"),
                     eksterneVarslerStatus = EksterneVarslerStatus(
@@ -208,41 +211,7 @@ class AlertRepository(private val database: Database) {
                     )
                 )
             }.asSingle
-        } ?: AlertStatus.empty()
+        } ?: throw VarslerNotFoundException(alertRefId)
 }
 
 fun nowAtUtcZ() = ZonedDateTime.now(ZoneId.of("Z"))
-
-class AlertStatus(
-    val antallFerdigstilteVarsler: Int,
-    val antallLesteVarsler: Int,
-    val eksterneVarslerStatus: EksterneVarslerStatus
-) {
-    companion object {
-        fun empty(): AlertStatus = AlertStatus(
-            0, 0, EksterneVarslerStatus(
-                0, 0, 0
-            )
-        )
-    }
-}
-
-class EksterneVarslerStatus(
-    val antallBestilt: Int,
-    val antallSendt: Int,
-    val antallFeilet: Int
-)
-
-
-enum class EksternStatus(val priority: Int) {
-    bestilt(1), feilet(2), sendt(3);
-
-    companion object {
-        fun resolve(old: String?, new: String): String =
-            when {
-                old == null -> new
-                valueOf(old).priority > valueOf(new).priority -> old
-                else -> new
-            }
-    }
-}

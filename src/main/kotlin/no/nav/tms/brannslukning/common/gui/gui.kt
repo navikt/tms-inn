@@ -4,18 +4,14 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.html.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
-import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.token.support.azure.validation.AzurePrincipal
 import no.nav.tms.token.support.azure.validation.azure
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 fun Application.gui(alertRepository: AlertRepository) {
 
@@ -75,8 +71,8 @@ fun Application.gui(alertRepository: AlertRepository) {
         meta()
         authenticate {
             startPage(alertRepository)
-            opprettHendelse(alertRepository)
-            redigerHendelse(alertRepository)
+            opprettBeredskapvarsel(alertRepository)
+            redigerBeredskapvarsel(alertRepository)
         }
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)

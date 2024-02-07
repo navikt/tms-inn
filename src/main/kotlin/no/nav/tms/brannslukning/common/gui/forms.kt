@@ -4,7 +4,7 @@ import kotlinx.html.*
 import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
 import org.intellij.lang.annotations.Language
 
-fun MAIN.bakgrunnForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
+fun MAIN.bakgrunnForm(tmpHendelse: TmpBeredskapsvarsel?, postEndpoint: String) {
     form {
         action = postEndpoint
         method = FormMethod.post
@@ -41,7 +41,7 @@ fun MAIN.bakgrunnForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
     cancelAndGoBackButtons()
 }
 
-fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
+fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
     form {
         action = postEndpoint
         method = FormMethod.post
