@@ -2,6 +2,7 @@ package no.nav.tms.brannslukning.common.gui
 
 import kotlinx.html.*
 import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
+import org.intellij.lang.annotations.Language
 
 fun MAIN.bakgrunnForm(tmpHendelse: TmpHendelse?, postEndpoint: String) {
     form {
@@ -48,19 +49,32 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
         fieldSet {
             legend { +"Varseltekst" }
             labelAnDescribe(
-                FormInputField.MIN_SIDE_TEXT
-            ) {
-                textArea {
-                    setAttrs(FormInputField.MIN_SIDE_TEXT)
-                    required = true
-                    maxLength = "150"
-                    minLength = "30"
-                    tmpHendelse.varseltekst?.let {
-                        text(it)
+                FormInputField.SMS_EPOST_TEKST,
+                standardTextBuilder = {
+                    div {
+                        input {
+                            id = "standardtekst-sms"
+                            type = InputType.checkBox
+                            onChange = onChangedDefaultSmsText
+                        }
+                        label {
+                            htmlFor = "standardtekst-sms"
+                            +"Bruk standardtekst"
+                        }
+                    }
+                },
+                inputBuilder = {
+                    textArea {
+                        setAttrs(FormInputField.SMS_EPOST_TEKST)
+                        required = true
+                        maxLength = "500"
+                        minLength = "50"
+                        tmpHendelse.eksternTekst?.let {
+                            text(it)
+                        }
                     }
                 }
-            }
-
+            )
             labelAnDescribe(FormInputField.LINK) {
                 input {
                     setAttrs(FormInputField.LINK)
@@ -74,9 +88,11 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
 
             }
 
-            labelAnDescribe(FormInputField.SMS_EPOST_TEKST) {
+            labelAnDescribe(
+                FormInputField.MIN_SIDE_TEXT
+            ) {
                 textArea {
-                    setAttrs(FormInputField.SMS_EPOST_TEKST)
+                    setAttrs(FormInputField.MIN_SIDE_TEXT)
                     required = true
                     maxLength = "160"
                     minLength = "30"
@@ -85,6 +101,7 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
                     }
                 }
             }
+
             fieldSet {
                 legend { +"Hvem skal motta varselet?" }
                 labelAnDescribe(FormInputField.IDENT_FILE) {
@@ -115,3 +132,10 @@ fun MAIN.varselForm(tmpHendelse: TmpHendelse, postEndpoint: String) {
         }
     }
 }
+
+
+@Language("JavaScript")
+private val onChangedDefaultSmsText = """
+    if(this.checked == true){
+        document.getElementsByName("${FormInputField.SMS_EPOST_TEKST.htmlName}")[0].value = "${FormInputField.SMS_EPOST_TEKST.default}";
+    }"""
