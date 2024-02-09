@@ -15,6 +15,9 @@ class EksterneVarslerStatus(
     val antallFeilet: Int
 ) {
     val utsendelseFerdig = antallBestilt == (antallSendt + antallFeilet)
+    val eksterneVarslerStatusTekst =
+        if (utsendelseFerdig) "Ferdig"
+        else "Utsendelse pågår"
 }
 
 enum class EksternStatus(val priority: Int) {

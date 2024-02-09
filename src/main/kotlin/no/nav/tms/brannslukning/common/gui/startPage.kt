@@ -44,7 +44,7 @@ fun Route.startPage(repository: AlertRepository) {
             } else
                 table(classes = "aktive-hendelser-list") {
                     caption { +"Aktive varsler" }
-                    tr(classes="aktive-hendlelser-header") {
+                    tr(classes = "aktive-hendlelser-header") {
                         columnTh(
                             "Varsel",
                             "Status"
@@ -62,7 +62,7 @@ fun Route.startPage(repository: AlertRepository) {
                                     p { +alertInfo.tekster.beskrivelse }
                                 }
                             }
-                            td { +alertInfo.eksterneVarslerStatusTekst }
+                            td { +alertInfo.varselStatus.eksterneVarslerStatus.eksterneVarslerStatusTekst }
                             statusColumns(alertInfo.varselStatus)
                         }
                     }

@@ -88,3 +88,11 @@
     text-align: center;
 }
 
+.black-and-white-form{
+    padding: 0;
+    background: none;
+}
+
+.black-and-white-form button {
+    margin-top:0;
+}

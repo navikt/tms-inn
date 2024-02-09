@@ -8,11 +8,11 @@ import kotlinx.html.*
 
 fun MAIN.hendelseDl(
     tmpHendelse: TmpBeredskapsvarsel,
-    classes: String,
+    classesOverride: String? = null,
     avsluttetAv: String? = null,
     showAffectedUsers: Boolean = true,
 ) {
-    dl(classes = "hendelsedl $classes") {
+    dl(classes = classesOverride ?: "hendelsedl") {
         dt { +"Tittel" }
         dd { +tmpHendelse.title }
         tmpHendelse.description.takeIf { it.isNotEmpty() }?.also {

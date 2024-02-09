@@ -18,3 +18,45 @@ dd {
     max-width: 600px;
     word-break: break-word;
 }
+
+/* status line*/
+#status-line-header{
+    font-size: var(--a-font-line-height-heading-large);
+}
+
+#status-line-header dt{
+    display: inline-block;
+}
+
+#status-line-header dt::after{
+    content: ':';
+    margin-right:5px
+}
+
+#status-line-header dd{
+    display: inline-block;
+    font-size: var(--a-font-size-heading-large);
+    text-transform: lowercase;
+    color: var(--a-text-default);
+}
+
+#status-line-header dd{
+    display: inline-block;
+}
+
+.status-dl-boks dt {
+    font-size: var(--a-font-size-small);
+}
+
+.status-dl-boks dd {
+    font-size: var(--a-font-size-large);
+    color: var(--a-text-default);
+    margin-top: 20px;
+}
+.status-dl-boks {
+    display: inline-block;
+    width: 250px;
+    padding: 0 20px;
+}
+
+/* -------- */

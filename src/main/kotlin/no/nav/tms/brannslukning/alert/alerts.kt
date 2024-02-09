@@ -16,9 +16,7 @@ data class AlertInfo(
     val varselStatus: VarselStatus
 ) {
 
-    val eksterneVarslerStatusTekst =
-        if (varselStatus.eksterneVarslerStatus.utsendelseFerdig) "Ferdig"
-        else "Utsendelse pågår"
+
 }
 
 data class OpprettAlert(

@@ -72,7 +72,7 @@ fun Application.gui(alertRepository: AlertRepository) {
         authenticate {
             startPage(alertRepository)
             opprettBeredskapvarsel(alertRepository)
-            redigerBeredskapvarsel(alertRepository)
+            detaljerBeredskapvarsel(alertRepository)
         }
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)

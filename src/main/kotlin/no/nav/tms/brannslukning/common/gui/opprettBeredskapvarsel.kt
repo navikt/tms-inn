@@ -91,7 +91,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                     val hendelse = call.tmpHendelse()
                     call.respondHtmlContent("Lag varsel – Oppsummering", true) {
                         h1 { +"Oppsummering" }
-                        hendelseDl(hendelse, "composite-box-top")
+                        hendelseDl(hendelse, "hendelsedl composite-box-top")
                         form(classes = "composite-box-bottom") {
                             action = "/varsel/${hendelse.id}/$sendEndpoint"
                             method = FormMethod.post
