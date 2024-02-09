@@ -12,14 +12,8 @@ import statusHeaders
 private val log = KotlinLogging.logger { }
 fun Route.startPage(repository: AlertRepository) {
     get {
-        val aktiveHendelser: List<AlertInfo> =
-            try {
-                repository.activeAlerts()
-            } catch (e: Exception) {
-                log.error(e) { "Noe gikk feil med henting fra db" }
-                //fix:bedre errorhandling
-                emptyList()
-            }
+        val aktiveHendelser: List<AlertInfo> = repository.activeAlerts()
+
 
         call.respondHtmlContent(
             "Min side brannslukning – Start",
@@ -59,7 +53,7 @@ fun Route.startPage(repository: AlertRepository) {
                                 a {
                                     href = "hendelse/${alertInfo.referenceId}"
                                     p { +alertInfo.tekster.tittel }
-                                    p { +alertInfo.tekster.beskrivelse }
+                                    p { +alertInfo.beskrivelseShort }
                                 }
                             }
                             td { +alertInfo.varselStatus.eksterneVarslerStatus.eksterneVarslerStatusTekst }

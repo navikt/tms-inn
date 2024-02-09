@@ -6,7 +6,9 @@ class VarselStatus(
     val antallLesteVarsler: Int,
     val eksterneVarslerStatus: EksterneVarslerStatus
 ) {
-    val lestProsent = (antallLesteVarsler / antallFerdigstilteVarsler) * 100
+    val lestProsent = if (antallFerdigstilteVarsler == 0) 0
+    else (antallLesteVarsler / antallFerdigstilteVarsler) * 100
+
 }
 
 class EksterneVarslerStatus(

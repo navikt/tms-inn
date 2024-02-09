@@ -15,8 +15,10 @@ data class AlertInfo(
     val mottakere: Int,
     val varselStatus: VarselStatus
 ) {
-
-
+    val beskrivelseShort = tekster.beskrivelse.let {
+        if (it.length < 50) it
+        else "${it.substring(0,50)}..."
+    }
 }
 
 data class OpprettAlert(
