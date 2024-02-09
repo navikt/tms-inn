@@ -1,6 +1,5 @@
 package no.nav.tms.brannslukning.common.gui
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
@@ -30,7 +29,7 @@ fun Route.redigerBeredskapvarsel(alertRepository: AlertRepository) {
                     }
                 }
 
-                a(classes="btnlink back-and-cancel") {
+                a(classes = "btnlink back-and-cancel") {
                     href = "/"
                     +"Tilbake til forsiden"
                 }
@@ -47,9 +46,9 @@ fun Route.redigerBeredskapvarsel(alertRepository: AlertRepository) {
 
             call.respondHtmlContent("Hendelse avsluttet", false) {
                 h1 { +"Hendelse avsluttet" }
-                hendelseDl(hendelse, "",avsluttetAv = call.user.username,)
+                hendelseDl(hendelse, "", avsluttetAv = call.user.username)
 
-                a(classes="btnlink neutral") {
+                a(classes = "btnlink neutral") {
                     href = "/"
                     +"Tilbake til forsiden"
                 }

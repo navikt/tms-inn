@@ -1,12 +1,37 @@
 
+.wide {
+    max-width: 1224px;
+}
+
 .aktive-hendelser-list {
     list-style: none;
     padding: 0;
+    text-align: left;
+    border-collapse: collapse;
+    width: 100%;
 }
 
-.aktive-hendelser-list li {
-    text-decoration: none;
-    border-bottom: solid var(--a-border-divider) 1px;
+.aktive-hendelser-list caption {
+    font-size: var(--a-font-size-heading-medium);
+    line-height: var(--a-font-line-height-heading-medium);
+    color: var(--a-text-default);
+    font-weight: 600;
+    letter-spacing: -0.008em;
+    text-align: left;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.aktive-hendelser-list tr {
+    border: solid var(--a-border-divider);
+    border-width: 0 0 1px 0;
+}
+.aktive-hendelser-list tr:first-child{
+    border-width: 0 0 2px 0;
+}
+
+.aktive-hendlelser-header ~ tr td{
+    padding-left: 10px;
 }
 
 .aktive-hendelser-list a {
@@ -29,9 +54,25 @@
     margin-bottom: 10px;
 }
 
-.aktive-hendelser-list a p:nth-of-type(2)::after {
-    content: url("chevron.svg");
-    float: right;
+/*----*/
+.aktive-hendelser-list th {
+    text-align: left;
+    margin-left: 20px;
+    min-width: 150px;
+}
+
+.aktive-hendelser-list th[scope="row"] {
+    width: 360px;
+    margin-top: 0;
+    margin-left: 10px;
+}
+
+.aktive-hendelser-list td {
+    text-align: left;
+}
+
+#startpage-ingress-div {
+    max-width: 596px;
 }
 
 #opprett-ny-btn {
@@ -46,3 +87,4 @@
     line-height: 24px;
     text-align: center;
 }
+

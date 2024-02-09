@@ -115,9 +115,9 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
             }
 
             get(kvitteringEndpoint) {
-                val hendelse = call. parameters["varselId"]?.let {
+                val hendelse = call.parameters["varselId"]?.let {
                     alertRepository.fetchHendelse(it)
-                }?: throw IllegalArgumentException("Hendelse finnes ikke")
+                } ?: throw IllegalArgumentException("Hendelse finnes ikke")
 
                 call.respondHtmlContent("Hendelse opprettet", true) {
                     h1 { +"Kvittering" }

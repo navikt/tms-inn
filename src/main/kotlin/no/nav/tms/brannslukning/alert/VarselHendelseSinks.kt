@@ -17,7 +17,6 @@ class EksterntVarselStatusSink(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        //sendt trumfer bestilt og feilet
         alertRepository.updateEksternStatus(packet["varselId"].asText(), packet["status"].asText())
     }
 }
