@@ -94,7 +94,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                 textArea {
                     setAttrs(FormInputField.MIN_SIDE_TEXT)
                     required = true
-                    maxLength = "160"
+                    maxLength = "500"
                     minLength = "30"
                     tmpHendelse.eksternTekst?.let {
                         text(it)

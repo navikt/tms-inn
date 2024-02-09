@@ -1,13 +1,18 @@
 import kotlinx.html.*
 import no.nav.tms.brannslukning.common.gui.columnTh
+import java.text.DecimalFormat
 
 class VarselStatus(
     val antallFerdigstilteVarsler: Int,
     val antallLesteVarsler: Int,
     val eksterneVarslerStatus: EksterneVarslerStatus
 ) {
-    val lestProsent = if (antallFerdigstilteVarsler == 0) 0
-    else (antallLesteVarsler / antallFerdigstilteVarsler) * 100
+
+    val lestProsent: Int = (
+            if (antallFerdigstilteVarsler == 0 || antallLesteVarsler == 0) 0
+            else (antallLesteVarsler.toDouble() / antallFerdigstilteVarsler.toDouble()) * 100)
+        .toInt()
+
 
 }
 
@@ -16,7 +21,7 @@ class EksterneVarslerStatus(
     val antallSendt: Int,
     val antallFeilet: Int
 ) {
-    val utsendelseFerdig = antallBestilt == (antallSendt + antallFeilet)
+    val utsendelseFerdig = antallBestilt == (antallSendt + antallFeilet) && antallBestilt != 0
     val eksterneVarslerStatusTekst =
         if (utsendelseFerdig) "Ferdig"
         else "Utsendelse pågår"
@@ -50,5 +55,5 @@ fun TR.statusColumns(
     td { +"${status.antallFerdigstilteVarsler}" } //"Antall personer",
     td { +"${status.eksterneVarslerStatus.antallSendt}" }//"Eksterne varsler sendt"
     td { +"${status.eksterneVarslerStatus.antallFeilet}" }//"Eksterne varsler feiler"
-    td { +"${status.lestProsent}" }//"Beskjed åpnet"
+    td { +"${status.lestProsent} %" }//"Beskjed åpnet"
 }
