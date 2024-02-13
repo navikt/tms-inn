@@ -16,7 +16,7 @@ private const val bakgrunnEndpoint = "bakgrunn"
 private const val oppsumeringEndpoint = "oppsummering"
 private const val sendEndpoint = "send"
 private const val kvitteringEndpoint = "kvittering"
-fun Route.opprettHendelse(alertRepository: AlertRepository) {
+fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
 
     route("varsel") {
         route(bakgrunnEndpoint) {
@@ -28,12 +28,12 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
 
             post {
                 val parameters = call.receiveParameters()
-                val hendelse = call.tmpHendelseOrNull() ?: TmpHendelse(
+                val hendelse = call.tmpHendelseOrNull() ?: TmpBeredskapsvarsel(
                     title = parameters.getFormFieldValue(FormInputField.TITLE),
                     description = parameters.getFormFieldValue(FormInputField.DESCRIPTION),
                     initatedBy = call.user
                 )
-                HendelseCache.putHendelse(hendelse)
+                BeredskapvarselCache.putHendelse(hendelse)
                 call.respondSeeOther("varsel/${hendelse.id}/$teksterEndpoint")
             }
         }
@@ -80,7 +80,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                     }
 
                     hendelse.affectedUsers = content.parseAndVerify()
-                    HendelseCache.putHendelse(hendelse)
+                    BeredskapvarselCache.putHendelse(hendelse)
                     call.respondSeeOther("varsel/${hendelse.id}/$oppsumeringEndpoint")
 
                 }
@@ -91,7 +91,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                     val hendelse = call.tmpHendelse()
                     call.respondHtmlContent("Lag varsel – Oppsummering", true) {
                         h1 { +"Oppsummering" }
-                        hendelseDl(hendelse, "composite-box-top")
+                        hendelseDl(hendelse, "hendelsedl composite-box-top")
                         form(classes = "composite-box-bottom") {
                             action = "/varsel/${hendelse.id}/$sendEndpoint"
                             method = FormMethod.post
@@ -110,14 +110,14 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
             post(sendEndpoint) {
                 val hendelse = call.tmpHendelse()
                 alertRepository.createAlert(hendelse.toOpprettAlert())
-                HendelseCache.invalidateHendelse(hendelse.id)
+                BeredskapvarselCache.invalidateHendelse(hendelse.id)
                 call.respondSeeOther("varsel/${hendelse.id}/$kvitteringEndpoint")
             }
 
             get(kvitteringEndpoint) {
-                val hendelse = call. parameters["varselId"]?.let {
+                val hendelse = call.parameters["varselId"]?.let {
                     alertRepository.fetchHendelse(it)
-                }?: throw IllegalArgumentException("Hendelse finnes ikke")
+                } ?: throw IllegalArgumentException("Hendelse finnes ikke")
 
                 call.respondHtmlContent("Hendelse opprettet", true) {
                     h1 { +"Kvittering" }

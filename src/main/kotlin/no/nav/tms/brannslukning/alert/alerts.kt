@@ -1,5 +1,6 @@
 package no.nav.tms.brannslukning.alert
 
+import VarselStatus
 import no.nav.tms.brannslukning.common.gui.User
 import java.time.ZonedDateTime
 
@@ -11,8 +12,14 @@ data class AlertInfo(
     val opprettetAv: User,
     val avsluttet: ZonedDateTime?,
     val avsluttetAv: User?,
-    val mottakere: Int
-)
+    val mottakere: Int,
+    val varselStatus: VarselStatus
+) {
+    val beskrivelseShort = tekster.beskrivelse.let {
+        if (it.length < 50) it
+        else "${it.substring(0,50)}..."
+    }
+}
 
 data class OpprettAlert(
     val referenceId: String,

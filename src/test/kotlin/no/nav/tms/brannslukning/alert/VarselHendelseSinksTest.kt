@@ -30,7 +30,7 @@ class VarselHendelseSinksTest {
         var (testAlertRef, varsler) = setupTestAltert(alertRepository, database)
         testRapid.sendVarselInaktivert(varsler[0], varsler[1])
 
-        alertRepository.alertStatus(testAlertRef.referenceId).apply {
+        alertRepository.varselStatus(testAlertRef.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             antallLesteVarsler shouldBe 2
         }
@@ -46,7 +46,7 @@ class VarselHendelseSinksTest {
         testRapid.sendVarselInaktivert(varsler[0], varsler[1])
 
 
-        alertRepository.alertStatus(testAlertRef.referenceId).apply {
+        alertRepository.varselStatus(testAlertRef.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
             antallLesteVarsler shouldBe 2
             eksterneVarslerStatus.antallFeilet shouldBe 1

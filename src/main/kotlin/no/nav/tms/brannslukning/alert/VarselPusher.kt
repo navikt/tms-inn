@@ -72,7 +72,6 @@ class VarselPusher(
             log.warn(e) { "Ukjent feil i produksjon av varsel" }
 
         }
-
         return beskjedId
     }
 }

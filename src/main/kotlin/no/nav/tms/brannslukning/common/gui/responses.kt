@@ -5,15 +5,14 @@ import io.ktor.server.application.*
 import io.ktor.server.html.*
 import io.ktor.server.response.*
 import kotlinx.html.*
-import no.nav.tms.brannslukning.alert.AlertRepository
 
 fun MAIN.hendelseDl(
-    tmpHendelse: TmpHendelse,
-    classes: String,
+    tmpHendelse: TmpBeredskapsvarsel,
+    classesOverride: String? = null,
     avsluttetAv: String? = null,
     showAffectedUsers: Boolean = true,
 ) {
-    dl(classes = "hendelsedl $classes") {
+    dl(classes = classesOverride ?: "hendelsedl") {
         dt { +"Tittel" }
         dd { +tmpHendelse.title }
         tmpHendelse.description.takeIf { it.isNotEmpty() }?.also {
@@ -63,7 +62,13 @@ suspend fun ApplicationCall.respondSeeOther(endpoint: String) {
     respond(HttpStatusCode.SeeOther)
 }
 
-suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Boolean, builder: MAIN.() -> Unit) {
+suspend fun ApplicationCall.respondHtmlContent(
+    title: String,
+    fireIsActive: Boolean,
+    wide: Boolean = false,
+    builder: MAIN.() -> Unit,
+) {
+
     this.respondHtml {
         head {
             lang = "nb"
@@ -91,19 +96,19 @@ suspend fun ApplicationCall.respondHtmlContent(title: String, fireIsActive: Bool
                 }
 
             }
-            main {
+            main(classes = if (wide) "wide" else "") {
                 builder()
             }
         }
     }
 }
 
-fun ApplicationCall.tmpHendelse(): TmpHendelse = parameters["varselId"]?.let {
-    HendelseCache.getHendelse(it)
+fun ApplicationCall.tmpHendelse(): TmpBeredskapsvarsel = parameters["varselId"]?.let {
+    BeredskapvarselCache.getHendelse(it)
 } ?: throw IllegalArgumentException("Ukjent hendelse")
 
-fun ApplicationCall.tmpHendelseOrNull(): TmpHendelse? = request.queryParameters["hendelse"]?.let {
-    HendelseCache.getHendelse(it)
+fun ApplicationCall.tmpHendelseOrNull(): TmpBeredskapsvarsel? = request.queryParameters["hendelse"]?.let {
+    BeredskapvarselCache.getHendelse(it)
 }
 
 

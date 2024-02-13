@@ -1,44 +1,63 @@
 package no.nav.tms.brannslukning.common.gui
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
 import no.nav.tms.brannslukning.alert.AlertInfo
 import no.nav.tms.brannslukning.alert.AlertRepository
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import statusColumns
+import statusHeaders
 
+private val log = KotlinLogging.logger { }
 fun Route.startPage(repository: AlertRepository) {
     get {
-        val aktiveHendelser: List<AlertInfo> =
-            try {
-                repository.activeAlerts()
-            } catch (e: Exception) {
-                println("Noe gikk feil med henting fra db")
-                emptyList()
+        val aktiveHendelser: List<AlertInfo> = repository.activeAlerts()
+
+
+        call.respondHtmlContent(
+            "Min side brannslukning – Start",
+            aktiveHendelser.isNotEmpty(),
+            wide = true
+        ) {
+            h1 { +"Direktevarsling til berørte brukere" }
+            div {
+                id = "startpage-ingress-div"
+                p {
+                    id = "startpage-ingress"
+                    +"""Hvis du vet hvem som er berørt av hendelsen, skal disse brukerne få beskjed på Min side og direktevarsling per SMS og/eller e-post.""".trimMargin()
+                }
+                p {
+                    +"I SMS-en/e-posten skal brukeren få beskjed om å logge på nav.no for mer informasjon"
+                }
             }
 
-        call.respondHtmlContent("Min side brannslukning – Start", aktiveHendelser.isNotEmpty()) {
-            h1 { +"Direktevarsling til berørte brukere" }
-            p {
-                id = "startpage-ingress"
-                +"""Hvis du vet hvem som er berørt av hendelsen, skal disse brukerne få beskjed på Min side og direktevarsling per SMS og/eller e-post.""".trimMargin()
-            }
-            p {
-                +"I SMS-en/e-posten skal brukeren få beskjed om å logge på nav.no for mer informasjon"
-            }
-            h2 { +"Aktive varsler" }
-            if (aktiveHendelser.isEmpty())
+            if (aktiveHendelser.isEmpty()) {
+                h2 { +"Aktive varsler" }
                 p { +"Ingen aktive  varsler" }
-            else
-                ul(classes = "aktive-hendelser-list") {
-                    aktiveHendelser.forEach {
-                        li {
-                            a {
-                                href = "hendelse/${it.referenceId}"
-                                p { +it.tekster.tittel }
-                                p { +"${it.opprettet.dayMonthYear()} ${it.opprettetAv.username}" }
+            } else
+                table(classes = "aktive-hendelser-list") {
+                    caption { +"Aktive varsler" }
+                    tr(classes = "aktive-hendlelser-header") {
+                        columnTh(
+                            "Varsel",
+                            "Status"
+                        )
+                        statusHeaders()
+                    }
+                    aktiveHendelser.forEach { alertInfo ->
+                        tr {
+                            th {
+                                //funker ikke?
+                                scope = ThScope.row
+                                a {
+                                    href = "hendelse/${alertInfo.referenceId}"
+                                    p { +alertInfo.tekster.tittel }
+                                    p { +alertInfo.beskrivelseShort }
+                                }
                             }
+                            td { +alertInfo.varselStatus.eksterneVarslerStatus.eksterneVarslerStatusTekst }
+                            statusColumns(alertInfo.varselStatus)
                         }
                     }
                 }
@@ -53,4 +72,12 @@ fun Route.startPage(repository: AlertRepository) {
     }
 }
 
-private fun ZonedDateTime.dayMonthYear() = format(DateTimeFormatter.ofPattern(" dd.MM.yyyy"))
+fun TR.columnTh(vararg text: String) {
+    text.forEach {
+        th {
+            scope = ThScope.col
+            text(it)
+        }
+    }
+}
+
