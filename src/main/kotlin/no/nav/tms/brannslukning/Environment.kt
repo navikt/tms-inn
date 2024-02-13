@@ -1,5 +1,6 @@
 package no.nav.tms.brannslukning
 
+import no.nav.tms.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
 import no.nav.tms.common.util.config.StringEnvVar.getEnvVar
 
 data class Environment(
@@ -24,7 +25,7 @@ data class Environment(
     )
 
     companion object {
-        val isDevMode: Boolean = System.getenv("DEV_MODE").toBoolean()
+        val isDevMode: Boolean = getEnvVarAsBoolean("DEV_MODE", false)
     }
 }
 

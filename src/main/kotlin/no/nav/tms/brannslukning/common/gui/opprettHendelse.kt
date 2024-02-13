@@ -102,7 +102,7 @@ fun Route.opprettHendelse(alertRepository: AlertRepository) {
                                 text("Send varsel")
                             }
                         }
-                        cancelAndGoBackButtons("${hendelse.id}/$teksterEndpoint")
+                        cancelAndGoBackButtons(teksterEndpoint)
                     }
                 }
 
