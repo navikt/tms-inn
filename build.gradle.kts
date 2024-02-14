@@ -50,6 +50,7 @@ dependencies {
     implementation(Prometheus.hotspot)
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.observability)
+    implementation(TmsCommonLib.kubernetes)
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation(TmsVarselBuilder.kotlinBuilder)

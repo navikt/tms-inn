@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.gui
+package no.nav.tms.brannslukning.gui
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*

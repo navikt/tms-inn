@@ -26,7 +26,7 @@ class LocalPostgresDatabase private constructor() : Database {
 
     fun clearTables() {
         update { queryOf("delete from aktiv_alert_regel") }
-        update { queryOf("delete from alert_varsel_queue") }
+        update { queryOf("delete from alert_beskjed_queue") }
         update { queryOf("delete from alert_header") }
     }
 
@@ -60,7 +60,7 @@ class LocalPostgresDatabase private constructor() : Database {
         list {
             queryOf(
                 """
-                select * from alert_varsel_queue
+                select * from alert_beskjed_queue
                 where alert_ref = :refId 
             """.trimIndent(), mapOf("refId" to referenceId)
             ).map { row ->

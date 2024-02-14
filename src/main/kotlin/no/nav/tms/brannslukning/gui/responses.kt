@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.gui
+package no.nav.tms.brannslukning.gui
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -27,8 +27,8 @@ fun MAIN.hendelseDl(
         dd {
             a {
                 target = "_blank"
-                href = tmpHendelse.url!!
-                +tmpHendelse.url!!
+                href = tmpHendelse.link!!
+                +tmpHendelse.link!!
             }
         }
         dt { +"Tekst i epost/SMS" }
@@ -39,7 +39,7 @@ fun MAIN.hendelseDl(
         }
         if (showAffectedUsers) {
             dt { +"Antall personer som mottar sms/epost og varsel på min side" }
-            dd { +"${tmpHendelse.affectedCount}" }
+            dd { +"${tmpHendelse.countUsersAffected()}" }
         }
     }
 }

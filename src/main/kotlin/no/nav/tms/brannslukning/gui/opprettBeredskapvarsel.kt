@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.gui
+package no.nav.tms.brannslukning.gui
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.content.*
@@ -7,7 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
 import no.nav.tms.brannslukning.alert.AlertRepository
-import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.getFormFieldValue
+import no.nav.tms.brannslukning.gui.FormInputField.Companion.getFormFieldValue
 
 private val log = KotlinLogging.logger { }
 
@@ -16,6 +16,7 @@ private const val bakgrunnEndpoint = "bakgrunn"
 private const val oppsumeringEndpoint = "oppsummering"
 private const val sendEndpoint = "send"
 private const val kvitteringEndpoint = "kvittering"
+
 fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
 
     route("varsel") {
@@ -61,7 +62,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                             is PartData.FormItem -> {
                                 when (part.name) {
                                     FormInputField.MIN_SIDE_TEXT.htmlName -> hendelse.varseltekst = part.value
-                                    FormInputField.LINK.htmlName -> hendelse.url = part.value
+                                    FormInputField.LINK.htmlName -> hendelse.link = part.value
                                     FormInputField.SMS_EPOST_TEKST.htmlName -> hendelse.eksternTekst = part.value
                                 }
                             }
@@ -80,9 +81,9 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                     }
 
                     hendelse.affectedUsers = content.parseAndVerify()
+                    AlertValidation.validerBeskjed(hendelse)
                     BeredskapvarselCache.putHendelse(hendelse)
                     call.respondSeeOther("varsel/${hendelse.id}/$oppsumeringEndpoint")
-
                 }
             }
 
@@ -97,7 +98,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                             method = FormMethod.post
                             button {
                                 onClick =
-                                    "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedUsers.size} personer?')"
+                                    "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.countUsersAffected()} personer?')"
                                 type = ButtonType.submit
                                 text("Send varsel")
                             }

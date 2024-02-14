@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.gui
+package no.nav.tms.brannslukning.gui
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -40,37 +40,24 @@ abstract class Beredskapsvarsel(
     val initatedBy: User
 )
 
-class ReadOnlyBeredskapsvarsel(
-    id: String,
-    title: String,
-    description: String,
-    initatedBy: User,
-    val varselTekst: String,
-    val eksternTekst: String,
-    val url: String,
-    val affectedCount: Int
-) : Beredskapsvarsel(id, title, description, initatedBy)
-
 class TmpBeredskapsvarsel(
     id: String = UUID.randomUUID().toString(),
     title: String,
     description: String,
     initatedBy: User
 ) : Beredskapsvarsel(id, title, description, initatedBy) {
+
     var varseltekst: String? = null
-    fun varseltekstGuaranteed(): String = varseltekst.stringPropertyAssured("varseltekst")
-
     var eksternTekst: String? = null
-    fun eksternTekstGuaranteed(): String = eksternTekst.stringPropertyAssured("eksternTekst")
 
-    var affectedUsers: List<String> = emptyList()
-        set(value) {
-            field = value
-            affectedCount = value.size
-        }
-    var affectedCount: Int = 0
-    var url: String? = null
-    fun urlGuaranteed() = url.stringPropertyAssured("url")
+    var affectedUsers: List<String>? = null
+    var affectedCount: Int? = null
+
+    fun countUsersAffected() = affectedUsers?.size
+        ?: affectedCount
+        ?: 0
+
+    var link: String? = null
 
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
@@ -79,16 +66,16 @@ class TmpBeredskapsvarsel(
             beskrivelse = description,
             beskjed = WebTekst(
                 spraakkode = "nb",
-                tekst = varseltekstGuaranteed(),
-                link = urlGuaranteed()
+                tekst = varseltekst!!,
+                link = link!!
             ),
             eksternTekst = EksternTekst(
                 tittel = "Varsel fra NAV",
-                tekst = eksternTekstGuaranteed()
+                tekst = eksternTekst!!
             )
         ),
         opprettetAv = initatedBy,
-        mottakere = affectedUsers
+        mottakere = affectedUsers!!
     )
 }
 
@@ -97,7 +84,3 @@ data class User(val username: String, val oid: String)
 class HendelseNotFoundException(alertRefId: String) : IllegalArgumentException("Fant beredskapsvarsel med id $alertRefId")
 class VarslerNotFoundException(alertRefId: String) :
     IllegalArgumentException("Fant ikke varsler for beredskapsvarsel med id $alertRefId")
-
-class PropertyAccessException(property: String) : Exception("$property er ikke satt")
-
-fun String?.stringPropertyAssured(propertyName: String): String = this ?: throw PropertyAccessException(propertyName)

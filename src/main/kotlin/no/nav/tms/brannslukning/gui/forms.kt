@@ -1,7 +1,7 @@
-package no.nav.tms.brannslukning.common.gui
+package no.nav.tms.brannslukning.gui
 
 import kotlinx.html.*
-import no.nav.tms.brannslukning.common.gui.FormInputField.Companion.setAttrs
+import no.nav.tms.brannslukning.gui.FormInputField.Companion.setAttrs
 import org.intellij.lang.annotations.Language
 
 fun MAIN.bakgrunnForm(tmpHendelse: TmpBeredskapsvarsel?, postEndpoint: String) {
@@ -67,8 +67,8 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                     textArea {
                         setAttrs(FormInputField.SMS_EPOST_TEKST)
                         required = true
-                        maxLength = "500"
-                        minLength = "50"
+                        maxLength = "140"
+                        minLength = "30"
                         tmpHendelse.eksternTekst?.let {
                             text(it)
                         }
@@ -81,7 +81,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                     type = InputType.url
                     required = true
                     minLength = "10"
-                    tmpHendelse.url?.let {
+                    tmpHendelse.link?.let {
                         value = it
                     }
                 }
@@ -94,7 +94,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                 textArea {
                     setAttrs(FormInputField.MIN_SIDE_TEXT)
                     required = true
-                    maxLength = "500"
+                    maxLength = "300"
                     minLength = "30"
                     tmpHendelse.eksternTekst?.let {
                         text(it)
@@ -110,7 +110,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                         accept = ".csv"
                         type = InputType.file
                         onChange = "document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
-                        required = tmpHendelse.affectedUsers.isEmpty()
+                        required = tmpHendelse.countUsersAffected() == 0
                     }
 
                     p {

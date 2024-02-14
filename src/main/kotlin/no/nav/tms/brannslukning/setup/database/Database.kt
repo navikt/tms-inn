@@ -52,6 +52,10 @@ inline fun <reified T> Row.json(label: String, objectMapper: ObjectMapper = defa
     return objectMapper.readValue(string(label))
 }
 
+inline fun <reified T> Row.jsonOrNull(label: String, objectMapper: ObjectMapper = defaultObjectMapper()): T? {
+    return stringOrNull(label)?.let { objectMapper.readValue(it) }
+}
+
 fun Any?.toJsonb(objectMapper: ObjectMapper = defaultObjectMapper()): PGobject? {
     return if (this == null) {
         null

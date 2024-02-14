@@ -1,5 +1,5 @@
 import kotlinx.html.*
-import no.nav.tms.brannslukning.common.gui.columnTh
+import no.nav.tms.brannslukning.gui.columnTh
 import java.text.DecimalFormat
 
 class VarselStatus(

@@ -10,7 +10,7 @@ import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.brannslukning.alert.EksterntVarselStatusSink
 import no.nav.tms.brannslukning.alert.VarselInaktivertSink
 import no.nav.tms.brannslukning.alert.VarselPusher
-import no.nav.tms.brannslukning.common.gui.gui
+import no.nav.tms.brannslukning.gui.gui
 import no.nav.tms.brannslukning.setup.PodLeaderElection
 import no.nav.tms.brannslukning.setup.database.Flyway
 import no.nav.tms.brannslukning.setup.database.PostgresDatabase

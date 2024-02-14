@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.gui
+package no.nav.tms.brannslukning.gui
 
 import io.ktor.http.*
 import kotlinx.html.*
@@ -55,7 +55,7 @@ enum class FormInputField(
     MIN_SIDE_TEXT(
         htmlName = "beskjed-text",
         labelText = "Beskjed på min side",
-        describe = "Skriv en mer utfyllende tekst om saken som vises på Min side og i varselbjella (maks 500 tegn)"
+        describe = "Skriv en mer utfyllende tekst om saken som vises på Min side og i varselbjella (maks 300 tegn)"
     ),
     IDENT_FILE(
         htmlName = "ident",
