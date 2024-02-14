@@ -5,5 +5,4 @@ object TmsVarselBuilder: DependencyGroup {
     override val version get() = "1.0.2"
 
     val kotlinBuilder get() = dependency("kotlin-builder")
-    val javabuilder get() = dependency("java-builder")
 }

@@ -1,7 +1,7 @@
 package no.nav.tms.brannslukning.alert
 
 import VarselStatus
-import no.nav.tms.brannslukning.common.gui.User
+import no.nav.tms.brannslukning.gui.User
 import java.time.ZonedDateTime
 
 data class AlertInfo(

@@ -1,6 +1,9 @@
 package no.nav.tms.brannslukning.alert
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -9,11 +12,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotliquery.queryOf
 import no.nav.tms.brannslukning.alert.setup.database.LocalPostgresDatabase
-import no.nav.tms.brannslukning.common.gui.User
+import no.nav.tms.brannslukning.gui.User
 import no.nav.tms.brannslukning.setup.PodLeaderElection
-import no.nav.tms.brannslukning.setup.database.Database
-import no.nav.tms.brannslukning.setup.database.defaultObjectMapper
-import no.nav.tms.brannslukning.setup.database.toJsonb
+import no.nav.tms.brannslukning.setup.database.*
 import no.nav.tms.varsel.action.Produsent
 import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.serialization.StringSerializer
@@ -109,6 +110,7 @@ class VarselPusherTest {
 
     @Test
     fun `does nothing when not leader`() {
+
         val alertMedMottakere = AlertWithRecipients(
             alertEntry = AlertEntry(
                 referenceId = UUID.randomUUID().toString(),
@@ -149,6 +151,97 @@ class VarselPusherTest {
         mockProducer.history().size shouldBe 0
     }
 
+    @Test
+    fun `hopper over elementer som gir ugyldige beskjeder`() {
+
+        val gyldigeAlerts = AlertWithRecipients(
+            alertEntry = AlertEntry(
+                referenceId = UUID.randomUUID().toString(),
+                tekster = Tekster(
+                    tittel = "Alert for test",
+                    beskrivelse = "Alert for test med beskrivelse",
+                    beskjed = WebTekst(
+                        spraakkode = "nb",
+                        tekst = "Alerttekst for beskjed",
+                        link = "https://test"
+                    ),
+                    eksternTekst = EksternTekst(
+                        tittel = "Tittel for epost",
+                        tekst = "Tekst i ekstern kanal"
+                    )
+                ),
+                opprettetAv = User("TEST", "test")
+            ),
+            recipients = listOf(
+                "11111111111",
+                "33333333333",
+            )
+        )
+
+        val ugyldigAlert = AlertWithRecipients(
+            alertEntry = AlertEntry(
+                referenceId = UUID.randomUUID().toString(),
+                tekster = Tekster(
+                    tittel = "Alert for test",
+                    beskrivelse = "Alert for test med beskrivelse",
+                    beskjed = WebTekst(
+                        spraakkode = "nb",
+                        tekst = "Alerttekst for beskjed, men den er aaalt for lang".repeat(10),
+                        link = "https://test"
+                    ),
+                    eksternTekst = EksternTekst(
+                        tittel = "Tittel for epost",
+                        tekst = "Tekst i ekstern kanal"
+                    )
+                ),
+                opprettetAv = User("TEST", "test")
+            ),
+            recipients = listOf(
+                "22222222222",
+            )
+        )
+
+        database.insertRequests(gyldigeAlerts)
+        database.insertRequests(ugyldigAlert)
+
+        coEvery { leaderElection.isLeader() } returns true
+
+        val varselPusher = initVarselPusher(thisApp = Produsent("dev", "min-side", "tms-brannslukning"))
+
+        runBlocking {
+            varselPusher.start()
+            delay(2000)
+            varselPusher.stop()
+        }
+
+        mockProducer.history().size shouldBe 2
+
+        val mottakere = mockProducer.history()
+            .map { it.value() }
+            .map { objectMapper.readTree(it) }
+            .map { it["ident"].asText() }
+
+        mottakere shouldContainAll listOf("11111111111", "33333333333")
+
+        val alerts = database.getQueueEntries()
+
+        alerts.all { it.behandlet } shouldBe true
+        alerts.all { it.ferdigstilt != null } shouldBe true
+        alerts.none { it.status == BeskjedStatus.Venter } shouldBe true
+        alerts.filter { it.status == BeskjedStatus.Sendt }.none { it.feilkilde != null } shouldBe true
+
+        alerts.filter { it.status == BeskjedStatus.Sendt }
+            .map { it.ident } shouldContainAll listOf("11111111111", "33333333333")
+
+        alerts.filter { it.status == BeskjedStatus.Feilet }
+            .map { it.ident } shouldContainAll listOf("22222222222")
+
+
+        alerts.first { it.status == BeskjedStatus.Feilet }.let {
+            it.feilkilde.shouldNotBeNull()
+        }
+    }
+
     private fun initVarselPusher(thisApp: Produsent = Produsent("cluster", "namespace", "app")) = VarselPusher(
         alertRepository = alertRepository,
         interval = Duration.ofMinutes(10),
@@ -168,7 +261,7 @@ class VarselPusherTest {
 
     private fun backlogSize(): Int {
         return database.singleOrNull {
-            queryOf("select count(*) as antall from alert_varsel_queue where not sendt")
+            queryOf("select count(*) as antall from alert_beskjed_queue where not behandlet")
                 .map { it.int("antall") }
                 .asSingle
         } ?: 0
@@ -194,19 +287,47 @@ private fun Database.insertRequests(requests: AlertWithRecipients) {
 
     batch(
         """
-            insert into alert_varsel_queue(alert_ref, ident, sendt, opprettet)
-            values(:alertRef, :ident, :sendt, :opprettet)
+            insert into alert_beskjed_queue(alert_ref, ident, behandlet, opprettet)
+            values(:alertRef, :ident, :behandlet, :opprettet)
         """,
         requests.recipients.map {
             mapOf(
                 "alertRef" to requests.alertEntry.referenceId,
                 "ident" to it,
-                "sendt" to false,
+                "behandlet" to false,
                 "opprettet" to nowAtUtcZ(),
             )
         }
     )
 }
+
+private fun Database.getQueueEntries(): List<BeskjedQueueEntry> {
+    return list {
+        queryOf(
+            "select * from alert_beskjed_queue"
+        ).map {
+            BeskjedQueueEntry(
+                alertRef = it.string("alert_ref"),
+                ident = it.string("ident"),
+                behandlet = it.boolean("behandlet"),
+                status = BeskjedStatus.parse(it.string("status")),
+                varselId = it.stringOrNull("varselId"),
+                ferdigstilt = it.zonedDateTimeOrNull("ferdigstilt"),
+                feilkilde = it.jsonOrNull("feilkilde"),
+            )
+        }.asList
+    }
+}
+
+private data class BeskjedQueueEntry(
+    val alertRef: String,
+    val ident: String,
+    val behandlet: Boolean,
+    val status: BeskjedStatus,
+    val varselId: String?,
+    val ferdigstilt: ZonedDateTime?,
+    val feilkilde: Feilkilde?,
+)
 
 private data class AlertEntry(
     val referenceId: String,

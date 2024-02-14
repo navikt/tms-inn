@@ -1,4 +1,4 @@
-package no.nav.tms.brannslukning.common.gui
+package no.nav.tms.brannslukning.gui
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
@@ -34,6 +34,21 @@ fun Application.gui(alertRepository: AlertRepository) {
                             +"Tilbake"
                         }
                     }
+
+                is BadInputException ->
+                    call.respondHtmlContent("Feil i tekster", true) {
+                        p {
+                            +cause.message
+                            cause.explanation.forEach { explanation ->
+                                +explanation
+                            }
+                        }
+                        a {
+                            href = "/"
+                            +"Tilbake"
+                        }
+                    }
+
 
                 is HendelseNotFoundException ->
                     call.respondHtmlContent("Hendelse ikke funnet", true) {
