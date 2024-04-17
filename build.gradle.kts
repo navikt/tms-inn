@@ -43,6 +43,7 @@ dependencies {
     implementation(Ktor.Client.contentNegotiation)
     implementation(Ktor.Client.apache)
     implementation(Ktor.Serialization.jackson)
+    implementation(Logstash.logbackEncoder)
     implementation(Postgresql.postgresql)
     implementation(TmsCommonLib.utils)
     implementation(TmsKtorTokenSupport.azureValidation)
