@@ -17,6 +17,7 @@ spec:
   leaderElection: true
   ingresses:
     - "https://beredskapsvarsel.intern.nav.no"
+    - "https://beredskapsvarsel.ansatt.nav.no"
   azure:
     application:
       enabled: true

@@ -17,6 +17,7 @@ spec:
   leaderElection: true
   ingresses:
     - "https://tms-brannslukning.intern.dev.nav.no"
+    - "https://tms-brannslukning.ansatt.dev.nav.no"
   azure:
     application:
       enabled: true
