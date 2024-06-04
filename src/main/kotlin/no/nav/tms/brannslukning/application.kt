@@ -61,6 +61,10 @@ private fun startKafkaApplication(alertRepository: AlertRepository) {
             gui(alertRepository)
         }
 
+        kafkaConfig {
+            groupId = environment.groupId
+            readTopic(environment.varselTopic)
+        }
         subscribers(
             VarselInaktivertSubscriber(alertRepository),
             EksterntVarselStatusSubscriber(alertRepository)
