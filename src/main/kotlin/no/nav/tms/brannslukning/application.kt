@@ -81,7 +81,7 @@ private fun startKafkaApplication(alertRepository: AlertRepository) {
                 kafkaProducer.close()
             }
         }
-    }
+    }.start()
 }
 
 private fun initializeKafkaProducer(environment: Environment) = KafkaProducer<String, String>(
