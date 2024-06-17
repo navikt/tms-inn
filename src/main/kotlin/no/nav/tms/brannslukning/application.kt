@@ -52,7 +52,7 @@ private fun startKafkaApplication(alertRepository: AlertRepository) {
     val varselPusher = VarselPusher(
         alertRepository = alertRepository,
         leaderElection = PodLeaderElection(),
-        kafkaProducer = initializeKafkaProducer(environment),
+        kafkaProducer = kafkaProducer,
         varselTopic = environment.varselTopic
     )
 
