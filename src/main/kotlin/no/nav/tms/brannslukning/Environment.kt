@@ -12,6 +12,7 @@ data class Environment(
     val kafkaSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
     val kafkaSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
     val varselTopic: String = "min-side.aapen-brukervarsel-v1",
+    val readVarselTopic: String = "min-side.aapen-varsel-hendelse-v1",
     val groupId: String ="brannslukning-01"
 
 ) {

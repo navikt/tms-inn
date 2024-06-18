@@ -63,7 +63,7 @@ private fun startKafkaApplication(alertRepository: AlertRepository) {
 
         kafkaConfig {
             groupId = environment.groupId
-            readTopic(environment.varselTopic)
+            readTopic(environment.readVarselTopic)
         }
         subscribers(
             VarselInaktivertSubscriber(alertRepository),
