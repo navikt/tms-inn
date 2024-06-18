@@ -1,10 +1,10 @@
 package no.nav.tms.brannslukning.alert
 
 import io.kotest.matchers.shouldBe
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.tms.brannslukning.alert.setup.database.LocalPostgresDatabase
 import no.nav.tms.brannslukning.alert.setup.database.VarselData
 import no.nav.tms.brannslukning.alert.setup.database.setupTestAltert
+import no.nav.tms.kafka.application.MessageBroadcaster
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 
@@ -13,22 +13,26 @@ import org.junit.jupiter.api.TestInstance
 import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class VarselHendelseSinksTest {
+class VarselHendelseSubscriberTest {
     private val database = LocalPostgresDatabase.cleanDb()
     private val alertRepository = AlertRepository(database)
-    private val testRapid = TestRapid()
+    private val broadcaster = MessageBroadcaster(
+        listOf(
+            EksterntVarselStatusSubscriber(alertRepository),
+            VarselInaktivertSubscriber(alertRepository)
+        )
+    )
 
     @BeforeAll
     fun startRapidListeners() {
-        EksterntVarselStatusSink(testRapid, alertRepository)
-        VarselInaktivertSink(testRapid, alertRepository)
+
     }
 
 
     @Test
     fun `plukker opp lest-hendelse`() {
         var (testAlertRef, varsler) = setupTestAltert(alertRepository, database)
-        testRapid.sendVarselInaktivert(varsler[0], varsler[1])
+        broadcaster.sendVarselInaktivert(varsler[0], varsler[1])
 
         alertRepository.varselStatus(testAlertRef.referenceId).apply {
             antallFerdigstilteVarsler shouldBe 4
@@ -40,10 +44,10 @@ class VarselHendelseSinksTest {
     fun `plukker opp endring i status for eksternt varsel`() {
         val (testAlertRef, varsler) = setupTestAltert(alertRepository, database)
 
-        testRapid.sendEksterntVarselEndret("bestilt", varsler[0], varsler[1], varsler[2], varsler[3])
-        testRapid.sendEksterntVarselEndret("feilet", varsler[2])
-        testRapid.sendEksterntVarselEndret("sendt", varsler[0], varsler[1])
-        testRapid.sendVarselInaktivert(varsler[0], varsler[1])
+        broadcaster.sendEksterntVarselEndret("bestilt", varsler[0], varsler[1], varsler[2], varsler[3])
+        broadcaster.sendEksterntVarselEndret("feilet", varsler[2])
+        broadcaster.sendEksterntVarselEndret("sendt", varsler[0], varsler[1])
+        broadcaster.sendVarselInaktivert(varsler[0], varsler[1])
 
 
         alertRepository.varselStatus(testAlertRef.referenceId).apply {
@@ -63,10 +67,10 @@ class VarselHendelseSinksTest {
 
 }
 
-private fun TestRapid.sendVarselInaktivert(vararg varselData: VarselData) {
+private fun MessageBroadcaster.sendVarselInaktivert(vararg varselData: VarselData) {
     varselData.forEach {
         require(it.varselId != null)
-        sendTestMessage(
+        broadcastJson(
             """ 
             {
                 "@event_name": "inaktivert",
@@ -79,7 +83,7 @@ private fun TestRapid.sendVarselInaktivert(vararg varselData: VarselData) {
         )
     }
 
-    sendTestMessage(
+    broadcastJson(
         """ 
             {
                 "@event_name": "inaktivert",
@@ -92,10 +96,10 @@ private fun TestRapid.sendVarselInaktivert(vararg varselData: VarselData) {
     )
 }
 
-private fun TestRapid.sendEksterntVarselEndret(status: String, vararg varselData: VarselData) {
+private fun MessageBroadcaster.sendEksterntVarselEndret(status: String, vararg varselData: VarselData) {
     varselData.forEach {
         require(it.varselId != null)
-        sendTestMessage(
+        broadcastJson(
             """ 
             {
                 "@event_name": "eksternStatusOppdatert",
@@ -109,7 +113,7 @@ private fun TestRapid.sendEksterntVarselEndret(status: String, vararg varselData
         )
     }
 
-    sendTestMessage(
+    broadcastJson(
         """ 
             {
                 "@event_name": "eksternStatusOppdatert",

@@ -49,7 +49,7 @@ dependencies {
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation(TmsVarselBuilder.kotlinBuilder)
     implementation(TmsKtorTokenSupport.azureValidation)
-    implementation(RapidsAndRivers.rapidsAndRivers)
+    implementation(TmsKafkaTools.kafkaApplication)
 
     testRuntimeOnly(Junit.engine)
     testImplementation(Junit.api)
