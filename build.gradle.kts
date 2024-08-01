@@ -27,6 +27,7 @@ repositories {
 
 dependencies {
     implementation(Flyway.core)
+    implementation(Flyway.postgres)
     implementation(Hikari.cp)
     implementation(Caffeine.caffeine)
     implementation(JacksonDatatype.datatypeJsr310)
