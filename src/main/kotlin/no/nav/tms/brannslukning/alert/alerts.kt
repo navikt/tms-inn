@@ -36,7 +36,7 @@ data class Tekster(
 )
 
 data class WebTekst(
-    val link: String,
+    val link: String?,
     val spraakkode: String,
     val tekst: String
 )

@@ -79,8 +79,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                 input {
                     setAttrs(FormInputField.LINK)
                     type = InputType.url
-                    required = true
-                    minLength = "10"
+                    required = false
                     tmpHendelse.link?.let {
                         value = it
                     }
@@ -110,7 +109,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                         accept = ".csv"
                         type = InputType.file
                         onChange = "document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
-                        required = tmpHendelse.countUsersAffected() == 0
+                        required = tmpHendelse.affectedCount == 0
                     }
 
                     p {

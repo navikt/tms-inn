@@ -38,8 +38,28 @@ fun MAIN.hendelseDl(
             dd { +avsluttetAv }
         }
         if (showAffectedUsers) {
+            if (tmpHendelse.errors.isNotEmpty()) {
+                displayErrors(tmpHendelse.errors)
+            }
             dt { +"Antall personer som mottar sms/epost og varsel på min side" }
-            dd { +"${tmpHendelse.countUsersAffected()}" }
+            dd { +"${tmpHendelse.affectedCount}" }
+        }
+    }
+}
+
+fun DL.displayErrors(errors: List<IdentParseResult.Error>) {
+    dl(classes = "error_text") {
+        dt { +"Feil ved lesing av identer fra fil" }
+        if (errors.size > 5) {
+            dd { +"Fant ${errors.size} feil. Pass på at det kun er én ident per linje, og at det ikke brukes uventede tegn." }
+        } else {
+            errors.forEach {
+                val tekst = when(it.cause) {
+                    IdentParseResult.Cause.Length -> "feil antall sifre"
+                    IdentParseResult.Cause.Characters -> "uventede tegn i ident"
+                }
+                dd { +"Linje ${it.line}: $tekst" }
+            }
         }
     }
 }

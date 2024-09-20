@@ -19,6 +19,10 @@ dd {
     word-break: break-word;
 }
 
+.error_text {
+    color: red;
+}
+
 /* status line*/
 #status-line-header{
     font-size: var(--a-font-line-height-heading-large);

@@ -50,14 +50,25 @@ class TmpBeredskapsvarsel(
     var varseltekst: String? = null
     var eksternTekst: String? = null
 
-    var affectedUsers: List<String>? = null
-    var affectedCount: Int? = null
+    var parsedFile: IdentParseResult? = null
+        set(value) {
+        field = value
+        affectedUsers = value?.valid ?: emptyList()
+        affectedCount = value?.valid?.size ?: 0
+    }
 
-    fun countUsersAffected() = affectedUsers?.size
-        ?: affectedCount
-        ?: 0
+    var affectedUsers: List<String> = emptyList()
+    var affectedCount: Int = 0
+
+    val errors: List<IdentParseResult.Error> get() = parsedFile?.errors ?: emptyList()
 
     var link: String? = null
+
+    fun nonBlankLinkOrNull() = if (link.isNullOrBlank()) {
+        null
+    } else {
+        link
+    }
 
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
@@ -67,7 +78,7 @@ class TmpBeredskapsvarsel(
             beskjed = WebTekst(
                 spraakkode = "nb",
                 tekst = varseltekst!!,
-                link = link!!
+                link = nonBlankLinkOrNull()
             ),
             eksternTekst = EksternTekst(
                 tittel = "Varsel fra NAV",
@@ -75,7 +86,7 @@ class TmpBeredskapsvarsel(
             )
         ),
         opprettetAv = initatedBy,
-        mottakere = affectedUsers!!
+        mottakere = affectedUsers
     )
 }
 
