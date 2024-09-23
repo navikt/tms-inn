@@ -8,21 +8,19 @@ import no.nav.tms.brannslukning.alert.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-private val objectmapper = jacksonObjectMapper()
-
 internal object BeredskapvarselCache {
-    private val cache: Cache<String, String> = Caffeine.newBuilder()
+
+
+    private val cache: Cache<String, TmpBeredskapsvarsel> = Caffeine.newBuilder()
         .expireAfterWrite(15, TimeUnit.MINUTES)
         .maximumSize(100)
         .build()
 
     fun putHendelse(tmpHendelse: TmpBeredskapsvarsel) {
-        cache.put(tmpHendelse.id, jacksonObjectMapper().writeValueAsString(tmpHendelse))
+        cache.put(tmpHendelse.id, tmpHendelse)
     }
 
-    fun getHendelse(hendelseId: String): TmpBeredskapsvarsel? = cache.getIfPresent(hendelseId)?.let {
-        objectmapper.readValue(it, object : TypeReference<TmpBeredskapsvarsel>() {})
-    }
+    fun getHendelse(hendelseId: String): TmpBeredskapsvarsel? = cache.getIfPresent(hendelseId)
 
     fun invalidateHendelse(hendelseId: String) {
         cache.invalidate(hendelseId)
