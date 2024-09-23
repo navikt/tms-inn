@@ -62,7 +62,7 @@ class AlertRepository(private val database: Database) {
                         count(1) filter ( where varsel_lest is true) as leste_varsler,
                         count(1) filter ( where status_ekstern is not null) as bestilte_varsler,
                         count(1) filter ( where status_ekstern='sendt') as sendte_varsler,
-                        count(1)filter ( where status_ekstern='feilet') as feilende_varsler
+                        count(1) filter ( where status_ekstern='feilet') as feilende_varsler
                     from alert_header as ah
                         left join alert_beskjed_queue as abq on ah.referenceId = abq.alert_ref
                     where ah.aktiv = :aktiv

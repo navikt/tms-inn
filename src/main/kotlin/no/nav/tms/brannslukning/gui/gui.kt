@@ -63,7 +63,7 @@ fun Application.gui(alertRepository: AlertRepository) {
 
                 else ->
                     call.respondHtmlContent("Feil", true) {
-                        p { +"Oups..Nå ble det noe feil" }
+                        p { +"Oops..Nå ble det noe feil" }
                         p { +"${cause.message}" }
                         img {
                             id = "500-katt"

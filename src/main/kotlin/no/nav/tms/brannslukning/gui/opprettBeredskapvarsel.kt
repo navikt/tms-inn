@@ -82,6 +82,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                     }
 
                     hendelse.parsedFile = parseIdentList(content)
+                    log.info { "Prased errors: ${hendelse.parsedFile?.errors?.size}" }
                     AlertValidation.validerBeskjed(hendelse)
                     BeredskapvarselCache.putHendelse(hendelse)
                     call.respondSeeOther("varsel/${hendelse.id}/$oppsumeringEndpoint")
@@ -91,6 +92,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
             route(oppsumeringEndpoint) {
                 get {
                     val hendelse = call.tmpHendelse()
+                    log.info { "Errors fra kall: ${hendelse.errors.size}" }
                     call.respondHtmlContent("Lag varsel – Oppsummering", true) {
                         h1 { +"Oppsummering" }
                         hendelseDl(hendelse, "hendelsedl composite-box-top")

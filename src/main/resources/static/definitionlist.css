@@ -19,10 +19,6 @@ dd {
     word-break: break-word;
 }
 
-.error_text {
-    color: red;
-}
-
 /* status line*/
 #status-line-header{
     font-size: var(--a-font-line-height-heading-large);
@@ -61,6 +57,10 @@ dd {
     display: inline-block;
     width: 250px;
     padding: 0 20px;
+}
+
+.error_text {
+    color: #c10000;
 }
 
 /* -------- */

@@ -19,6 +19,8 @@ fun MAIN.hendelseDl(
             dt { +"Beskrivelse" }
             dd { +it }
         }
+        dt { +"Tekst i epost/SMS" }
+        dd { +tmpHendelse.eksternTekst!! }
         dt { +"Varselet er opprettet av" }
         dd { +tmpHendelse.initatedBy.username }
         dt { +"Tekst i beskjed på min side" }
@@ -31,35 +33,31 @@ fun MAIN.hendelseDl(
                 +tmpHendelse.link!!
             }
         }
-        dt { +"Tekst i epost/SMS" }
-        dd { +tmpHendelse.eksternTekst!! }
         avsluttetAv?.let {
             dt { +"Avsluttet av" }
             dd { +avsluttetAv }
         }
         if (showAffectedUsers) {
-            if (tmpHendelse.errors.isNotEmpty()) {
-                displayErrors(tmpHendelse.errors)
-            }
             dt { +"Antall personer som mottar sms/epost og varsel på min side" }
             dd { +"${tmpHendelse.affectedCount}" }
+        }
+        if (tmpHendelse.errors.isNotEmpty()) {
+            displayErrors(tmpHendelse.errors)
         }
     }
 }
 
 fun DL.displayErrors(errors: List<IdentParseResult.Error>) {
-    dl(classes = "error_text") {
-        dt { +"Feil ved lesing av identer fra fil" }
-        if (errors.size > 5) {
-            dd { +"Fant ${errors.size} feil. Pass på at det kun er én ident per linje, og at det ikke brukes uventede tegn." }
-        } else {
-            errors.forEach {
-                val tekst = when(it.cause) {
-                    IdentParseResult.Cause.Length -> "feil antall sifre"
-                    IdentParseResult.Cause.Characters -> "uventede tegn i ident"
-                }
-                dd { +"Linje ${it.line}: $tekst" }
+    dt(classes = "error_text") { +"Feil ved lesing av identer fra fil" }
+    if (errors.size > 5) {
+        dd(classes = "error_text") { +"Fant ${errors.size} feil. Pass på at det kun er én ident per linje, og at det ikke brukes uventede tegn." }
+    } else {
+        errors.forEach {
+            val tekst = when(it.cause) {
+                IdentParseResult.Cause.Length -> "feil antall sifre"
+                IdentParseResult.Cause.Characters -> "uventede tegn i ident"
             }
+            dd(classes = "error_text") { +"Linje ${it.line}: $tekst" }
         }
     }
 }

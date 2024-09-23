@@ -75,17 +75,6 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                     }
                 }
             )
-            labelAnDescribe(FormInputField.LINK) {
-                input {
-                    setAttrs(FormInputField.LINK)
-                    type = InputType.url
-                    required = false
-                    tmpHendelse.link?.let {
-                        value = it
-                    }
-                }
-
-            }
 
             labelAnDescribe(
                 FormInputField.MIN_SIDE_TEXT
@@ -99,6 +88,18 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                         text(it)
                     }
                 }
+            }
+
+            labelAnDescribe(FormInputField.LINK) {
+                input {
+                    setAttrs(FormInputField.LINK)
+                    type = InputType.url
+                    required = false
+                    tmpHendelse.link?.let {
+                        value = it
+                    }
+                }
+
             }
 
             fieldSet {
