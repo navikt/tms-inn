@@ -58,6 +58,7 @@ class TmpBeredskapsvarsel(
     var affectedUsers: List<String> = emptyList()
     var affectedCount: Int = 0
 
+    val parseStatus get() = parsedFile?.status ?: IdentParseResult.Status.Success
     val errors: List<IdentParseResult.Error> get() = parsedFile?.errors ?: emptyList()
 
     var link: String? = null

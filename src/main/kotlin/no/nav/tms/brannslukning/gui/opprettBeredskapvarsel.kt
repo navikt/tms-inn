@@ -99,11 +99,27 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                         form(classes = "composite-box-bottom") {
                             action = "/varsel/${hendelse.id}/$sendEndpoint"
                             method = FormMethod.post
-                            button {
-                                onClick =
-                                    "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedCount} personer?')"
-                                type = ButtonType.submit
-                                text("Send varsel")
+                            if (hendelse.parseStatus == IdentParseResult.Status.Success) {
+                                button {
+                                    onClick =
+                                        "return confirm('Vil du opprette ${hendelse.title} og sende varsel til ${hendelse.affectedCount} personer?')"
+                                    type = ButtonType.submit
+                                    text("Send varsel")
+                                }
+                            }
+                            if (hendelse.parseStatus == IdentParseResult.Status.Partial) {
+                                button {
+                                    onClick =
+                                        "return confirm('Vil du ignorere feil i input-fil og sende varsel til resterende ${hendelse.affectedCount} personer?')"
+                                    type = ButtonType.submit
+                                    text("Ignorer feil og send varsel")
+                                }
+                            } else {
+                                button(classes = "neutral") {
+                                    disabled = true
+                                    type = ButtonType.submit
+                                    text("Send varsel")
+                                }
                             }
                         }
                         cancelAndGoBackButtons(teksterEndpoint)
@@ -167,8 +183,6 @@ fun parseIdentList(datastream: ByteArray): IdentParseResult {
         return IdentParseResult.empty()
     }
 
-    log.info { "Lines: ${lines.size}" }
-
     val valid = mutableListOf<String>()
     val errors = mutableListOf<IdentParseResult.Error>()
 
@@ -177,9 +191,9 @@ fun parseIdentList(datastream: ByteArray): IdentParseResult {
             valid.add(line)
         } else {
             if (line.length != 11) {
-                errors.add(IdentParseResult.Error(i, IdentParseResult.Cause.Length))
+                errors.add(IdentParseResult.Error(i + 1, IdentParseResult.Cause.Length))
             } else {
-                errors.add(IdentParseResult.Error(i, IdentParseResult.Cause.Characters))
+                errors.add(IdentParseResult.Error(i + 1, IdentParseResult.Cause.Characters))
             }
         }
     }
@@ -229,7 +243,7 @@ data class IdentParseResult(
     )
 
     enum class Status {
-        Complete, // All lines parsed successfully
+        Success, // All lines parsed successfully
         Empty, // File contains no data
         Partial, // Some lines were erroneous
         Error // All lines were erroneous
@@ -240,7 +254,7 @@ data class IdentParseResult(
     }
 
     companion object {
-        fun complete(lines: List<String>) = IdentParseResult(Status.Complete, valid = lines, errors = emptyList())
+        fun complete(lines: List<String>) = IdentParseResult(Status.Success, valid = lines, errors = emptyList())
         fun empty() = IdentParseResult(Status.Empty, valid = emptyList(), errors = emptyList())
         fun partial(lines: List<String>, errors: List<Error>) = IdentParseResult(Status.Partial, valid = lines, errors = errors)
         fun error(errors: List<Error>) = IdentParseResult(Status.Error, valid = emptyList(), errors = errors)

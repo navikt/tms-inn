@@ -41,15 +41,18 @@ fun MAIN.hendelseDl(
             dt { +"Antall personer som mottar sms/epost og varsel på min side" }
             dd { +"${tmpHendelse.affectedCount}" }
         }
-        if (tmpHendelse.errors.isNotEmpty()) {
-            displayErrors(tmpHendelse.errors)
+        if (tmpHendelse.parseStatus != IdentParseResult.Status.Success) {
+            displayErrors(tmpHendelse.parseStatus, tmpHendelse.errors)
         }
     }
 }
 
-fun DL.displayErrors(errors: List<IdentParseResult.Error>) {
+private fun DL.displayErrors(status: IdentParseResult.Status, errors: List<IdentParseResult.Error>) {
     dt(classes = "error_text") { +"Feil ved lesing av identer fra fil" }
-    if (errors.size > 5) {
+
+    if (status == IdentParseResult.Status.Empty) {
+        dd(classes = "error_text") { +"Gitt fil er tom." }
+    } else if (errors.size > 5) {
         dd(classes = "error_text") { +"Fant ${errors.size} feil. Pass på at det kun er én ident per linje, og at det ikke brukes uventede tegn." }
     } else {
         errors.forEach {
@@ -59,6 +62,10 @@ fun DL.displayErrors(errors: List<IdentParseResult.Error>) {
             }
             dd(classes = "error_text") { +"Linje ${it.line}: $tekst" }
         }
+    }
+
+    if (status == IdentParseResult.Status.Error) {
+        dd(classes = "error_text") { +"Klarte ikke lese ut noen gyldige identer fra gitt fil." }
     }
 }
 
