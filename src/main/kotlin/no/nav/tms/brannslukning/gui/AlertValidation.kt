@@ -11,7 +11,7 @@ object AlertValidation {
                 type = Varseltype.Beskjed
                 varselId = UUID.randomUUID().toString()
                 ident = "00000000000"
-                link = beredskapsvarsel.link
+                link = beredskapsvarsel.nonBlankLinkOrNull()
                 tekst = Tekst(
                     spraakkode = "nb",
                     tekst = beredskapsvarsel.varseltekst!!,

@@ -75,18 +75,6 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                     }
                 }
             )
-            labelAnDescribe(FormInputField.LINK) {
-                input {
-                    setAttrs(FormInputField.LINK)
-                    type = InputType.url
-                    required = true
-                    minLength = "10"
-                    tmpHendelse.link?.let {
-                        value = it
-                    }
-                }
-
-            }
 
             labelAnDescribe(
                 FormInputField.MIN_SIDE_TEXT
@@ -96,10 +84,22 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                     required = true
                     maxLength = "300"
                     minLength = "30"
-                    tmpHendelse.eksternTekst?.let {
+                    tmpHendelse.varseltekst?.let {
                         text(it)
                     }
                 }
+            }
+
+            labelAnDescribe(FormInputField.LINK) {
+                input {
+                    setAttrs(FormInputField.LINK)
+                    type = InputType.url
+                    required = false
+                    tmpHendelse.link?.let {
+                        value = it
+                    }
+                }
+
             }
 
             fieldSet {
@@ -110,7 +110,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                         accept = ".csv"
                         type = InputType.file
                         onChange = "document.querySelector(\"#file-input-value\").textContent=this.files[0].name"
-                        required = tmpHendelse.countUsersAffected() == 0
+                        required = tmpHendelse.affectedCount == 0
                     }
 
                     p {

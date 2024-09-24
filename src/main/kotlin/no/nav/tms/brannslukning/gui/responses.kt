@@ -19,28 +19,62 @@ fun MAIN.hendelseDl(
             dt { +"Beskrivelse" }
             dd { +it }
         }
+        dt { +"Tekst i epost/SMS" }
+        dd { +tmpHendelse.eksternTekst!! }
         dt { +"Varselet er opprettet av" }
         dd { +tmpHendelse.initatedBy.username }
         dt { +"Tekst i beskjed på min side" }
         dd { +tmpHendelse.varseltekst!! }
         dt { +"Lenke i beskjed på min side/varselbjella" }
         dd {
-            a {
-                target = "_blank"
-                href = tmpHendelse.link!!
-                +tmpHendelse.link!!
+            if (tmpHendelse.nonBlankLinkOrNull() != null) {
+                a {
+                    target = "_blank"
+                    href = tmpHendelse.link!!
+                    +tmpHendelse.link!!
+                }
+            } else {
+                +"Ingen"
             }
         }
-        dt { +"Tekst i epost/SMS" }
-        dd { +tmpHendelse.eksternTekst!! }
         avsluttetAv?.let {
             dt { +"Avsluttet av" }
             dd { +avsluttetAv }
         }
         if (showAffectedUsers) {
             dt { +"Antall personer som mottar sms/epost og varsel på min side" }
-            dd { +"${tmpHendelse.countUsersAffected()}" }
+            dd { +"${tmpHendelse.affectedCount}" }
         }
+        if (tmpHendelse.duplicates != 0) {
+            dt { +"Duplikate identer i fil (kun ett varsel sendes per bruker)" }
+            dd { +"${tmpHendelse.duplicates}" }
+        }
+        if (tmpHendelse.parseStatus != IdentParseResult.Status.Success) {
+            displayErrors(tmpHendelse.parseStatus, tmpHendelse.errors)
+        }
+
+    }
+}
+
+private fun DL.displayErrors(status: IdentParseResult.Status, errors: List<IdentParseResult.Error>) {
+    dt(classes = "error_text") { +"Feil ved lesing av identer fra fil" }
+
+    if (status == IdentParseResult.Status.Empty) {
+        dd(classes = "error_text") { +"Gitt fil er tom." }
+    } else if (errors.size > 5) {
+        dd(classes = "error_text") { +"Fant ${errors.size} feil. Pass på at det kun er én ident per linje, og at det ikke brukes uventede tegn." }
+    } else {
+        errors.forEach {
+            val tekst = when(it.cause) {
+                IdentParseResult.Cause.Length -> "feil antall sifre"
+                IdentParseResult.Cause.Characters -> "uventede tegn i ident"
+            }
+            dd(classes = "error_text") { +"Linje ${it.line}: $tekst" }
+        }
+    }
+
+    if (status == IdentParseResult.Status.Error) {
+        dd(classes = "error_text") { +"Klarte ikke lese ut noen gyldige identer fra gitt fil." }
     }
 }
 

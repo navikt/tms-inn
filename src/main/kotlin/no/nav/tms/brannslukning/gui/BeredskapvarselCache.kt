@@ -8,21 +8,19 @@ import no.nav.tms.brannslukning.alert.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-private val objectmapper = jacksonObjectMapper()
-
 internal object BeredskapvarselCache {
-    private val cache: Cache<String, String> = Caffeine.newBuilder()
+
+
+    private val cache: Cache<String, TmpBeredskapsvarsel> = Caffeine.newBuilder()
         .expireAfterWrite(15, TimeUnit.MINUTES)
         .maximumSize(100)
         .build()
 
     fun putHendelse(tmpHendelse: TmpBeredskapsvarsel) {
-        cache.put(tmpHendelse.id, jacksonObjectMapper().writeValueAsString(tmpHendelse))
+        cache.put(tmpHendelse.id, tmpHendelse)
     }
 
-    fun getHendelse(hendelseId: String): TmpBeredskapsvarsel? = cache.getIfPresent(hendelseId)?.let {
-        objectmapper.readValue(it, object : TypeReference<TmpBeredskapsvarsel>() {})
-    }
+    fun getHendelse(hendelseId: String): TmpBeredskapsvarsel? = cache.getIfPresent(hendelseId)
 
     fun invalidateHendelse(hendelseId: String) {
         cache.invalidate(hendelseId)
@@ -50,14 +48,27 @@ class TmpBeredskapsvarsel(
     var varseltekst: String? = null
     var eksternTekst: String? = null
 
-    var affectedUsers: List<String>? = null
-    var affectedCount: Int? = null
+    var parsedFile: IdentParseResult? = null
+        set(value) {
+        field = value
+        affectedUsers = value?.valid ?: emptySet()
+        affectedCount = value?.valid?.size ?: 0
+    }
 
-    fun countUsersAffected() = affectedUsers?.size
-        ?: affectedCount
-        ?: 0
+    var affectedUsers: Set<String> = emptySet()
+    var affectedCount: Int = 0
+
+    val parseStatus get() = parsedFile?.status ?: IdentParseResult.Status.Success
+    val errors: List<IdentParseResult.Error> get() = parsedFile?.errors ?: emptyList()
+    val duplicates get() = parsedFile?.duplicates ?: 0
 
     var link: String? = null
+
+    fun nonBlankLinkOrNull() = if (link.isNullOrBlank()) {
+        null
+    } else {
+        link
+    }
 
     fun toOpprettAlert() = OpprettAlert(
         referenceId = id,
@@ -67,7 +78,7 @@ class TmpBeredskapsvarsel(
             beskjed = WebTekst(
                 spraakkode = "nb",
                 tekst = varseltekst!!,
-                link = link!!
+                link = nonBlankLinkOrNull()
             ),
             eksternTekst = EksternTekst(
                 tittel = "Varsel fra NAV",
@@ -75,7 +86,7 @@ class TmpBeredskapsvarsel(
             )
         ),
         opprettetAv = initatedBy,
-        mottakere = affectedUsers!!
+        mottakere = affectedUsers.toList()
     )
 }
 
