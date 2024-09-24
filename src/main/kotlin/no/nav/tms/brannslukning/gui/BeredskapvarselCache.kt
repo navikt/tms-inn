@@ -51,15 +51,16 @@ class TmpBeredskapsvarsel(
     var parsedFile: IdentParseResult? = null
         set(value) {
         field = value
-        affectedUsers = value?.valid ?: emptyList()
+        affectedUsers = value?.valid ?: emptySet()
         affectedCount = value?.valid?.size ?: 0
     }
 
-    var affectedUsers: List<String> = emptyList()
+    var affectedUsers: Set<String> = emptySet()
     var affectedCount: Int = 0
 
     val parseStatus get() = parsedFile?.status ?: IdentParseResult.Status.Success
     val errors: List<IdentParseResult.Error> get() = parsedFile?.errors ?: emptyList()
+    val duplicates get() = parsedFile?.duplicates ?: 0
 
     var link: String? = null
 
@@ -85,7 +86,7 @@ class TmpBeredskapsvarsel(
             )
         ),
         opprettetAv = initatedBy,
-        mottakere = affectedUsers
+        mottakere = affectedUsers.toList()
     )
 }
 

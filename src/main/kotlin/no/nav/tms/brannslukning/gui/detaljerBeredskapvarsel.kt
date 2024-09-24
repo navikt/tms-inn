@@ -23,7 +23,7 @@ fun Route.detaljerBeredskapvarsel(alertRepository: AlertRepository) {
                 form(classes = "black-and-white-form") {
                     action = "/hendelse/${beredskapsvarsel.id}"
                     method = FormMethod.post
-                    button(classes="neutral") {
+                    button {
                         type = ButtonType.submit
                         onClick = "return confirm('Vil du avslutte hendelsen?')"
                         +"Avslutt hendelse"

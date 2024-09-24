@@ -106,8 +106,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                                     type = ButtonType.submit
                                     text("Send varsel")
                                 }
-                            }
-                            if (hendelse.parseStatus == IdentParseResult.Status.Partial) {
+                            } else if (hendelse.parseStatus == IdentParseResult.Status.Partial) {
                                 button {
                                     onClick =
                                         "return confirm('Vil du ignorere feil i input-fil og sende varsel til resterende ${hendelse.affectedCount} personer?')"
@@ -115,7 +114,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                                     text("Ignorer feil og send varsel")
                                 }
                             } else {
-                                button(classes = "neutral") {
+                                button(classes = "disabled_button") {
                                     disabled = true
                                     type = ButtonType.submit
                                     text("Send varsel")
@@ -183,12 +182,15 @@ fun parseIdentList(datastream: ByteArray): IdentParseResult {
         return IdentParseResult.empty()
     }
 
-    val valid = mutableListOf<String>()
+    val valid = mutableSetOf<String>()
     val errors = mutableListOf<IdentParseResult.Error>()
+    var duplicates = 0
 
     lines.forEachIndexed { i, line ->
         if (IdentPattern.matches(line)) {
-            valid.add(line)
+            if (!valid.add(line)) {
+                duplicates += 1
+            }
         } else {
             if (line.length != 11) {
                 errors.add(IdentParseResult.Error(i + 1, IdentParseResult.Cause.Length))
@@ -198,14 +200,12 @@ fun parseIdentList(datastream: ByteArray): IdentParseResult {
         }
     }
 
-    log.info { "Errors: ${errors.size}" }
-
     return if (errors.isEmpty()) {
-        IdentParseResult.complete(valid)
+        IdentParseResult.complete(valid, duplicates)
     } else if (valid.isEmpty()) {
         IdentParseResult.error(errors)
     } else {
-        IdentParseResult.partial(valid, errors)
+        IdentParseResult.partial(valid, errors, duplicates)
     }
 }
 
@@ -234,8 +234,9 @@ class BadFileContent(override val message: String) : IllegalArgumentException()
 
 data class IdentParseResult(
     val status: Status,
-    val valid: List<String>,
-    val errors: List<Error>
+    val valid: Set<String>,
+    val errors: List<Error>,
+    val duplicates: Int
 ) {
     data class Error(
         val line: Int,
@@ -254,9 +255,9 @@ data class IdentParseResult(
     }
 
     companion object {
-        fun complete(lines: List<String>) = IdentParseResult(Status.Success, valid = lines, errors = emptyList())
-        fun empty() = IdentParseResult(Status.Empty, valid = emptyList(), errors = emptyList())
-        fun partial(lines: List<String>, errors: List<Error>) = IdentParseResult(Status.Partial, valid = lines, errors = errors)
-        fun error(errors: List<Error>) = IdentParseResult(Status.Error, valid = emptyList(), errors = errors)
+        fun complete(lines: Set<String>, duplicates: Int) = IdentParseResult(Status.Success, valid = lines, errors = emptyList(), duplicates = duplicates)
+        fun empty() = IdentParseResult(Status.Empty, valid = emptySet(), errors = emptyList(), duplicates = 0)
+        fun partial(lines: Set<String>, errors: List<Error>, duplicates: Int) = IdentParseResult(Status.Partial, valid = lines, errors = errors, duplicates = duplicates)
+        fun error(errors: List<Error>) = IdentParseResult(Status.Error, valid = emptySet(), errors = errors, duplicates = 0)
     }
 }

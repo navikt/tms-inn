@@ -60,7 +60,7 @@ dd {
 }
 
 .error_text {
-    color: #c10000;
+    color: var(--a-text-danger);
 }
 
 /* -------- */

@@ -29,7 +29,7 @@ class AlertRepository(private val database: Database) {
                     from alert_header as ah
                     left join alert_beskjed_queue as aq on ah.referenceid = aq.alert_ref
                     where ah.referenceId = :referenceId
-                    group by referenceid, tekster, aktiv, ah.opprettet, opprettetav, avsluttet, avsluttetav
+                    group by referenceid
                 """,
                 mapOf("referenceId" to referenceId)
             ).map {
@@ -58,15 +58,16 @@ class AlertRepository(private val database: Database) {
                     select 
                         ah.*,
                         count(*) as mottakere,
-                        count(1) filter ( where ferdigstilt is not null) as ferdigstilte_varsler,
-                        count(1) filter ( where varsel_lest is true) as leste_varsler,
-                        count(1) filter ( where status_ekstern is not null) as bestilte_varsler,
-                        count(1) filter ( where status_ekstern='sendt') as sendte_varsler,
-                        count(1) filter ( where status_ekstern='feilet') as feilende_varsler
+                        count(*) filter ( where ferdigstilt is not null) as ferdigstilte_varsler,
+                        count(*) filter ( where varsel_lest is true) as leste_varsler,
+                        count(*) filter ( where status_ekstern is not null) as bestilte_varsler,
+                        count(*) filter ( where status_ekstern='sendt') as sendte_varsler,
+                        count(*) filter ( where status_ekstern='feilet') as feilende_varsler
                     from alert_header as ah
                         left join alert_beskjed_queue as abq on ah.referenceId = abq.alert_ref
                     where ah.aktiv = :aktiv
                     group by ah.referenceId
+                    order by opprettet desc
                 """,
                 mapOf("aktiv" to aktiv)
             ).map {row ->

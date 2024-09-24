@@ -84,7 +84,7 @@ fun MAIN.varselForm(tmpHendelse: TmpBeredskapsvarsel, postEndpoint: String) {
                     required = true
                     maxLength = "300"
                     minLength = "30"
-                    tmpHendelse.eksternTekst?.let {
+                    tmpHendelse.varseltekst?.let {
                         text(it)
                     }
                 }

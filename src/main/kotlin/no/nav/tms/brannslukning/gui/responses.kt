@@ -27,10 +27,14 @@ fun MAIN.hendelseDl(
         dd { +tmpHendelse.varseltekst!! }
         dt { +"Lenke i beskjed på min side/varselbjella" }
         dd {
-            a {
-                target = "_blank"
-                href = tmpHendelse.link!!
-                +tmpHendelse.link!!
+            if (tmpHendelse.nonBlankLinkOrNull() != null) {
+                a {
+                    target = "_blank"
+                    href = tmpHendelse.link!!
+                    +tmpHendelse.link!!
+                }
+            } else {
+                +"Ingen"
             }
         }
         avsluttetAv?.let {
@@ -41,9 +45,14 @@ fun MAIN.hendelseDl(
             dt { +"Antall personer som mottar sms/epost og varsel på min side" }
             dd { +"${tmpHendelse.affectedCount}" }
         }
+        if (tmpHendelse.duplicates != 0) {
+            dt { +"Duplikate identer i fil (kun ett varsel sendes per bruker)" }
+            dd { +"${tmpHendelse.duplicates}" }
+        }
         if (tmpHendelse.parseStatus != IdentParseResult.Status.Success) {
             displayErrors(tmpHendelse.parseStatus, tmpHendelse.errors)
         }
+
     }
 }
 
