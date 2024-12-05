@@ -9,7 +9,8 @@ class EksterntVarselStatusSubscriber(
 ) : Subscriber() {
     override fun subscribe(): Subscription = Subscription
         .forEvent("eksternStatusOppdatert")
-        .withFields("varselId", "status")
+        .withFields("varselId")
+        .withAnyValue("status", "venter", "kansellert", "bestilt", "feilet", "sendt")
         .withValue("appnavn", "tms-brannslukning")
 
     override suspend fun receive(jsonMessage: JsonMessage) {

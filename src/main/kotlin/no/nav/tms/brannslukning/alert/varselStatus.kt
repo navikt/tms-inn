@@ -28,7 +28,7 @@ class EksterneVarslerStatus(
 }
 
 enum class EksternStatus(val priority: Int) {
-    bestilt(1), feilet(2), sendt(3);
+    venter(1), kansellert(2), bestilt(3), feilet(4), sendt(5);
 
     companion object {
         fun resolve(old: String?, new: String): String =
