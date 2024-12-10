@@ -70,7 +70,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                             }
 
                             is PartData.FileItem -> {
-                                val fileBytes = part.provider().readByte()
+                                val fileBytes = part.provider().toByteArray()
                                 content += fileBytes
                                 log.info { "Received file of size: ${content.size} bytes " }
                             }
