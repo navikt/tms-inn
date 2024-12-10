@@ -5,6 +5,7 @@ import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
+import io.ktor.utils.io.*
 import kotlinx.html.*
 import no.nav.tms.brannslukning.alert.AlertRepository
 import no.nav.tms.brannslukning.gui.FormInputField.Companion.getFormFieldValue
@@ -69,7 +70,7 @@ fun Route.opprettBeredskapvarsel(alertRepository: AlertRepository) {
                             }
 
                             is PartData.FileItem -> {
-                                val fileBytes = part.streamProvider().readBytes()
+                                val fileBytes = part.provider().toByteArray()
                                 content += fileBytes
                                 log.info { "Received file of size: ${content.size} bytes " }
                             }
