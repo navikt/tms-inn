@@ -1,6 +1,6 @@
 # tms-brannslukning
 
-App for å vise innhold på min-side ved diverse hendelser i NAV
+App for å vise innhold på min-side ved diverse hendelser i Nav
 
 ## Features
 - [x] Masseutsending av varsel og ekstern varsling

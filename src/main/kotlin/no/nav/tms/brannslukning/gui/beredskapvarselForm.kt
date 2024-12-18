@@ -45,7 +45,7 @@ enum class FormInputField(
         htmlName = "ekstern-text",
         labelText = "Varsel på SMS og/eller e-post",
         describe = "Husk: ikke sensitive opplysninger som ytelse etc.",
-        default = "Hei! Du har fått en ny beskjed fra NAV. Logg inn på NAV for å se hva beskjeden gjelder. Vennlig hilsen NAV"
+        default = "Hei! Du har fått en ny beskjed fra Nav. Logg inn på Nav for å se hva beskjeden gjelder. Vennlig hilsen Nav"
     ),
     LINK(
         htmlName = "url",

@@ -81,7 +81,7 @@ class TmpBeredskapsvarsel(
                 link = nonBlankLinkOrNull()
             ),
             eksternTekst = EksternTekst(
-                tittel = "Varsel fra NAV",
+                tittel = "Varsel fra Nav",
                 tekst = eksternTekst!!
             )
         ),
