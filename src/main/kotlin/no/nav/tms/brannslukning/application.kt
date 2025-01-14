@@ -38,7 +38,7 @@ private fun startDevServer(alertRepository: AlertRepository) {
         port = getEnvVarAsInt("PORT", 8081),
         module = {
             gui(alertRepository)
-            environment.monitor.subscribe(ApplicationStarted) {
+            monitor.subscribe(ApplicationStarted) {
                 Flyway.runFlywayMigrations()
             }
         }
