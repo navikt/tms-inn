@@ -52,8 +52,8 @@ dependencies {
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation(TmsKafkaTools.kafkaApplication)
 
-    testRuntimeOnly(Junit.engine)
-    testImplementation(Junit.api)
+    testImplementation(JunitPlatform.launcher)
+    testImplementation(JunitJupiter.api)
     testImplementation(Mockk.mockk)
     testImplementation(TestContainers.postgresql)
     testImplementation(Kotest.runnerJunit5)
